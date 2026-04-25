@@ -1,0 +1,70 @@
+<template>
+
+  <div class="min-h-screen" :style="fondoStyle">
+
+    <!-- NAVBAR -->
+    <RegHeader />
+
+    <!-- CONTENIDO -->
+    <div class="content-container">
+
+      <RegSearch />
+
+      <RegHero />
+
+      <RegCategorias />
+
+      <RegMiniApps />
+
+    </div>
+
+  </div>
+
+</template>
+
+<script setup>
+
+import RegHeader from './components/RegHeader.vue'
+import RegSearch from './components/RegSearch.vue'
+import RegCategorias from './components/RegCategorias.vue'
+import RegMiniApps from './components/RegMiniApps.vue'
+import RegHero from './components/RegHero.vue'
+
+import { useMercado } from '../../services/useMercado.js'
+import { cssToObject } from '../../services/useCss.js'
+import { computed } from 'vue'
+
+const { mercado } = useMercado()
+
+const fondoStyle = computed(() => {
+
+  if (!mercado.value?.patron_fondo) {
+    return {}
+  }
+
+  // 🔥 convertir string CSS a objeto
+  return cssToObject(mercado.value.patron_fondo)
+})
+
+</script>
+
+<style scoped>
+/* ============================= */
+/* CONTENEDOR PRINCIPAL          */
+/* ============================= */
+
+.content-container {
+
+  width: 100%;
+  max-width: 1400px;
+  margin: auto;
+
+  /* 👇 ESPACIO PARA EL NAVBAR */
+  padding-top: 50px;
+
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 40px;
+
+}
+</style>

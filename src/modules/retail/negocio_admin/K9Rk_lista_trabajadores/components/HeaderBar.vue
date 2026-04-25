@@ -1,0 +1,43 @@
+<template>
+
+    <div class="flex justify-between items-center px-4 py-4" :style="{
+        background: mercado.topnavbar_color || '#FD7635',
+        '--header-color': mercado.topnavbar_color || '#FD7635'
+    }">
+
+        <!-- LEFT -->
+        <div class="flex items-center gap-2 cursor-pointer" @click="goBack">
+
+            <div class="w-9 h-9 bg-white rounded-full flex items-center justify-center">
+                <i class="fa fa-arrow-left text-sm" :style="{ color: mercado.topnavbar_color || '#FD7635' }"></i>
+            </div>
+
+            <span class="text-white font-semibold">
+                Trabajadores
+            </span>
+
+        </div>
+
+        <!-- RIGHT -->
+        <i class="fa fa-ellipsis-v text-white"></i>
+
+    </div>
+
+</template>
+
+<script setup>
+import { useRouter } from 'vue-router'
+import { useMercado } from '../../../../../services/useMercado.js'
+
+
+const router = useRouter()
+const { mercado } = useMercado()
+
+function goBack() {
+    if (window.history.length > 1) {
+        router.back()
+    } else {
+        router.push('/')
+    }
+}
+</script>
