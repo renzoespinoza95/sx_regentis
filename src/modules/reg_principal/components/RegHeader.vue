@@ -158,15 +158,18 @@ function irLogin() {
   position: absolute;
   top: -6px;
   right: -8px;
-  background: white;
-  color: #FD7635;
+  background: #EF4444;
+  /* rojo */
+  color: white;
+  /* número blanco */
   font-size: 10px;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
+  font-weight: 600;
 }
 
 /* ============================= */

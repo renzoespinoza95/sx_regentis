@@ -13,7 +13,7 @@
                 <InputFecha v-model="form.fecha" />
                 <InputCliente v-model="form.cliente" />
 
-                <ProductosTable :items="productos" />
+                <ProductosTable :items="productos" @edit="openEdit" @delete="confirmDelete" />
 
                 <ResumenPedido :items="productos" />
 
@@ -24,8 +24,11 @@
         </div>
 
         <OptionsDialog ref="dialogRef" />
+        <EditarCantidadDialog ref="editRef" @update="updateProducto" />
+        <AppSnackbar ref="snackbarRef" />
 
     </div>
+
 
 </template>
 
@@ -42,6 +45,8 @@ import BtnGuardar from './components/BtnGuardar.vue'
 import OptionsDialog from './components/OptionsDialog.vue'
 import AddProductoDialog from './components/AddProductoDialog.vue'
 import ResumenPedido from './components/ResumenPedido.vue'
+import EditarCantidadDialog from './components/EditarCantidadDialog.vue'
+import AppSnackbar from '../../../../components/layout/AppSnackbar.vue'
 
 const { mercado } = useMercado()
 const addRef = ref(null)
@@ -53,6 +58,17 @@ const fondoStyle = computed(() => {
 
 const dialogRef = ref(null)
 
+const editRef = ref(null)
+
+function openEdit(p) {
+    editRef.value.open(p)
+}
+
+function updateProducto(updated) {
+    const i = productos.value.findIndex(x => x.nombre === updated.nombre)
+    if (i !== -1) productos.value[i] = updated
+}
+
 function openDialog() {
     dialogRef.value.open()
 }
@@ -62,10 +78,33 @@ function openAddDialog() {
 }
 
 // 🔥 DATA DEMO
+function getFechaHoy() {
+    const d = new Date()
+
+    const dia = String(d.getDate()).padStart(2, '0')
+    const mes = String(d.getMonth() + 1).padStart(2, '0')
+    const anio = d.getFullYear()
+
+    return `${dia}/${mes}/${anio}`
+}
+
 const form = ref({
-    fecha: '2025-04-05',
-    cliente: 'Bilbo bolson'
+    fecha: getFechaHoy()
 })
+
+const snackbarRef = ref(null)
+
+function confirmDelete(p) {
+    console.log('SNACKBAR OPEN', p)
+    snackbarRef.value.open(
+        `¿Eliminar ${p.nombre}?`,
+        () => eliminarProducto(p)
+    )
+}
+
+function eliminarProducto(p) {
+    productos.value = productos.value.filter(x => x !== p)
+}
 
 const productos = ref([
     { nombre: 'Palta hass', cantidad: 3, unidad: 'und', precio: 20 },

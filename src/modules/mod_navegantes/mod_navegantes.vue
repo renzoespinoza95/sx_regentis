@@ -31,7 +31,7 @@ import { ref, onMounted } from 'vue'
 import TopBar from './components/TopBar.vue'
 import UsuarioCard from './components/UsuarioCard.vue'
 import BotonGuardar from './components/BotonGuardar.vue'
-import { useUsuario } from '../../../../services/usuarioService.js'
+import { useUsuario } from '../../services/usuarioService.js'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 

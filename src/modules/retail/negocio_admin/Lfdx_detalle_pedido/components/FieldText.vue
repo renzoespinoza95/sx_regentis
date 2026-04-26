@@ -1,16 +1,16 @@
 <template>
 
-    <div class="text-sm space-y-1">
+    <div class="flex justify-between items-center text-sm">
 
         <!-- LABEL -->
-        <div class="text-gray-500">
+        <span class="text-gray-500">
             {{ label }}
-        </div>
+        </span>
 
-        <!-- 🔥 VALOR -->
-        <div class="font-medium text-gray-800">
+        <!-- VALOR -->
+        <span class="font-medium text-gray-800">
             {{ value }}
-        </div>
+        </span>
 
     </div>
 

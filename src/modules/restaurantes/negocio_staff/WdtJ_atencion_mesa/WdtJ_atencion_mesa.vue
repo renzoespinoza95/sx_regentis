@@ -10,10 +10,13 @@
 
             <div class="w-full max-w-md md:max-w-4xl bg-white rounded-2xl shadow-md p-4 space-y-3">
 
-                <InputFecha v-model="form.fecha" />
-                <InputCliente v-model="form.cliente" />
+                <FieldFecha :value="form.fecha" />
+
+                <MesasCarousel />
 
                 <ProductosTable :items="productos" />
+
+                <PedidosAnteriores :items="productosAnteriores" />
 
                 <ResumenPedido :items="productos" />
 
@@ -43,6 +46,10 @@ import OptionsDialog from './components/OptionsDialog.vue'
 import AddProductoDialog from './components/AddProductoDialog.vue'
 import ResumenPedido from './components/ResumenPedido.vue'
 
+import FieldFecha from './components/FieldFecha.vue'
+import MesasCarousel from './components/MesasCarousel.vue'
+import PedidosAnteriores from './components/PedidosAnteriores.vue'
+
 const { mercado } = useMercado()
 const addRef = ref(null)
 
@@ -60,6 +67,11 @@ function openDialog() {
 function openAddDialog() {
     addRef.value.open()
 }
+
+const productosAnteriores = ref([
+    { nombre: 'Pizza', cantidad: 1, unidad: 'und', precio: 30 },
+    { nombre: 'Coca Cola', cantidad: 2, unidad: 'und', precio: 5 }
+])
 
 // 🔥 DATA DEMO
 const form = ref({

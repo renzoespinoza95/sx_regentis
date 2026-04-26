@@ -8,8 +8,11 @@
 
             <div class="w-full max-w-md md:max-w-3xl bg-white rounded-2xl shadow-md p-4 space-y-4">
 
-                <FieldText label="Fecha" :value="form.fecha" icon="calendar" />
-                <FieldText label="Cliente" :value="form.cliente" icon="lock" />
+                <FieldText label="Pedido" :value="'#' + pedidoId" />
+
+                <FieldText label="Fecha" :value="form.fecha" />
+
+                <FieldText label="Cliente" :value="form.cliente" />
 
                 <div>
                     <h3 class="text-sm font-semibold mb-2">Productos</h3>
@@ -18,6 +21,7 @@
                 </div>
 
                 <ResumenPedido :items="productos" />
+                <ImagenUploader />
 
             </div>
 
@@ -39,6 +43,7 @@ import FieldText from './components/FieldText.vue'
 import ProductoRowView from './components/ProductoRowView.vue'
 import ResumenPedido from './components/ResumenPedido.vue'
 import OptionsDialog from './components/OptionsDialog.vue'
+import ImagenUploader from './components/ImagenUploader.vue'
 
 const { mercado } = useMercado()
 
@@ -51,6 +56,8 @@ const dialogRef = ref(null)
 function openDialog() {
     dialogRef.value.open()
 }
+
+const pedidoId = 1021
 
 // 🔥 DATA DEMO
 const form = ref({

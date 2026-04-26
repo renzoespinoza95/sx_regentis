@@ -128,21 +128,6 @@ function irMiCuenta() {
     transform: scale(1.02);
 }
 
-.menu-cancel-btn {
-    width: 100%;
-    text-align: center;
-    padding: 14px 16px;
-    border-radius: 16px;
-    background: #f3f4f6;
-    color: #4b5563;
-    font-weight: 600;
-    transition: 0.2s;
-}
-
-.menu-cancel-btn:hover {
-    transform: scale(1.02);
-}
-
 .fade-enter-active,
 .fade-leave-active {
     transition: opacity .2s ease;
@@ -151,5 +136,25 @@ function irMiCuenta() {
 .fade-enter-from,
 .fade-leave-to {
     opacity: 0;
+}
+
+.menu-cancel-btn {
+    width: 100%;
+    text-align: center;
+    padding: 14px 16px;
+    border-radius: 16px;
+
+    background: #ef4444;
+    /* 🔥 rojo */
+    color: white;
+
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.menu-cancel-btn:hover {
+    transform: scale(1.02);
+    background: #dc2626;
+    /* 🔥 rojo más fuerte */
 }
 </style>

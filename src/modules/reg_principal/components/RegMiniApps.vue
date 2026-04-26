@@ -3,7 +3,7 @@
 
     <div class="flex justify-between mb-3">
       <span class="font-semibold">
-        Negocios del mercado
+        Marketplace
       </span>
     </div>
 

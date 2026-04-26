@@ -29,10 +29,17 @@
             <!-- INFO USUARIO -->
             <div class="text-sm space-y-2 mb-4">
 
-                <div><b>Usuario:</b> {{ user?.sobrenombre }}</div>
-                <div><b>Código:</b> {{ user?.cod_usu }}</div>
-                <div><b>Rol:</b> {{ user?.rol_nombre }}</div>
-                <div><b>Tipo Usuario:</b> {{ user?.tipoxusu_descripcion }}</div>
+                <!-- Línea 1 -->
+                <div class="flex justify-between">
+                    <div><b>Usuario:</b> {{ user?.sobrenombre }}</div>
+                    <div><b>Código:</b> {{ user?.cod_usu }}</div>
+                </div>
+
+                <!-- Línea 2 -->
+                <div class="flex justify-between">
+                    <div><b>Rol:</b> {{ user?.rol_nombre }}</div>
+                    <div><b>Tipo Usuario:</b> {{ user?.tipoxusu_descripcion }}</div>
+                </div>
 
             </div>
 

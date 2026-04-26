@@ -2,33 +2,43 @@
 
     <div v-if="visible" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
 
-        <div ref="box" class="bg-white rounded-xl p-4 w-80">
+        <div ref="box" class="bg-white rounded-2xl p-5 w-80">
 
             <!-- HEADER -->
-            <div class="flex justify-between items-center mb-3">
+            <div class="flex justify-between items-center text-sm mb-4">
 
-                <button @click="prevMonth">‹</button>
+                <button @click="prevMonth">
+                    <i class="fa fa-chevron-left text-[#FD7635]"></i>
+                </button>
 
                 <span class="font-semibold">
-                    {{ months[currentMonth] }} {{ currentYear }}
+                    {{ mesNombre }} {{ currentYear }}
                 </span>
 
-                <button @click="nextMonth">›</button>
+                <button @click="nextMonth">
+                    <i class="fa fa-chevron-right text-[#FD7635]"></i>
+                </button>
 
             </div>
 
             <!-- DIAS -->
-            <div class="grid grid-cols-7 gap-1 text-center text-sm">
+            <div class="grid grid-cols-7 text-xs text-gray-500 mb-2 text-center">
+                <span v-for="d in dias" :key="d">{{ d }}</span>
+            </div>
 
-                <div v-for="d in days" :key="d" class="py-2 cursor-pointer rounded hover:bg-gray-100"
-                    @click="selectDay(d)">
-                    {{ d }}
+            <!-- GRID -->
+            <div class="grid grid-cols-7 gap-2 text-center">
+
+                <div v-for="(d, i) in diasMes" :key="i"
+                    class="w-8 h-8 flex items-center justify-center rounded-full text-sm cursor-pointer"
+                    :class="getClass(d)" @click="selectDay(d)">
+                    {{ d?.dia || '' }}
                 </div>
 
             </div>
 
             <!-- CERRAR -->
-            <button class="w-full mt-3 py-2 bg-red-500 text-white rounded" @click="close">
+            <button class="w-full mt-4 py-2 bg-red-500 text-white rounded" @click="close">
                 Cerrar
             </button>
 
@@ -39,22 +49,76 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, computed } from 'vue'
 import gsap from 'gsap'
 
 const visible = ref(false)
 const box = ref(null)
 
-const currentDate = new Date()
-const currentMonth = ref(currentDate.getMonth())
-const currentYear = ref(currentDate.getFullYear())
+const today = new Date()
 
-const months = [
+const currentMonth = ref(today.getMonth())
+const currentYear = ref(today.getFullYear())
+
+const selected = ref({
+    dia: today.getDate(),
+    mes: today.getMonth(),
+    anio: today.getFullYear()
+})
+
+const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
+
+const meses = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
 ]
 
-const days = Array.from({ length: 31 }, (_, i) => i + 1)
+const mesNombre = computed(() => meses[currentMonth.value])
+
+// 🔥 GENERAR CALENDARIO REAL
+const diasMes = computed(() => {
+
+    const primerDia = new Date(currentYear.value, currentMonth.value, 1).getDay()
+    const diasEnMes = new Date(currentYear.value, currentMonth.value + 1, 0).getDate()
+
+    const lista = []
+
+    // 🔥 espacios vacíos antes
+    for (let i = 0; i < primerDia; i++) {
+        lista.push(null)
+    }
+
+    // 🔥 días reales
+    for (let d = 1; d <= diasEnMes; d++) {
+        lista.push({
+            dia: d,
+            mes: currentMonth.value,
+            anio: currentYear.value
+        })
+    }
+
+    return lista
+})
+
+// 🔥 CLASES DINÁMICAS
+function getClass(d) {
+    if (!d) return ''
+
+    const isToday =
+        d.dia === today.getDate() &&
+        d.mes === today.getMonth() &&
+        d.anio === today.getFullYear()
+
+    const isSelected =
+        d.dia === selected.value.dia &&
+        d.mes === selected.value.mes &&
+        d.anio === selected.value.anio
+
+    if (isSelected) return 'bg-[#FD7635] text-white'
+    if (isToday) return 'border-2 border-[#FD7635] text-[#FD7635]'
+
+    return 'text-gray-700 hover:bg-gray-100'
+}
 
 const emit = defineEmits(['select'])
 
@@ -94,8 +158,13 @@ function nextMonth() {
     }
 }
 
-function selectDay(day) {
-    const fecha = `${currentYear.value}-${String(currentMonth.value + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+function selectDay(d) {
+    if (!d) return
+
+    selected.value = d
+
+    const fecha = `${d.anio}-${String(d.mes + 1).padStart(2, '0')}-${String(d.dia).padStart(2, '0')}`
+
     emit('select', fecha)
     close()
 }

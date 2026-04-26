@@ -10,7 +10,7 @@
             </div>
 
             <span class="text-white font-semibold">
-                Agregar pedido
+                Pedido Mesa
             </span>
 
         </div>

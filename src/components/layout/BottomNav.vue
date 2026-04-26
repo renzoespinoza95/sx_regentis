@@ -32,19 +32,20 @@
     </button>
 
     <!-- FAVORITOS -->
-    <button class="flex-1 h-full flex flex-col items-center justify-center" @click="go('/mis-favoritos')">
+    <button class="flex-1 h-full flex flex-col items-center justify-center" @click="go('/mod_pedidos')">
       <i class="fa fa-shopping-basket text-xl"
-        :class="isActive('/mis-favoritos') ? 'text-orange-500' : 'text-gray-800'"></i>
-      <span class="text-xs mt-1" :class="isActive('/mis-favoritos') ? 'text-orange-500 font-medium' : 'text-gray-800'">
+        :class="isActive('/mod_pedidos') ? 'text-orange-500' : 'text-gray-800'"></i>
+      <span class="text-xs mt-1" :class="isActive('/mod_pedidos') ? 'text-orange-500 font-medium' : 'text-gray-800'">
         Pedidos
       </span>
     </button>
 
     <!-- PERFIL -->
-    <button class="flex-1 h-full flex flex-col items-center justify-center" @click="go('/agregar-apunte')">
+    <button class="flex-1 h-full flex flex-col items-center justify-center" @click="go('/mod_plano_mercado')">
       <i class="fa fa-map-marker text-xl"
-        :class="isActive('/agregar-apunte') ? 'text-orange-500' : 'text-gray-800'"></i>
-      <span class="text-xs mt-1" :class="isActive('/agregar-apunte') ? 'text-orange-500 font-medium' : 'text-gray-800'">
+        :class="isActive('/mod_plano_mercado') ? 'text-orange-500' : 'text-gray-800'"></i>
+      <span class="text-xs mt-1"
+        :class="isActive('/mod_plano_mercado') ? 'text-orange-500 font-medium' : 'text-gray-800'">
         Ubicaciones
       </span>
     </button>

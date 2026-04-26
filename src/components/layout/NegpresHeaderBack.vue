@@ -30,12 +30,22 @@
 
         <div class="flex items-center gap-2">
 
-          <div class="icon-btn" @click="irFavoritos">
+          <!-- FAVORITOS -->
+          <div class="icon-btn relative" @click="irFavoritos">
             <i class="fa fa-heart"></i>
+
+            <span class="notif-badge">
+              2
+            </span>
           </div>
 
-          <div class="icon-btn" @click="irCarrito">
+          <!-- CARRITO -->
+          <div class="icon-btn relative" @click="irCarrito">
             <i class="fa fa-shopping-cart"></i>
+
+            <span class="notif-badge">
+              3
+            </span>
           </div>
 
           <div class="icon-btn">
@@ -113,5 +123,23 @@ function goBack() {
 
 .icon-btn i {
   font-size: 14px;
+}
+
+.notif-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #EF4444;
+  /* rojo */
+  color: white;
+  font-size: 10px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 </style>
