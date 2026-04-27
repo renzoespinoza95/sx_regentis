@@ -11,11 +11,20 @@
                     Mi cuenta
                 </button>
 
+                <!-- 🔥 NUEVO BOTÓN -->
+                <button @click="verInformacion" class="menu-item-btn">
+                    Información
+                </button>
+
                 <button @click="cerrar" class="menu-cancel-btn">
                     Cancelar
                 </button>
 
             </div>
+
+            <!-- 🔥 MODAL USUARIO -->
+            <ModalUsuario v-model="showInfoUsuario" />
+
         </div>
     </transition>
 </template>
@@ -25,6 +34,7 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { gsap } from 'gsap'
 import { useUsuario } from '../services/usuarioService.js'
+import ModalUsuario from './ModalUsuario.vue' // 🔥 IMPORT
 
 const props = defineProps({
     modelValue: {
@@ -39,6 +49,9 @@ const router = useRouter()
 const { getUser } = useUsuario()
 
 const modalRef = ref(null)
+
+// 🔥 estado para mostrar info
+const showInfoUsuario = ref(false)
 
 const tipoxusuId = computed(() => {
     const user = getUser()
@@ -88,6 +101,11 @@ function irAdministracion() {
 function irMiCuenta() {
     cerrar()
     router.push('/BTqw_mi_cuenta')
+}
+
+// 🔥 NUEVA FUNCIÓN
+function verInformacion() {
+    showInfoUsuario.value = true
 }
 </script>
 
@@ -143,11 +161,8 @@ function irMiCuenta() {
     text-align: center;
     padding: 14px 16px;
     border-radius: 16px;
-
     background: #ef4444;
-    /* 🔥 rojo */
     color: white;
-
     font-weight: 600;
     transition: 0.2s;
 }
@@ -155,6 +170,5 @@ function irMiCuenta() {
 .menu-cancel-btn:hover {
     transform: scale(1.02);
     background: #dc2626;
-    /* 🔥 rojo más fuerte */
 }
 </style>

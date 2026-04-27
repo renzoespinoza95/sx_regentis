@@ -1,35 +1,55 @@
 <template>
-  <div :class="wrapperClass">
-    <div :class="containerClass" class="bg-gray-100 relative">
 
-      <HeaderBar v-model="search" @selectPuesto="handlePuestoSeleccionado" />
+  <!-- 🔥 SI ESTÁ HABILITADO -->
+  <template v-if="habilitadoUbicacion">
 
-      <PlanoMapa ref="planoMapaRef" :selected="selected" :markers="markers" :destino="destino"
-        @selectMarker="onSelectMarker" @closePopup="closePopup" />
+    <HeaderBar v-model="search" @selectPuesto="handlePuestoSeleccionado" />
 
-      <!-- 🔥 FAB Negocio Seleccionado -->
-      <div v-if="selected" class="absolute bottom-24 right-6 z-50">
-        <button @click="sheetOpen = true"
-          class="bg-white shadow-xl rounded-2xl px-4 py-3 text-left border border-gray-200 active:scale-95 transition">
-          <div class="font-semibold text-sm text-gray-800">
-            {{ selected.name }}
-          </div>
-          <div class="text-xs text-gray-500">
-            {{ selected.subtitle }}
-          </div>
-        </button>
+    <PlanoMapa ref="planoMapaRef" :selected="selected" :markers="markers" :destino="destino"
+      @selectMarker="onSelectMarker" @closePopup="closePopup" />
+
+    <!-- FAB Negocio -->
+    <div v-if="selected" class="absolute bottom-24 right-6 z-50">
+      <button @click="sheetOpen = true"
+        class="bg-white shadow-xl rounded-2xl px-4 py-3 text-left border border-gray-200 active:scale-95 transition">
+        <div class="font-semibold text-sm text-gray-800">
+          {{ selected.name }}
+        </div>
+        <div class="text-xs text-gray-500">
+          {{ selected.subtitle }}
+        </div>
+      </button>
+    </div>
+
+    <PlanoBottomSheet :open="sheetOpen" :stall="selected" @close="closeSheet" />
+
+    <!-- FAB Reset -->
+    <button @click="resetMap"
+      class="absolute bottom-6 right-6 w-14 h-14 rounded-full bg-orange-500 text-white shadow-lg flex items-center justify-center text-2xl z-50 active:scale-95 transition">
+      ⌖
+    </button>
+
+  </template>
+
+  <!-- 🔥 SI NO ESTÁ HABILITADO -->
+  <template v-else>
+    <div class="w-full h-full flex flex-col items-center justify-center text-center px-6">
+
+      <div class="text-6xl mb-4">
+        🚧
       </div>
 
-      <PlanoBottomSheet :open="sheetOpen" :stall="selected" @close="closeSheet" />
+      <div class="text-lg font-semibold text-gray-700">
+        Estamos en construcción
+      </div>
 
-      <!-- 🔥 FAB Reset Center -->
-      <button @click="resetMap"
-        class="absolute bottom-6 right-6 w-14 h-14 rounded-full bg-orange-500 text-white shadow-lg flex items-center justify-center text-2xl z-50 active:scale-95 transition">
-        ⌖
-      </button>
+      <div class="text-sm text-gray-500 mt-2">
+        Muy pronto podrás ver el plano interactivo aquí
+      </div>
 
     </div>
-  </div>
+  </template>
+
 </template>
 
 <script setup>
@@ -42,6 +62,7 @@ import PlanoBottomSheet from './components/PlanoBottomSheet.vue'
 import { watch } from 'vue'
 
 const planoMapaRef = ref(null)
+const habilitadoUbicacion = import.meta.env.VITE_PUBLIC_HABILITADO_UBICACION === '1'
 
 const destino = ref(null)
 const isSearchFocused = ref(false)

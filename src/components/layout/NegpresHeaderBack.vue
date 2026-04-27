@@ -48,7 +48,8 @@
             </span>
           </div>
 
-          <div class="icon-btn">
+          <!-- 🔥 MENÚ USUARIO -->
+          <div class="icon-btn" @click="abrirMenuUsuario">
             <i class="fa fa-ellipsis-v"></i>
           </div>
 
@@ -58,15 +59,26 @@
 
     </div>
 
+    <!-- 🔥 MODALES -->
+    <ModalUsuario v-model="showModalUsuario" />
+    <ModalMenuUsuario v-model="showMenuUsuario" />
+
   </div>
 </template>
+
 <script setup>
 import { useRouter, useRoute } from 'vue-router'
 import { useUsuario } from '../../services/usuarioService.js'
 import { useMercado } from '../../services/useMercado.js'
+import { ref } from 'vue'
+import ModalUsuario from '../ModalUsuario.vue'
+import ModalMenuUsuario from '../ModalMenuUsuario.vue' // 🔥 IMPORT NUEVO
 
 const router = useRouter()
 const route = useRoute()
+
+const showModalUsuario = ref(false)
+const showMenuUsuario = ref(false) // 🔥 NUEVO
 
 const titulo = route.query.titulo || 'La Tienda de Celeste'
 
@@ -77,6 +89,15 @@ const { mercado } = useMercado()
 
 function irLogin() {
   router.push('/KT3ENavegantes')
+}
+
+function abrirModalUsuario() {
+  showModalUsuario.value = true
+}
+
+// 🔥 NUEVO
+function abrirMenuUsuario() {
+  showMenuUsuario.value = true
 }
 
 function irFavoritos() {
@@ -101,7 +122,6 @@ function goBack() {
   }
 }
 </script>
-
 
 <style scoped>
 .icon-btn {
@@ -130,7 +150,6 @@ function goBack() {
   top: -5px;
   right: -5px;
   background: #EF4444;
-  /* rojo */
   color: white;
   font-size: 10px;
   width: 18px;

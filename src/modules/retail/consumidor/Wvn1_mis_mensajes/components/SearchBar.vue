@@ -1,6 +1,6 @@
 <template>
 
-    <div class="px-4 py-3 bg-[#ffe9df]">
+    <div class="px-4 py-3 bg-transparent">
 
         <div class="flex items-center bg-white rounded-full px-4 py-2 shadow">
 

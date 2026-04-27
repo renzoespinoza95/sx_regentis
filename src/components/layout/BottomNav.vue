@@ -7,9 +7,10 @@
            z-50">
 
     <!-- INICIO -->
-    <button class="flex-1 h-full flex flex-col items-center justify-center relative" @click="go('/principal')">
-      <i class="fa fa-home text-xl" :class="isActive('/principal') ? 'text-orange-500' : 'text-gray-800'"></i>
-      <span class="text-xs mt-1" :class="isActive('/principal') ? 'text-orange-500 font-medium' : 'text-gray-800'">
+    <button class="flex-1 h-full flex flex-col items-center justify-center relative" @click="goInicio">
+      <i class="fa fa-home text-xl" :class="isActiveInicio() ? 'text-orange-500' : 'text-gray-800'"></i>
+
+      <span class="text-xs mt-1" :class="isActiveInicio() ? 'text-orange-500 font-medium' : 'text-gray-800'">
         Inicio
       </span>
     </button>
@@ -19,11 +20,11 @@
       <i class="fa fa-list-alt text-xl" :class="isActive('/chat') ? 'text-orange-500' : 'text-gray-800'"></i>
 
       <!-- BADGE -->
-      <span class="absolute top-3 right-8
-               bg-red-500 text-white text-xs
-               w-5 h-5 rounded-full
-               flex items-center justify-center">
-        1
+      <span v-if="cantMensajes > 0" class="absolute top-3 right-8
+         bg-red-500 text-white text-xs
+         w-5 h-5 rounded-full
+         flex items-center justify-center">
+        {{ cantMensajes }}
       </span>
 
       <span class="text-xs mt-1" :class="isActive('/mis-modelos') ? 'text-orange-500 font-medium' : 'text-gray-800'">
@@ -52,16 +53,83 @@
 
   </div>
 </template>
-
 <script setup>
 import { useRouter, useRoute } from 'vue-router'
-import { computed } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
+import axios from 'axios'
+import { useUsuario } from '../../services/usuarioService.js'
+import { bus } from '../../services/eventBus.js'
 
-const currentPath = computed(() => route?.path || '')
+const API = import.meta.env.VITE_PUBLIC_URL_BASE
+const POLLING = Number(import.meta.env.VITE_PUBLIC_RQ_POLLING || 1)
+
+const mercadoId = import.meta.env.VITE_PUBLIC_MERCADO_ID
+const negId = import.meta.env.VITE_PUBLIC_NEG_ID
 
 const router = useRouter()
 const route = useRoute()
 
+const currentPath = computed(() => route?.path || '')
+
+// 👤 usuario
+const { getUsuId } = useUsuario()
+const usu_id = getUsuId()
+
+// 🔴 badge
+const cantMensajes = ref(0)
+
+// ⏱️ interval
+let interval = null
+
+// 🔥 función principal
+async function cargarCantidadMensajes() {
+
+  if (!usu_id) return
+
+  try {
+
+    const res = await axios.post(`${API}/reg/tk_cant_msg`, {
+      usu_id
+    })
+
+    console.log('📨 tk_cant_msg:', res.data)
+
+    // 🔴 badge
+    cantMensajes.value = res.data.mensajes_nuevos || 0
+
+    // 🔥 guardar en cache (para cuando regreses a la vista)
+    localStorage.setItem('regentis_chats_cache', JSON.stringify({
+      ts: Date.now(),
+      data: res.data.data || []
+    }))
+
+    // 🔥 avisar a ChatList
+    bus.emit('chat:update', res.data.data || [])
+
+  } catch (e) {
+    console.error('❌ error badge:', e)
+  }
+
+}
+
+// 🚀 iniciar
+onMounted(() => {
+
+  cargarCantidadMensajes()
+
+  // 🔁 polling cada X minutos
+  interval = setInterval(() => {
+    cargarCantidadMensajes()
+  }, POLLING * 60 * 1000)
+
+})
+
+// 🧹 limpiar
+onUnmounted(() => {
+  if (interval) clearInterval(interval)
+})
+
+// 🔀 navegación
 function go(path) {
   router.push(path)
 }
@@ -69,7 +137,23 @@ function go(path) {
 function isActive(path) {
   return currentPath.value === path
 }
+
+function goInicio() {
+  if (String(mercadoId) === '0') {
+    router.push(`/CV2K_negocio/${negId}`)
+  } else {
+    router.push('/principal')
+  }
+}
+
+function isActiveInicio() {
+  if (String(mercadoId) === '0') {
+    return currentPath.value.startsWith('/CV2K_negocio')
+  }
+  return currentPath.value === '/principal'
+}
 </script>
+
 
 <style scoped>
 .bottom-nav {

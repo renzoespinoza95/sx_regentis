@@ -1,36 +1,78 @@
 <template>
 
-    <div class="min-h-screen pattern-background flex flex-col">
+    <div class="min-h-screen flex flex-col" :style="fondoStyle">
 
-        <!-- HEADER -->
-        <ChatHeader />
+        <!-- 🔥 HEADER GLOBAL -->
+        <NegpresHeader />
 
         <!-- MENSAJES -->
         <div class="flex-1 overflow-y-auto px-4 py-3">
-            <MessageList />
+            <MessageList ref="messageListRef" />
         </div>
 
         <!-- INPUT -->
-        <MessageInput />
+        <MessageInput :destId="usuario?.usu_id" @sent="onMensajeEnviado" />
 
     </div>
 
 </template>
 
 <script setup>
-import ChatHeader from './components/ChatHeader.vue'
+
+import { computed } from 'vue'
+import { useMercado } from '../../../../services/useMercado.js'
+import { cssToObject } from '../../../../services/useCss.js'
+
+import NegpresHeader from '../../../../components/layout/NegpresHeaderBack.vue'
 import MessageList from './components/MessageList.vue'
 import MessageInput from './components/MessageInput.vue'
-</script>
 
-<style scoped>
-.pattern-background {
-    background-color: #e5e5f7;
-    background-image:
-        linear-gradient(135deg, #FCCBB5 25%, transparent 25%),
-        linear-gradient(225deg, #FCCBB5 25%, transparent 25%),
-        linear-gradient(45deg, #FCCBB5 25%, transparent 25%),
-        linear-gradient(315deg, #FCCBB5 25%, #e5e5f7 25%);
-    background-size: 20px 20px;
+import { useRoute } from 'vue-router'
+import axios from 'axios'
+import { ref, onMounted } from 'vue'
+import { useUsuario } from '../../../../services/usuarioService.js'
+
+const route = useRoute()
+const chat_id = route.params.id
+const API = import.meta.env.VITE_PUBLIC_URL_BASE
+
+const { getUsuId } = useUsuario()
+const usu_id = getUsuId()
+
+const usuario = ref(null)
+const messageListRef = ref(null)
+
+function onMensajeEnviado(msg) {
+
+    // 💬 mostrar instantáneo
+    messageListRef.value?.agregarMensajeLocal(msg)
+
+    // 🔄 luego sincronizar con backend
+    setTimeout(() => {
+        messageListRef.value?.cargarMensajes()
+    }, 500)
+
 }
-</style>
+
+onMounted(async () => {
+
+    const res = await axios.get(`${API}/Z8gJ/chat/info/${usu_id}/${chat_id}`)
+    usuario.value = res.data.usuario
+
+})
+
+// 🔥 mercado global
+const { mercado } = useMercado()
+
+// 🔥 fondo dinámico
+const fondoStyle = computed(() => {
+
+    if (!mercado.value?.patron_fondo) {
+        return {}
+    }
+
+    return cssToObject(mercado.value.patron_fondo)
+
+})
+
+</script>

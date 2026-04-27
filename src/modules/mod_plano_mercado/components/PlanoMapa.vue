@@ -725,11 +725,17 @@ function renderStalls() {
 
     container.on('pointertap', async () => {
 
-      // 🔥 guardar como origen
-      lastOrigen.value = String(s.name)
+      const puesto = String(s.name)
 
-      emitSelectForPuesto(s.name)
-      await onClickStallForRoute(s.name)
+      // 🔥 1. actualizar origen inmediato
+      lastOrigen.value = puesto
+      renderOrigenMarker()   // 👈 clave
+
+      // 🔥 2. emitir selección (tu lógica actual)
+      emitSelectForPuesto(puesto)
+
+      // 🔥 3. dibujar ruta
+      await onClickStallForRoute(puesto)
     })
 
     // ⚠️ ORDEN IMPORTANTE
@@ -763,34 +769,50 @@ function renderHighlight() {
  * ===== route drawing =====
  */
 function drawRoute() {
+
   if (!routeLayer) return
   routeLayer.clear()
 
   if (!route.value.length) return
 
-  // sombra
-  routeLayer.moveTo((route.value[0].x + 0.5) * DISPLAY_TILE, (route.value[0].y + 0.5) * DISPLAY_TILE)
-  for (let i = 1; i < route.value.length; i++) {
-    routeLayer.lineTo((route.value[i].x + 0.5) * DISPLAY_TILE, (route.value[i].y + 0.5) * DISPLAY_TILE)
-  }
-  routeLayer.stroke({ color: 0x000000, width: 10, alpha: 0.18, cap: 'round', join: 'round' })
+  const DASH_LENGTH = 6
+  const GAP_LENGTH = 10
+  const DOT_RADIUS = 2.7
 
-  // principal (rojo)
-  routeLayer.clear()
-  // dibujamos 2 veces: sombra y principal (para mantener el look)
-  // sombra
-  routeLayer.moveTo((route.value[0].x + 0.5) * DISPLAY_TILE, (route.value[0].y + 0.5) * DISPLAY_TILE)
-  for (let i = 1; i < route.value.length; i++) {
-    routeLayer.lineTo((route.value[i].x + 0.5) * DISPLAY_TILE, (route.value[i].y + 0.5) * DISPLAY_TILE)
-  }
-  routeLayer.stroke({ color: 0x000000, width: 10, alpha: 0.18, cap: 'round', join: 'round' })
+  // 🔴 BOLITAS ROJAS (misma estructura que tenías)
+  for (let i = 0; i < route.value.length - 1; i++) {
 
-  // principal
-  routeLayer.moveTo((route.value[0].x + 0.5) * DISPLAY_TILE, (route.value[0].y + 0.5) * DISPLAY_TILE)
-  for (let i = 1; i < route.value.length; i++) {
-    routeLayer.lineTo((route.value[i].x + 0.5) * DISPLAY_TILE, (route.value[i].y + 0.5) * DISPLAY_TILE)
+    const p1 = route.value[i]
+    const p2 = route.value[i + 1]
+
+    const x1 = (p1.x + 0.5) * DISPLAY_TILE
+    const y1 = (p1.y + 0.5) * DISPLAY_TILE
+
+    const x2 = (p2.x + 0.5) * DISPLAY_TILE
+    const y2 = (p2.y + 0.5) * DISPLAY_TILE
+
+    const dx = x2 - x1
+    const dy = y2 - y1
+    const dist = Math.hypot(dx, dy)
+
+    if (dist === 0) continue
+
+    const ux = dx / dist
+    const uy = dy / dist
+
+    const dashCount = Math.floor(dist / (DASH_LENGTH + GAP_LENGTH))
+
+    for (let j = 0; j < dashCount; j++) {
+
+      const start = j * (DASH_LENGTH + GAP_LENGTH)
+
+      const px = x1 + ux * start
+      const py = y1 + uy * start
+
+      routeLayer.circle(px, py, DOT_RADIUS)
+      routeLayer.fill({ color: 0xef4444 })
+    }
   }
-  routeLayer.stroke({ color: 0xef4444, width: 8, alpha: 1, cap: 'round', join: 'round' })
 }
 
 function startWalking() {

@@ -42,10 +42,19 @@ import U8EX_lista_pedidos from '../modules/retail/negocio_staff/U8EX_lista_pedid
 import RPsB_lista_clientes from '../modules/retail/negocio_staff/RPsB_lista_clientes/RPsB_lista_clientes.vue'
 
 
-
+const mercadoId = import.meta.env.VITE_PUBLIC_MERCADO_ID
+const negId = import.meta.env.VITE_PUBLIC_NEG_ID
 
 const routes = [
-  { path: '/', component: RegPrincipalApp,  meta: { hideNav: true }  },  
+  {
+    path: '/',
+    redirect: () => {
+      if (mercadoId === '0') {
+        return `/CV2K_negocio/${negId}`
+      }
+      return '/principal'
+    }
+  },
   //{ path: '/', component: DashApp, meta: { hideNav: true } },  
   { path: '/principal', component: RegPrincipalApp,  meta: { hideNav: false }  },  
   { path: '/login', component: LoginApp, meta: { hideNav: true } },
@@ -54,7 +63,7 @@ const routes = [
   { path: '/dash',   component: Mod_dash },
   { path: '/MpIH_lista_productos', component: MpIH_lista_productos, meta: { hideNav: false } },    
   { path: '/Mod_nuevo_usu', component: Mod_nuevo_usu, meta: { hideNav: false } }, 
-  { path: '/CV2K_negocio', component: CV2K_negocio, meta: { hideNav: true } },
+  { path: '/CV2K_negocio/:neg_id', component: CV2K_negocio, meta: { hideNav: true } },
   { path: '/PCJj_mapa_ubicacion', component: PCJj_mapa_ubicacion, meta: { hideNav: true } },
   { path: '/QZMq_detalle_prod', component: QZMq_detalle_prod, meta: { hideNav: true } },
   { path: '/ShJs_detalle_prod_cocina', component: ShJs_detalle_prod_cocina, meta: { hideNav: true } },    
@@ -64,7 +73,7 @@ const routes = [
   { path: '/U8mi_carrito_pedido', component: U8mi_carrito_pedido, meta: { hideNav: false } },
   { path: '/BTqw_mi_cuenta', component: BTqw_mi_cuenta, meta: { hideNav: true } },
   { path: '/Wvn1_mis_mensajes', component: Wvn1_mis_mensajes, meta: { hideNav: false } },
-  { path: '/CyHh_leer_mensaje', component: CyHh_leer_mensaje, meta: { hideNav: false } },
+  { path: '/CyHh_leer_mensaje/:id', component: CyHh_leer_mensaje, meta: { hideNav: false } },
   { path: '/Adfj_mis_favoritos', component: Adfj_mis_favoritos, meta: { hideNav: true } },
   { path: '/ZpB1_ag_producto', component: ZpB1_ag_producto, meta: { hideNav: true } },
   { path: '/RUkp_ed_producto/:id', component: RUkp_ed_producto, meta: { hideNav: true } },
