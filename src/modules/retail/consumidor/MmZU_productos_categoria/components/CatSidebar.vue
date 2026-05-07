@@ -3,20 +3,19 @@
     <div ref="sidebar" class="w-24 flex flex-col items-center gap-4 pt-2 overflow-y-auto no-scrollbar cursor-grab"
         style="max-height: calc(100vh - 140px);">
 
-        <div v-for="(cat, i) in categorias" :key="i" @click="$emit('change', i)"
+        <div ref="itemsRef" v-for="(cat, i) in categorias" :key="i" @click="$emit('change', i)"
             class="flex flex-col items-center cursor-pointer">
 
             <!-- IMAGEN -->
-            <div class="w-14 h-14 rounded-full overflow-hidden border-2 transition" :class="i === active
-                ? 'border-orange-500 scale-105'
-                : 'border-transparent opacity-70'">
-                <img :src="`https://picsum.photos/100?random=${i + 50}`" class="w-full h-full object-cover" />
+            <div class="w-14 h-14 rounded-full overflow-hidden transition relative"
+                :class="i === active ? 'rainbow-border scale-105' : 'opacity-70'">
+                <img :src="getImg(cat, i)" class="w-full h-full object-cover" />
             </div>
 
             <!-- TEXTO -->
             <div class="text-[10px] mt-1 text-center leading-tight"
                 :class="i === active ? 'text-orange-500 font-semibold' : 'text-gray-500'">
-                {{ cat }}
+                {{ cat.name }}
             </div>
 
         </div>
@@ -26,12 +25,20 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { gsap } from 'gsap'
+
+const itemsRef = ref([])
 
 defineProps({
     categorias: Array,
     active: Number
 })
+
+function getImg(cat, i) {
+    if (cat.img) return cat.img
+    return `https://picsum.photos/100?random=${cat.category_id || i}`
+}
 
 const sidebar = ref(null)
 
@@ -83,5 +90,66 @@ function stopDrag() {
 .grabbing {
     cursor: grabbing;
     user-select: none;
+}
+
+/* ARCOIRIS */
+/* 🌈 CONTENEDOR CON BORDE ANIMADO */
+.rainbow-border {
+    position: relative;
+    padding: 3px;
+    /* grosor del borde */
+    border-radius: 9999px;
+}
+
+/* 🌈 CAPA DEL BORDE */
+.rainbow-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+
+    background: linear-gradient(45deg,
+            red,
+            orange,
+            yellow,
+            lime,
+            cyan,
+            blue,
+            violet,
+            red);
+
+    background-size: 300% 300%;
+
+    animation: rainbowMove 3s linear infinite;
+
+    -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+}
+
+/* 🌈 ANIMACIÓN */
+@keyframes rainbowMove {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    100% {
+        background-position: 300% 50%;
+    }
+}
+
+.rainbow-border::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: inherit;
+    background: inherit;
+    filter: blur(6px);
+    opacity: 0.6;
+    z-index: -1;
 }
 </style>

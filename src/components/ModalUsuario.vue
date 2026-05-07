@@ -156,7 +156,13 @@ function logout() {
     localStorage.removeItem('screens')
     localStorage.removeItem('login_data')
 
-    window.location.href = '/principal'
+    const mercadoId = parseInt(import.meta.env.VITE_PUBLIC_MERCADO_ID || '0')
+
+    if (mercadoId === 0) {
+        window.location.href = '/'
+    } else {
+        window.location.href = '/principal'
+    }
 
 }
 

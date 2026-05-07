@@ -3,17 +3,16 @@
   <div class="min-h-screen" :style="fondoStyle">
 
     <!-- HEADER -->
-    <!-- HEADER -->
     <RegHeader v-if="!isLogged" />
-    <NegpresHeader v-else />
+    <NegpresHeader v-else :show-logo-left="true" />
 
     <!-- CONTENIDO -->
     <div class="content-container">
 
       <NegpresSearch />
-      <NegpresHero />
-      <NegpresMasVendidos />
-      <NegpresCategoriasGrid />
+      <NegpresHero :banners="data?.sliders || []" />
+      <NegpresMasVendidos :productos="data?.mas_vendidos || []" />
+      <NegpresCategoriasGrid :categorias="data?.categorias || []" />
       <AppChatFloat />
 
     </div>
@@ -24,10 +23,12 @@
 
 <script setup>
 
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useMercado } from '../../../../services/useMercado.js'
 import { cssToObject } from '../../../../services/useCss.js'
 import { useUsuario } from '../../../../services/usuarioService.js'
+import { usePrincipal } from '../../../../services/usePrincipal.js'
+
 import RegHeader from '../../../../modules/reg_principal/components/RegHeader.vue'
 
 import NegpresMasVendidos from './components/NegpresMasVendidos.vue'
@@ -36,20 +37,42 @@ import NegpresHeader from '../../../../components/layout/NegpresHeaderBack.vue'
 import NegpresSearch from './components/NegpresSearch.vue'
 import NegpresHero from './components/NegpresHero.vue'
 import AppChatFloat from '../../consumidor/CV2K_negocio/components/AppChatFloat.vue'
+import { useTienda } from '../../../../services/useTienda.js'
 
+/* =========================
+   🔥 DATA TIENDA
+========================= */
 
-// 🔥 traer mercado (reactivo)
+const { data, loading } = useTienda()
+
+/* =========================
+   🔥 PRINCIPAL (CLAVE)
+========================= */
+
+const principal = usePrincipal()
+
+onMounted(() => {
+  // 🔥 esto es lo que te faltaba
+  principal.refetch?.()
+})
+
+/* =========================
+   🔥 ESTADO GLOBAL
+========================= */
+
 const { mercado } = useMercado()
 const { isLogged } = useUsuario()
 
-// 🔥 fondo dinámico desde BD
+/* =========================
+   🔥 FONDO DINÁMICO
+========================= */
+
 const fondoStyle = computed(() => {
 
   if (!mercado.value?.patron_fondo) {
     return {}
   }
 
-  // 👇 usa TU función existente
   return cssToObject(mercado.value.patron_fondo)
 
 })

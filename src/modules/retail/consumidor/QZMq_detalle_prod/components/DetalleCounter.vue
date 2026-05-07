@@ -24,6 +24,8 @@ import { useMercado } from '../../../../../services/useMercado.js'
 
 const qty = ref(1)
 
+defineExpose({ qty })
+
 const { mercado } = useMercado()
 
 const btnStyle = computed(() => ({

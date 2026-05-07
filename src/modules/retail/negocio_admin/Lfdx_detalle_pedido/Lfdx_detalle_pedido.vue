@@ -6,28 +6,108 @@
 
         <div class="flex-1 flex justify-center p-4">
 
-            <div class="w-full max-w-md md:max-w-3xl bg-white rounded-2xl shadow-md p-4 space-y-4">
+            <div v-if="pedido" class="w-full max-w-md md:max-w-3xl bg-white rounded-2xl shadow-md p-4 space-y-4">
 
-                <FieldText label="Pedido" :value="'#' + pedidoId" />
+                <!-- NEGOCIO -->
+                <div class="flex items-center gap-3">
 
-                <FieldText label="Fecha" :value="form.fecha" />
+                    <img :src="pedido.neg_logo || 'https://picsum.photos/100'"
+                        class="w-16 h-16 rounded-xl object-cover border" />
 
-                <FieldText label="Cliente" :value="form.cliente" />
+                    <div class="flex-1">
 
-                <div>
-                    <h3 class="text-sm font-semibold mb-2">Productos</h3>
+                        <div class="font-semibold text-gray-800">
 
-                    <ProductoRowView v-for="(p, i) in productos" :key="i" :item="p" />
+                            {{ pedido.neg_icono || '🏪' }}
+                            {{ pedido.neg_nombre }}
+
+                        </div>
+
+                        <div class="text-sm text-gray-500">
+
+                            {{ pedido.neg_puesto || 'Sin puesto' }}
+
+                        </div>
+
+                    </div>
+
                 </div>
 
+                <!-- INFO -->
+                <FieldText label="Pedido" :value="'#' + pedido.carrito_id" />
+
+                <FieldText label="Cliente" :value="pedido.nombres_apellidos || 'Sin nombre'" />
+
+                <FieldText label="Celular" :value="pedido.celular || 'Sin celular'" />
+
+                <FieldText label="Estado" :value="pedido.estado" />
+
+                <!-- FECHA ENTREGA -->
+                <div>
+
+                    <div class="text-sm text-gray-500 mb-1">
+                        Fecha entrega
+                    </div>
+
+                    <input v-model="fechaEntrega" type="date"
+                        class="w-full border rounded-xl px-3 py-3 outline-none focus:ring-2 focus:ring-orange-300" />
+
+                </div>
+
+                <!-- TRABAJADOR -->
+                <div>
+
+                    <div class="text-sm text-gray-500 mb-1">
+                        Trabajador asignado
+                    </div>
+
+                    <div class="flex gap-2">
+
+                        <input :value="trabajadorNombre" readonly placeholder="Seleccionar trabajador"
+                            class="flex-1 border rounded-xl px-3 py-3 bg-gray-50 outline-none" />
+
+                        <button @click="abrirTrabajadores" class="px-4 rounded-xl text-white font-semibold"
+                            :style="{ background: mercado.topnavbar_color || '#FD7635' }">
+
+                            <i class="fa fa-search"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <FieldText label="Productos" :value="String(pedido.total_productos)" />
+
+                <!-- PRODUCTOS -->
+                <div>
+
+                    <h3 class="text-sm font-semibold mb-2">
+                        Productos
+                    </h3>
+
+                    <ProductoRowView v-for="p in productos" :key="p.carrito_detalle_id" :item="p" />
+
+                </div>
+
+                <!-- RESUMEN -->
                 <ResumenPedido :items="productos" />
+
+                <!-- YAPLIN -->
                 <ImagenUploader />
+
+                <BtnDespachar :carrito-id="pedido.carrito_id" :neg-id="pedido.neg_id" :usu-id="trabajador?.usu_id || 0"
+                    :direccion="pedido.direccion" :fecha-entrega="fechaEntrega" :trabajador-seleccionado="!!trabajador"
+                    @success="onDespachado" />
 
             </div>
 
         </div>
 
+        <!-- DIALOGS -->
         <OptionsDialog ref="dialogRef" />
+
+        <TrabajadorDialog ref="trabajadorDialogRef" :neg-id="pedido?.neg_id" @selected="onTrabajadorSelected" />
 
     </div>
 
@@ -35,6 +115,9 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import axios from 'axios'
+
 import { useMercado } from '../../../../services/useMercado.js'
 import { cssToObject } from '../../../../services/useCss.js'
 
@@ -44,33 +127,130 @@ import ProductoRowView from './components/ProductoRowView.vue'
 import ResumenPedido from './components/ResumenPedido.vue'
 import OptionsDialog from './components/OptionsDialog.vue'
 import ImagenUploader from './components/ImagenUploader.vue'
+import TrabajadorDialog from './components/TrabajadorDialog.vue'
+import BtnDespachar from './components/BtnDespachar.vue'
+
+const API =
+    import.meta.env.VITE_PUBLIC_URL_BASE
+
+const route = useRoute()
 
 const { mercado } = useMercado()
 
+const pedido = ref(null)
+const productos = ref([])
+
+const fechaEntrega = ref('')
+
+const trabajador = ref(null)
+
+const trabajadorNombre = computed(() => {
+
+    if (!trabajador.value) return ''
+
+    return trabajador.value.nombre
+})
+
 const fondoStyle = computed(() => {
+
     if (!mercado.value?.patron_fondo) return {}
-    return cssToObject(mercado.value.patron_fondo)
+
+    return cssToObject(
+        mercado.value.patron_fondo
+    )
 })
 
 const dialogRef = ref(null)
+
 function openDialog() {
     dialogRef.value.open()
 }
 
-const pedidoId = 1021
+const trabajadorDialogRef = ref(null)
 
-// 🔥 DATA DEMO
-const form = ref({
-    fecha: '2025-04-05',
-    cliente: 'Bilbo bolson'
-})
+function abrirTrabajadores() {
 
-const productos = ref([
-    { nombre: 'Palta hass', cantidad: 3, unidad: 'und', precio: 20 },
-    { nombre: 'Membrillo', cantidad: 4, unidad: 'kg', precio: 10 }
-])
+    trabajadorDialogRef.value.open()
+}
+
+function onTrabajadorSelected(item) {
+
+    trabajador.value = item
+}
+
+/* =========================================
+   CARGAR PEDIDO
+========================================= */
+async function cargarPedido() {
+
+    try {
+
+        const carrito_id_encriptado =
+            route.params.id
+
+        const r = await axios.get(
+            `${API}/N5BR/detalle_pedido/${encodeURIComponent(carrito_id_encriptado)}`
+        )
+
+        pedido.value =
+            r.data.pedido || null
+
+        if (pedido.value?.fecha_entrega) {
+
+            fechaEntrega.value =
+                pedido.value.fecha_entrega.substring(0, 10)
+
+        } else {
+
+            fechaEntrega.value = ''
+        }
+
+        productos.value =
+            (r.data.productos || []).map(p => ({
+
+                carrito_detalle_id:
+                    p.carrito_detalle_id,
+
+                nombre:
+                    p.name,
+
+                cantidad:
+                    Number(p.cantidad || 0),
+
+                unidad:
+                    'und',
+
+                precio:
+                    Number(p.precio_unitario || 0),
+
+                img:
+                    p.img,
+
+                subtotal:
+                    p.subtotal
+            }))
+
+    } catch (e) {
+
+        console.error(
+            'Error cargando detalle pedido',
+            e
+        )
+    }
+}
 
 onMounted(() => {
-    // futuro: cargar API
+    cargarPedido()
 })
+
+function onDespachado(r) {
+
+    console.log(
+        'Despachado',
+        r
+    )
+
+    pedido.value.estado =
+        'transito'
+}
 </script>

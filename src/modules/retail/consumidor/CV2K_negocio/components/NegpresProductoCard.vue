@@ -10,7 +10,7 @@
     </div>
 
     <div class="p-3">
-      <h3 class="text-sm font-medium">
+      <h3 class="text-sm font-medium line-clamp-2 h-[42px] leading-tight">
         {{ title }}
       </h3>
 
@@ -40,6 +40,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const props = defineProps({
+  product_id: Number,  // 🔥 FALTA ESTO
   title: String,
   price: String,
   rating: String,
@@ -48,11 +49,6 @@ const props = defineProps({
 })
 
 function irDetalle() {
-  router.push({
-    path: '/QZMq_detalle_prod',
-    query: {
-      nombre: props.title
-    }
-  })
+  router.push(`/QZMq_detalle_prod/${props.product_id}`)
 }
 </script>

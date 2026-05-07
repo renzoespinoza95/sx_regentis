@@ -8,14 +8,6 @@
         class="min-w-full snap-start relative rounded-2xl overflow-hidden select-none">
         <img :src="item.img" class="w-full h-48 object-cover pointer-events-none" />
 
-        <div class="absolute bottom-4 left-4 text-white">
-          <h2 class="text-xl font-semibold">
-            {{ item.title }}
-          </h2>
-          <p class="text-sm">
-            {{ item.subtitle }}
-          </p>
-        </div>
       </div>
     </div>
 
@@ -32,11 +24,9 @@ import { ref, onMounted, onUnmounted } from 'vue'
 
 const scrollContainer = ref(null)
 
-const banners = [
-  { title: 'Thai Style', subtitle: '12 Places', img: 'https://picsum.photos/600/300?random=201' },
-  { title: 'Italian Food', subtitle: '8 Places', img: 'https://picsum.photos/600/300?random=202' },
-  { title: 'Mexican Fiesta', subtitle: '15 Places', img: 'https://picsum.photos/600/300?random=203' }
-]
+const props = defineProps({
+  banners: Array
+})
 
 const currentIndex = ref(0)
 let interval = null
@@ -51,7 +41,10 @@ function goToSlide(index) {
 }
 
 function autoSlide() {
-  currentIndex.value = (currentIndex.value + 1) % banners.length
+
+  if (!props.banners || props.banners.length === 0) return
+
+  currentIndex.value = (currentIndex.value + 1) % props.banners.length
   goToSlide(currentIndex.value)
 }
 

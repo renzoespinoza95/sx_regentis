@@ -93,20 +93,47 @@ async function guardar() {
 
             const user = res.data.data
 
+            // 🔥 ENV
+            const MERCADO_ID = Number(
+                import.meta.env.VITE_PUBLIC_MERCADO_ID || 0
+            )
+
+            const NEG_ID = Number(
+                import.meta.env.VITE_PUBLIC_NEG_ID || 0
+            )
+
             // 🔥 REDIRECCIÓN SEGÚN TIPO
             if (Number(user.tipoxusu_id) === 1) {
-                router.replace('/principal')
+
+                // 🔥 SI MERCADO_ID = 0 → NEGOCIO DIRECTO
+                if (MERCADO_ID === 0 && NEG_ID > 0) {
+
+                    router.replace(`/CV2K_negocio/${NEG_ID}`)
+
+                } else {
+
+                    router.replace('/principal')
+
+                }
+
             } else {
+
                 router.replace('/dash')
+
             }
 
         } else {
+
             alert(res.data.msg || 'Error')
+
         }
 
     } catch (e) {
+
         console.error(e)
+
         alert('Error de conexión')
+
     }
 
 }

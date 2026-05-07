@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen pattern-background">
+    <div class="min-h-screen" :style="fondoStyle">
 
         <NegpresHeader />
 
@@ -7,42 +7,183 @@
 
             <SectionTitle title="Tus productos favoritos 💛" />
 
-            <FavoritesGrid :productos="favoritos" />
+            <!-- GRID -->
+            <FavoritesGrid :productos="favoritos" @eliminar="handleEliminar" />
 
+            <!-- VACÍO -->
             <EmptyState v-if="favoritos.length === 0" />
 
         </div>
+
+        <!-- 🔥 TOAST -->
+        <GsapToast ref="toastRef" />
 
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useUsuario } from '../../../../services/usuarioService.js'
 
 import NegpresHeader from '../../../../components/layout/NegpresHeaderBack.vue'
 import FavoritesGrid from './components/FavoritesGrid.vue'
 import SectionTitle from './components/SectionTitle.vue'
 import EmptyState from './components/EmptyState.vue'
+import GsapToast from '../../../../components/layout/GsapToast.vue'
+import { computed } from 'vue'
+import { useMercado } from '../../../../services/useMercado.js'
+import { cssToObject } from '../../../../services/useCss.js'
 
-const favoritos = ref([
-    { id: 1, nombre: 'iPhone 9', precio: 477, img: 'https://picsum.photos/200?1', descuento: 10 },
-    { id: 2, nombre: 'iPhone X', precio: 737, img: 'https://picsum.photos/200?2', descuento: 15 },
-    { id: 3, nombre: 'Samsung', precio: 1055, img: 'https://picsum.photos/200?3', descuento: 20 },
-    { id: 4, nombre: 'OPPO F19', precio: 229, img: 'https://picsum.photos/200?4', descuento: 12 }
-])
+/* =========================
+   STATE
+========================= */
+
+const favoritos = ref([])
+const toastRef = ref(null)
+
+/* =========================
+   USUARIO
+========================= */
+
+const { usuario } = useUsuario()
+
+const { mercado } = useMercado()
+
+const fondoStyle = computed(() => {
+
+    if (!mercado.value?.patron_fondo) return {}
+
+    return cssToObject(mercado.value.patron_fondo)
+
+})
+
+/* =========================
+   CARGAR FAVORITOS
+========================= */
+
+async function cargarFavoritos() {
+
+    const usu_id = usuario.value?.user?.usu_id
+
+    if (!usu_id) {
+
+        showToast({
+            text: 'Debes iniciar sesión ❌',
+            type: 'error'
+        })
+
+        return
+    }
+
+    try {
+
+        const res = await fetch(
+            `${import.meta.env.VITE_PUBLIC_URL_BASE}/DzCy/misFavoritos`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usu_id })
+            }
+        )
+
+        const data = await res.json()
+
+        if (data.status === 'ok') {
+
+            favoritos.value = data.data.map(p => ({
+                fav_id: p.fav_id,
+                product_id: p.product_id,
+                name: p.name,
+                price: p.price,
+                stock: p.stock,
+                img: p.img,
+                descuento: 10
+            }))
+
+        } else {
+
+            showToast({
+                text: data.msg || 'Error al cargar favoritos ❌',
+                type: 'error'
+            })
+
+        }
+
+    } catch (err) {
+
+        showToast({
+            text: 'Error de conexión ❌',
+            type: 'error'
+        })
+
+    }
+}
+
+/* =========================
+   ELIMINAR FAVORITO
+========================= */
+
+async function handleEliminar(fav_id) {
+
+    try {
+
+        const res = await fetch(
+            `${import.meta.env.VITE_PUBLIC_URL_BASE}/DzCy/eliminarFavoritos`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fav_id })
+            }
+        )
+
+        const data = await res.json()
+
+        if (data.status === 'ok') {
+
+            favoritos.value = favoritos.value.filter(f => f.fav_id !== fav_id)
+
+            showToast({
+                text: 'Eliminado de favoritos ❌',
+                type: 'success'
+            })
+
+        } else {
+
+            showToast({
+                text: data.msg || 'Error al eliminar ❌',
+                type: 'error'
+            })
+
+        }
+
+    } catch (err) {
+
+        showToast({
+            text: 'Error de conexión ❌',
+            type: 'error'
+        })
+
+    }
+}
+
+/* =========================
+   TOAST
+========================= */
+
+function showToast(payload) {
+    toastRef.value?.show(payload)
+}
+
+/* =========================
+   INIT
+========================= */
+
+onMounted(() => {
+    cargarFavoritos()
+})
 </script>
 
 <style scoped>
-.pattern-background {
-    background-color: #e5e5f7;
-    background-image:
-        linear-gradient(135deg, #FCCBB5 25%, transparent 25%),
-        linear-gradient(225deg, #FCCBB5 25%, transparent 25%),
-        linear-gradient(45deg, #FCCBB5 25%, transparent 25%),
-        linear-gradient(315deg, #FCCBB5 25%, #e5e5f7 25%);
-    background-size: 20px 20px;
-}
-
 .content-container {
     max-width: 1400px;
     margin: auto;

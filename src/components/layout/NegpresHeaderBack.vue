@@ -1,20 +1,50 @@
 <template>
   <div class="flex justify-between items-center px-4 pt-4 pb-3" :style="{
-    background: mercado.topnavbar_color || '#FD7635',
-    '--header-color': mercado.topnavbar_color || '#FD7635'
+    background: mercadoColor,
+    '--header-color': mercadoColor
   }">
 
     <!-- LEFT: BACK -->
+    <!-- LEFT -->
     <div class="flex items-center gap-2 cursor-pointer" @click="goBack">
-      <div
-        class="w-9 h-9 bg-white backdrop-blur-md rounded-full flex items-center justify-center active:scale-90 transition">
-        <i class="fa fa-arrow-left text-sm" :style="{ color: mercado.topnavbar_color || '#FD7635' }">
-        </i>
-      </div>
 
-      <span class="font-semibold text-lg text-white">
-        {{ titulo }}
-      </span>
+      <!-- =========================================
+       LOGO LEFT
+  ========================================= -->
+      <template v-if="showLogoLeft">
+
+        <div class="logo-box">
+
+          <img :src="data?.negocio?.img_logo || 'https://barsi-img.b-cdn.net/recursos/logo-regentis.png'"
+            class="logo-img">
+
+          <span class="logo-text">
+            {{ data?.negocio?.nombre || 'Regentis' }}
+          </span>
+
+        </div>
+
+      </template>
+
+      <!-- =========================================
+       FLECHA NORMAL
+  ========================================= -->
+      <template v-else>
+
+        <div
+          class="w-9 h-9 bg-white backdrop-blur-md rounded-full flex items-center justify-center active:scale-90 transition">
+
+          <i class="fa fa-arrow-left text-sm" :style="{ color: mercadoColor }">
+          </i>
+
+        </div>
+
+        <span class="font-semibold text-lg text-white">
+          {{ titulo }}
+        </span>
+
+      </template>
+
     </div>
 
     <div class="flex items-center gap-4">
@@ -22,7 +52,9 @@
       <!-- 🔐 NO LOGUEADO -->
       <button v-if="!isLogged" @click="irLogin"
         class="bg-white text-[#FD7635] px-3 py-1 rounded-full text-xs font-semibold shadow-sm hover:scale-105 transition">
+
         Ingresar
+
       </button>
 
       <!-- 🔓 LOGUEADO -->
@@ -31,26 +63,37 @@
         <div class="flex items-center gap-2">
 
           <!-- FAVORITOS -->
-          <div class="icon-btn relative" @click="irFavoritos">
+          <div id="icon-heart-header" class="icon-btn relative" @click="irFavoritos">
+
             <i class="fa fa-heart"></i>
 
-            <span class="notif-badge">
-              2
+            <span v-if="favoritosCount > 0" class="notif-badge">
+
+              {{ favoritosCount }}
+
             </span>
+
           </div>
 
           <!-- CARRITO -->
           <div class="icon-btn relative" @click="irCarrito">
+
             <i class="fa fa-shopping-cart"></i>
 
-            <span class="notif-badge">
-              3
+            <span v-if="carritoCount > 0" class="notif-badge">
+
+              {{ carritoCount }}
+
             </span>
+
           </div>
 
-          <!-- 🔥 MENÚ USUARIO -->
-          <div class="icon-btn" @click="abrirMenuUsuario">
-            <i class="fa fa-ellipsis-v"></i>
+          <!-- MENU -->
+          <!-- AVATAR -->
+          <div class="icon-btn overflow-hidden p-0" @click="abrirMenuUsuario">
+
+            <img :src="user?.img_perfil || 'https://picsum.photos/80'" class="w-full h-full object-cover" />
+
           </div>
 
         </div>
@@ -59,7 +102,7 @@
 
     </div>
 
-    <!-- 🔥 MODALES -->
+    <!-- MODALES -->
     <ModalUsuario v-model="showModalUsuario" />
     <ModalMenuUsuario v-model="showMenuUsuario" />
 
@@ -70,22 +113,58 @@
 import { useRouter, useRoute } from 'vue-router'
 import { useUsuario } from '../../services/usuarioService.js'
 import { useMercado } from '../../services/useMercado.js'
-import { ref } from 'vue'
 import ModalUsuario from '../ModalUsuario.vue'
-import ModalMenuUsuario from '../ModalMenuUsuario.vue' // 🔥 IMPORT NUEVO
+import ModalMenuUsuario from '../ModalMenuUsuario.vue'
+import { useTienda } from '../../services/useTienda.js'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { bus } from '../../services/eventBus.js'
+
+const { data } = useTienda()
+
+const user = computed(() => {
+  return usuario.value?.user || null
+})
+
+const props = defineProps({
+
+  showLogoLeft: {
+    type: Boolean,
+    default: false
+  }
+
+})
 
 const router = useRouter()
 const route = useRoute()
 
+const carritoCountLocal = ref(0)
+const favoritosCountLocal = ref(0)
+
 const showModalUsuario = ref(false)
-const showMenuUsuario = ref(false) // 🔥 NUEVO
+const showMenuUsuario = ref(false)
 
-const titulo = route.query.titulo || 'La Tienda de Celeste'
+const titulo = computed(() => {
+  return data.value?.negocio?.nombre
+    || route.query.titulo
+    || 'Tienda'
+})
 
-const { isLogged } = useUsuario()
+const {
+  isLogged,
+  usuario
+} = useUsuario()
 
-// 🔥 MERCADO GLOBAL
+/* =========================================
+   MERCADO
+========================================= */
 const { mercado } = useMercado()
+
+/* =========================================
+   🔥 EVITAR NULL
+========================================= */
+const mercadoColor = computed(() => {
+  return mercado.value?.topnavbar_color || '#FD7635'
+})
 
 function irLogin() {
   router.push('/KT3ENavegantes')
@@ -95,32 +174,69 @@ function abrirModalUsuario() {
   showModalUsuario.value = true
 }
 
-// 🔥 NUEVO
+function updateCounts(payload) {
+
+  carritoCountLocal.value =
+    payload.carrito || 0
+
+  favoritosCountLocal.value =
+    payload.favoritos || 0
+}
+
+onMounted(() => {
+  bus.on('header:updateCounts', updateCounts)
+})
+
+onUnmounted(() => {
+  bus.off('header:updateCounts', updateCounts)
+})
+
 function abrirMenuUsuario() {
   showMenuUsuario.value = true
 }
 
 function irFavoritos() {
+
   router.push({
     path: '/Adfj_mis_favoritos',
-    query: { titulo: 'Favoritos' }
+    query: {
+      titulo: 'Favoritos'
+    }
   })
 }
 
 function irCarrito() {
+
   router.push({
     path: '/URl4_usuario_carrito',
-    query: { titulo: 'Carrito de compras' }
+    query: {
+      titulo: 'Carrito de compras'
+    }
   })
 }
 
 function goBack() {
+
   if (window.history.length > 1) {
     router.back()
   } else {
     router.push('/')
   }
 }
+
+const favoritosCount = computed(() => {
+
+  return favoritosCountLocal.value
+    || data.value?.favoritos_count
+    || 0
+})
+
+const carritoCount = computed(() => {
+
+  return carritoCountLocal.value
+    || data.value?.carrito_count
+    || 0
+})
 </script>
 
 <style scoped>
@@ -160,5 +276,29 @@ function goBack() {
   border-radius: 50%;
   font-weight: 600;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.logo-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-img {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  object-fit: cover;
+  background: white;
+  padding: 3px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+.logo-text {
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.1;
+  max-width: 170px;
 }
 </style>

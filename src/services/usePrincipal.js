@@ -12,6 +12,9 @@ const STORAGE_KEY = 'regentis_principal_cache'
 // 🔥 mercado por env
 const MERCADO_ID = parseInt(import.meta.env.VITE_PUBLIC_MERCADO_ID || '0')
 
+// 🔥 negocio por env (NUEVO)
+const NEG_ID = parseInt(import.meta.env.VITE_PUBLIC_NEG_ID || '0')
+
 export function usePrincipal(){
 
   // 🔥 sincronización global
@@ -21,7 +24,9 @@ export function usePrincipal(){
 
     const cache = getCache()
 
-    // 🔥 1. SI HAY CACHE → usarlo y revalidar en background
+    /* =========================
+       🔥 1. CACHE
+    ========================== */
     if (cache) {
 
       // 🔥 sincronizar estado global desde cache
@@ -30,8 +35,10 @@ export function usePrincipal(){
       // 🔥 revalidar en segundo plano
       setTimeout(async () => {
         try {
+
           const r = await axios.post(`${API}/app/principal`, {
-            mercado_id: MERCADO_ID
+            mercado_id: MERCADO_ID,
+            neg_id: NEG_ID
           })
 
           setCache(r.data.data)
@@ -44,9 +51,13 @@ export function usePrincipal(){
       return cache
     }
 
-    // 🔥 2. SI NO HAY CACHE → llamar API
+    /* =========================
+       🔥 2. FETCH
+    ========================== */
+
     const r = await axios.post(`${API}/app/principal`, {
-      mercado_id: MERCADO_ID
+      mercado_id: MERCADO_ID,
+      neg_id: NEG_ID
     })
 
     setCache(r.data.data)
@@ -54,18 +65,24 @@ export function usePrincipal(){
     return r.data.data
   }
 
-  // 🔥 Vue Query
+  /* =========================
+     🔥 VUE QUERY
+  ========================== */
+
   if (USE_VQ && STALE > 0){
 
     return useQuery({
-      queryKey: ['principal', MERCADO_ID],
+      queryKey: ['principal', MERCADO_ID, NEG_ID],
       queryFn: fetchPrincipal,
       staleTime: STALE * 60 * 1000
     })
 
   }
 
-  // 💥 Axios directo
+  /* =========================
+     💥 AXIOS DIRECTO
+  ========================== */
+
   return {
     data: null,
     isLoading: false,
@@ -75,8 +92,8 @@ export function usePrincipal(){
   }
 
   /* =========================
-     CACHE HELPERS
-  ========================= */
+     🔥 CACHE HELPERS
+  ========================== */
 
   function getCache(){
     try {
@@ -90,9 +107,10 @@ export function usePrincipal(){
 
   function setCache(data){
     try {
+
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
 
-      // 🔥 sincronizar estado global
+      // 🔥 sincronizar estado global SIEMPRE
       setMercado(data)
 
     } catch(e){

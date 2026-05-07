@@ -10,80 +10,144 @@
 
             <div class="flex mt-4">
 
-                <!-- IZQUIERDA -->
-                <CatSidebar :categorias="categorias" :active="activeCat" @change="setCategoria" />
+                <CatSidebar :categorias="categorias" :active="activeIndex" @change="setCategoria" />
 
-                <!-- DERECHA -->
-                <ProductGrid :productos="productosFiltrados" />
+                <ProductGrid :productos="productosFiltrados" :neg_id="neg_id" @toast="showToast"
+                    @confetti="showConfetti" />
+
+                <GsapToast ref="toastRef" />
+                <GsapConfetti ref="confettiRef" />
 
             </div>
 
         </div>
 
-    </div>
 
+
+    </div>
+    <GsapToast ref="toastRef" />
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, watchEffect } from 'vue'
+import { useRoute } from 'vue-router'
+import { useTienda } from '../../../../services/useTienda.js'
+
 import NegpresHeader from '../../../../components/layout/NegpresHeaderBack.vue'
 import CatSidebar from './components/CatSidebar.vue'
 import ProductGrid from './components/ProductGrid.vue'
 import SearchBar from './components/SearchBar.vue'
 
-// 🔥 IMPORTANTE (igual que el otro módulo)
 import { useMercado } from '../../../../services/useMercado.js'
 import { cssToObject } from '../../../../services/useCss.js'
+import GsapToast from '../../../../components/layout/GsapToast.vue'
+import GsapConfetti from '../../../../components/layout/GsapConfetti.vue'
 
-const categorias = [
-    'Popular',
-    'Smartphones',
-    'Laptops',
-    'Fragance',
-    'Skincare',
-    'Groceries',
-    'Home',
-    'Furniture',
-    'Tops',
-    'Women'
-]
+/* =========================
+   🔥 REFS
+========================= */
 
-const activeCat = ref(0)
+const toastRef = ref(null)
+const confettiRef = ref(null)
 
-const productos = [
-    { id: 1, nombre: 'iPhone 9', precio: 477, img: 'https://picsum.photos/200?1' },
-    { id: 2, nombre: 'iPhone X', precio: 737, img: 'https://picsum.photos/200?2' },
-    { id: 3, nombre: 'Samsung Universe', precio: 1055, img: 'https://picsum.photos/200?3' },
-    { id: 4, nombre: 'OPPO F19', precio: 229, img: 'https://picsum.photos/200?4' },
-    { id: 5, nombre: 'Huawei P30', precio: 446, img: 'https://picsum.photos/200?5' },
-    { id: 6, nombre: 'MacBook Pro', precio: 1556, img: 'https://picsum.photos/200?6' },
-    { id: 7, nombre: 'HP EliteBook', precio: 899, img: 'https://picsum.photos/200?7' },
-    { id: 8, nombre: 'Dell XPS', precio: 1200, img: 'https://picsum.photos/200?8' },
-    { id: 9, nombre: 'Lenovo Thinkpad', precio: 999, img: 'https://picsum.photos/200?9' },
-    { id: 10, nombre: 'Asus Zenbook', precio: 850, img: 'https://picsum.photos/200?10' }
-]
+/* =========================
+   🔥 ROUTE
+========================= */
 
-const productosFiltrados = computed(() => {
-    return productos // luego aquí filtras por categoría
+const route = useRoute()
+
+/* =========================
+   🔥 DATA TIENDA
+========================= */
+
+const { data } = useTienda()
+
+// 🔥 DEBUG REACTIVO (importante)
+watchEffect(() => {
+    console.log("data→", data.value)
 })
 
-function setCategoria(index) {
-    activeCat.value = index
+/* =========================
+   🔥 NEG_ID CORRECTO (BLINDADO)
+========================= */
+
+const neg_id = computed(() => {
+    return data.value?.negocio?.neg_id
+        ? Number(data.value.negocio.neg_id)
+        : 0
+})
+
+/* =========================
+   🔥 TOAST / CONFETTI
+========================= */
+
+function showToast(payload) {
+    toastRef.value?.show(payload)
 }
 
-// =========================
-// 🔥 FONDO DINÁMICO
-// =========================
+function showConfetti() {
+    confettiRef.value?.show()
+}
+
+/* =========================
+   🔥 CATEGORÍAS
+========================= */
+
+const categorias = computed(() => {
+    return data.value?.categorias || []
+})
+
+/* =========================
+   🔥 CATEGORÍA ACTIVA
+========================= */
+
+const activeCatId = ref(Number(route.params.category_id) || 0)
+
+// 🔥 cuando cambia URL
+watch(() => route.params.category_id, (val) => {
+    activeCatId.value = Number(val)
+})
+
+/* =========================
+   🔥 ÍNDICE ACTIVO
+========================= */
+
+const activeIndex = computed(() => {
+    return categorias.value.findIndex(c => c.category_id == activeCatId.value)
+})
+
+/* =========================
+   🔥 PRODUCTOS FILTRADOS
+========================= */
+
+const productosFiltrados = computed(() => {
+
+    const cat = categorias.value.find(c => c.category_id == activeCatId.value)
+
+    if (!cat) return []
+
+    return cat.productos || []
+})
+
+/* =========================
+   🔥 CAMBIAR CATEGORÍA
+========================= */
+
+function setCategoria(index) {
+    const cat = categorias.value[index]
+    if (!cat) return
+
+    activeCatId.value = cat.category_id
+}
+
+/* =========================
+   🔥 MERCADO (FONDO)
+========================= */
 
 const { mercado } = useMercado()
 
 const fondoStyle = computed(() => {
-
-    if (!mercado.value?.patron_fondo) {
-        return {}
-    }
-
+    if (!mercado.value?.patron_fondo) return {}
     return cssToObject(mercado.value.patron_fondo)
-
 })
 </script>

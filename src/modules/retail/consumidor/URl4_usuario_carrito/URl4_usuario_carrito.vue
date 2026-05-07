@@ -1,62 +1,207 @@
 <template>
 
-  <div class="min-h-screen pattern-background">
+    <div class="min-h-screen flex flex-col" :style="fondoStyle">
 
-    <!-- HEADER GLOBAL -->
-    <NegpresHeader />
+        <HeaderBar />
 
-    <div class="content-container">
+        <div class="flex-1 flex justify-center p-4">
 
-      <div class="bg-white rounded-3xl p-6 shadow-md">
-        <OrderStatus />
-        <CarritoHeader />
+            <div class="w-full max-w-md md:max-w-4xl bg-white rounded-2xl shadow-md p-4 space-y-3">
 
-        <div class="mt-6 space-y-5">
-          <CarritoItem title="Facial Cleanser" price="19.98" img="https://picsum.photos/80?random=21" />
-          <CarritoItem title="Cream Cleanser" price="12.99" img="https://picsum.photos/80?random=22" />
-          <CarritoItem title="Cleansing Oil" price="12.99" img="https://picsum.photos/80?random=23" />
+                <InputFecha v-model="form.fecha" />
+
+                <ProductosTable :items="productos" @edit="openEdit" @delete="confirmDelete" />
+
+                <ResumenPedido :items="productos" />
+
+                <BtnGuardar />
+
+            </div>
+
         </div>
-        <CarritoResumen />
 
-      </div>
+        <EditarCantidadDialog ref="editRef" @update="updateProducto" />
+        <AppSnackbar ref="snackbarRef" />
+        <GsapConfetti ref="confettiRef" />
 
     </div>
 
-  </div>
-
 </template>
-
 <script setup>
-import { computed } from 'vue'
-import OrderStatus from '../../../../modules/retail/consumidor/U8mi_carrito_pedido/components/OrderStatus.vue'
-import NegpresHeader from '../../../../components/layout/NegpresHeaderBack.vue'
-import CarritoItem from './components/CarritoItem.vue'
-import CarritoCupon from './components/CarritoCupon.vue'
-import CarritoResumen from './components/CarritoResumen.vue'
+import { ref, computed, onMounted, provide } from 'vue'
+import { useMercado } from '../../../../services/useMercado.js'
+import { cssToObject } from '../../../../services/useCss.js'
+import { useUsuario } from '../../../../services/usuarioService.js'
+
+import HeaderBar from './components/HeaderBar.vue'
+import InputFecha from './components/InputFecha.vue'
+import ProductosTable from './components/ProductosTable.vue'
+import BtnGuardar from './components/BtnGuardar.vue'
+import ResumenPedido from './components/ResumenPedido.vue'
+import EditarCantidadDialog from './components/EditarCantidadDialog.vue'
+import AppSnackbar from '../../../../components/layout/AppSnackbar.vue'
+import { useRouter } from 'vue-router'
+
+const { mercado } = useMercado()
+const { usuario } = useUsuario()
+
+const router = useRouter()
+
+const carritoId = ref(null)
+const pedidoEnviado = ref(false)
+
+const user = computed(() => usuario.value?.user || null)
+
+const confettiRef = ref(null)
+const productos = ref([])
+const editRef = ref(null)
+const snackbarRef = ref(null)
+
+provide('finalizarPedido', finalizarPedido)
+provide('pedidoEnviado', pedidoEnviado)
+
+const fondoStyle = computed(() => {
+    if (!mercado.value?.patron_fondo) return {}
+    return cssToObject(mercado.value.patron_fondo)
+})
+
+
+
+function getFechaHoy() {
+    const d = new Date()
+    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`
+}
+
+const form = ref({
+    fecha: getFechaHoy()
+})
+
+/* =========================
+   🔥 LISTAR CARRITO (NUEVO)
+========================= */
+
+async function cargarCarrito() {
+
+    const usu_id = user.value?.usu_id
+    if (!usu_id) return
+
+    const res = await fetch(`${import.meta.env.VITE_PUBLIC_URL_BASE}/M0Jk/productosCarritos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ usu_id })
+    })
+
+    const data = await res.json()
+
+    if (data.status === 'ok') {
+
+        if (data.data.length > 0) {
+            carritoId.value = data.data[0].carrito_id
+        }
+
+        productos.value = data.data.map(p => ({
+            carrito_detalle_id: p.carrito_detalle_id,
+            product_id: p.product_id,
+            nombre: p.name,
+            cantidad: p.cantidad,
+            unidad: 'und',
+            precio: p.precio_unitario
+        }))
+    }
+}
+
+onMounted(cargarCarrito)
+
+/* =========================
+   🔥 EDITAR (NUEVO)
+========================= */
+
+function openEdit(p) {
+    editRef.value.open(p)
+}
+
+async function updateProducto(updated) {
+
+    await fetch(`${import.meta.env.VITE_PUBLIC_URL_BASE}/M0Jk/editarCantidad`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            carrito_detalle_id: updated.carrito_detalle_id, // 🔥 CAMBIO
+            cantidad: updated.cantidad
+        })
+    })
+
+    cargarCarrito()
+}
+
+/* =========================
+   🔥 ELIMINAR (NUEVO)
+========================= */
+
+function confirmDelete(p) {
+
+    snackbarRef.value.open(
+        `¿Eliminar ${p.nombre}?`,
+        () => eliminarProducto(p)
+    )
+}
+
+async function eliminarProducto(p) {
+
+    await fetch(`${import.meta.env.VITE_PUBLIC_URL_BASE}/M0Jk/eliminarProductoCarrito`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            carrito_detalle_id: p.carrito_detalle_id // 🔥 CAMBIO
+        })
+    })
+
+    cargarCarrito()
+}
+
+async function finalizarPedido() {
+
+    if (!carritoId.value) {
+        snackbarRef.value?.open('No hay carrito ❌')
+        return
+    }
+
+    try {
+
+        const res = await fetch(`${import.meta.env.VITE_PUBLIC_URL_BASE}/VS26/finalizarPedidoCarrito`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                carrito_id: carritoId.value
+            })
+        })
+
+        const data = await res.json()
+
+        if (data.status === 'ok') {
+
+            pedidoEnviado.value = true
+
+            snackbarRef.value?.open('Pedido enviado 🎉')
+
+            confettiRef.value?.show()
+
+            // 🔥 REDIRECCIÓN DESPUÉS DE 4s
+            setTimeout(() => {
+                router.push(`/B2Tk_detalle_pedido/${carritoId.value}`)
+            }, 4000)
+
+        } else {
+
+            snackbarRef.value?.open(data.msg || 'Error ❌')
+
+        }
+
+    } catch (e) {
+
+        snackbarRef.value?.open('Error de conexión ❌')
+
+    }
+}
 
 </script>
-
-<style scoped>
-.content-container {
-  width: 100%;
-  max-width: 1400px;
-  margin: auto;
-
-  padding-top: 50px;
-  padding-left: 20px;
-  padding-right: 20px;
-  padding-bottom: 40px;
-}
-
-.pattern-background {
-  background-color: #e5e5f7;
-  background-image:
-    linear-gradient(135deg, #FCCBB5 25%, transparent 25%),
-    linear-gradient(225deg, #FCCBB5 25%, transparent 25%),
-    linear-gradient(45deg, #FCCBB5 25%, transparent 25%),
-    linear-gradient(315deg, #FCCBB5 25%, #e5e5f7 25%);
-  background-position: 10px 0, 10px 0, 0 0, 0 0;
-  background-size: 20px 20px;
-  background-repeat: repeat;
-}
-</style>

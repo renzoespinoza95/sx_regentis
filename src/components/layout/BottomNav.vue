@@ -106,9 +106,17 @@ async function cargarCantidadMensajes() {
     // 🔥 avisar a ChatList
     bus.emit('chat:update', res.data.data || [])
 
+    bus.emit('header:updateCounts', {
+      mensajes: res.data.mensajes_nuevos || 0,
+      carrito: res.data.carrito_count || 0,
+      favoritos: res.data.favoritos_count || 0
+    })
+
   } catch (e) {
     console.error('❌ error badge:', e)
   }
+
+
 
 }
 

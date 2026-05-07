@@ -1,6 +1,6 @@
 <template>
 
-    <div class="bg-white rounded-2xl shadow-md overflow-hidden" @click="irDetalle">
+    <div class="product-card bg-white rounded-2xl shadow-md overflow-hidden h-[250px] flex flex-col" @click="irDetalle">
 
         <!-- IMAGEN -->
         <div class="relative">
@@ -13,25 +13,26 @@
             </span>
 
             <!-- FAVORITO -->
-            <div class="absolute top-2 right-2 bg-white w-7 h-7 rounded-full flex items-center justify-center shadow">
-                <i class="fa fa-heart text-[#FD7635] text-xs"></i>
+            <div class="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center shadow cursor-pointer"
+                :style="{ background: '#FD7635' }" @click.stop="onFavoritoClick($event)">
+                <i class="fa fa-heart text-white text-xs"></i>
             </div>
 
         </div>
 
         <!-- INFO -->
-        <div class="p-3">
+        <div class="p-1">
 
             <!-- TITULO -->
-            <div class="text-sm font-semibold text-gray-800 truncate">
-                {{ producto.nombre }}
+            <div class="text-sm font-semibold text-gray-800 line-clamp-2 leading-tight h-[36px]">
+                {{ producto.name }}
             </div>
 
             <!-- RATING -->
             <div class="flex items-center text-xs text-yellow-400 mt-1">
-                ★ {{ producto.rating }}
+                ★ 5
                 <span class="text-gray-400 ml-1">
-                    | {{ producto.stock }}
+                    | 9999
                 </span>
             </div>
 
@@ -44,11 +45,11 @@
             <div class="flex items-center gap-2 mt-2">
 
                 <span class="text-orange-500 font-bold">
-                    ${{ producto.precio }}
+                    S/{{ producto.price }}
                 </span>
 
                 <span class="text-gray-400 line-through text-xs">
-                    ${{ producto.precio_old }}
+                    antes S/{{ producto.price }}
                 </span>
 
             </div>
@@ -57,31 +58,207 @@
 
         <!-- BOTON -->
         <div class="px-3 pb-3">
-            <button class="w-full bg-[#FD7635] text-white py-2 rounded-xl text-sm">
-                🛍
+            <button class="w-full bg-[#FD7635] text-white py-2 rounded-xl text-sm" @click.stop="onAgregarClick($event)">
+                Agregar
             </button>
         </div>
 
     </div>
 
 </template>
-
 <script setup>
 import { useRouter } from 'vue-router'
+import { gsap } from 'gsap'
+import { useUsuario } from '../../../../../services/usuarioService.js'
+import { computed } from 'vue'
 
 const router = useRouter()
 
 const props = defineProps({
-    producto: Object
+    producto: Object,
+    neg_id: Number
 })
+const { usuario } = useUsuario()
+
+const user = computed(() => usuario.value?.user || null)
+
+const emit = defineEmits(['toast', 'confetti'])
+
+// 🔥 FUNCIÓN PRINCIPAL
+// 🔥 REUTILIZAMOS
+function flyToHeart(e) {
+
+    const card = e.target.closest('.product-card')
+    const heart = document.getElementById('icon-heart-header')
+
+    if (!card || !heart) {
+        emit('toast', {
+            text: 'No se pudo agregar ❌',
+            type: 'error'
+        })
+        return
+    }
+
+    const clone = card.cloneNode(true)
+
+    const rect = card.getBoundingClientRect()
+    const heartRect = heart.getBoundingClientRect()
+
+    Object.assign(clone.style, {
+        position: 'fixed',
+        top: rect.top + 'px',
+        left: rect.left + 'px',
+        width: rect.width + 'px',
+        zIndex: 9999,
+        pointerEvents: 'none'
+    })
+
+    document.body.appendChild(clone)
+
+    gsap.to(clone, {
+        x: heartRect.left - rect.left,
+        y: heartRect.top - rect.top,
+        scale: 0.2,
+        opacity: 0.5,
+        duration: 0.7,
+        ease: "power2.inOut",
+        onComplete: () => clone.remove()
+    })
+}
+
+async function onAgregarClick(e) {
+
+    flyToHeart(e)
+
+    const usu_id = user.value?.usu_id
+    const neg_id = props.neg_id
+
+    if (!usu_id) {
+        emit('toast', {
+            text: 'Debes iniciar sesión ❌',
+            type: 'error'
+        })
+        return
+    }
+
+    if (!neg_id) {
+        emit('toast', {
+            text: 'Error: neg_id no disponible ❌',
+            type: 'error'
+        })
+        return
+    }
+
+    try {
+
+        const res = await fetch(
+            `${import.meta.env.VITE_PUBLIC_URL_BASE}/M0Jk/carritoCompras`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    usu_id: usu_id,
+                    neg_id: neg_id,
+                    product_id: props.producto.product_id,
+                    cantidad: 1,
+                    fecha_entrega: null
+                })
+            }
+        )
+
+        const data = await res.json()
+
+        if (data.status === 'ok') {
+
+            emit('toast', {
+                text: data.msg === 'actualizado'
+                    ? 'Cantidad actualizada 🛒'
+                    : 'Agregado al carrito 🛒',
+                type: 'success'
+            })
+
+            emit('confetti')
+
+        } else {
+
+            emit('toast', {
+                text: data.msg || 'Error al agregar ❌',
+                type: 'error'
+            })
+
+        }
+
+    } catch (err) {
+
+        emit('toast', {
+            text: 'Error de conexión ❌',
+            type: 'error'
+        })
+
+    }
+}
 
 function irDetalle() {
-    router.push({
-        path: '/QZMq_detalle_prod',
-        query: {
-            id: props.producto.id,
-            nombre: props.producto.nombre
+    router.push(`/QZMq_detalle_prod/${props.producto.product_id}`)
+}
+
+async function onFavoritoClick(e) {
+
+    console.log('usuario.value', usuario.value) // 👈 AQUÍ
+
+    flyToHeart(e)
+
+    const usu_id = user.value?.usu_id
+
+    if (!usu_id) {
+        emit('toast', {
+            text: 'Debes iniciar sesión ❌',
+            type: 'error'
+        })
+        return
+    }
+
+    try {
+
+        const res = await fetch(
+            `${import.meta.env.VITE_PUBLIC_URL_BASE}/DzCy/agregarFavorito`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    usu_id: usu_id,
+                    product_id: props.producto.product_id
+                })
+            }
+        )
+
+        const data = await res.json()
+
+        if (data.status === 'ok') {
+
+            emit('toast', {
+                text: data.msg || 'Agregado a favoritos ❤️',
+                type: 'success'
+            })
+
+        } else {
+
+            emit('toast', {
+                text: data.msg || 'Error al guardar ❌',
+                type: 'error'
+            })
+
         }
-    })
+
+    } catch (err) {
+
+        emit('toast', {
+            text: 'Error de conexión ❌',
+            type: 'error'
+        })
+
+    }
 }
 </script>
