@@ -1,97 +1,277 @@
 <template>
-  <div class="relative flex-1">
 
-    <div ref="mapEl" class="h-full w-full relative z-0"></div>
+  <div class="relative flex-1 pt-20">
+
+    <div ref="mapEl" class="h-full w-full relative z-0">
+    </div>
 
     <!-- FAB -->
-    <button
-      @click="volverInicio"
-      class="absolute bottom-6 right-6 bg-blue-600 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-xl transition active:scale-90"
-    >
+    <button @click="volverInicio" class="
+        absolute
+        bottom-24
+        right-6
+        bg-[#FD7635]
+        text-white
+        w-14
+        h-14
+        rounded-full
+        shadow-2xl
+        flex
+        items-center
+        justify-center
+        text-xl
+        transition
+        active:scale-90
+        z-[999]
+      ">
+
       <i class="fa fa-location-arrow"></i>
+
     </button>
 
   </div>
+
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
-import { gsap } from 'gsap'
 
-const props = defineProps(['lugares', 'initialCenter'])
+import {
+  onMounted,
+  ref
+}
+  from 'vue'
+
+import L from 'leaflet'
+
+import 'leaflet/dist/leaflet.css'
+
+const props = defineProps([
+
+  'lugares',
+
+  'initialCenter'
+
+])
 
 const mapEl = ref(null)
+
 let map
-let currentMarker = null
-let currentLat = props.initialCenter[0]
-let currentLng = props.initialCenter[1]
+
+/* =========================================
+   📍 GOOGLE MAPS
+========================================= */
+
+function openGoogleMaps(
+  coords
+) {
+
+  const lat = coords[0]
+
+  const lng = coords[1]
+
+  window.open(
+
+    `https://www.google.com/maps?q=${lat},${lng}`,
+
+    '_blank'
+
+  )
+
+}
+
+/* =========================================
+   📍 MARKER HTML
+========================================= */
+
+function createPremiumMarker(
+  lugar
+) {
+
+  return `
+
+    <div
+      style="
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+      "
+    >
+
+      <div
+
+        id="marker-click"
+
+        style="
+          width:82px;
+          background:white;
+          border-radius:24px;
+          padding:8px;
+          box-shadow:0 10px 30px rgba(0,0,0,.18);
+          border:3px solid #FD7635;
+          display:flex;
+          flex-direction:column;
+          align-items:center;
+          cursor:pointer;
+        "
+      >
+
+        <img
+
+          src="${lugar.logo}"
+
+          style="
+            width:54px;
+            height:54px;
+            border-radius:50%;
+            object-fit:cover;
+            border:3px solid #fff;
+            box-shadow:0 4px 12px rgba(0,0,0,.15);
+          "
+        />
+
+        <div
+          style="
+            margin-top:6px;
+            font-size:11px;
+            font-weight:700;
+            color:#1f2937;
+            text-align:center;
+            line-height:1.2;
+          "
+        >
+
+          ${lugar.nombre}
+
+        </div>
+
+      </div>
+
+      <div
+        style="
+          width:0;
+          height:0;
+          border-left:12px solid transparent;
+          border-right:12px solid transparent;
+          border-top:18px solid #FD7635;
+          margin-top:-2px;
+        "
+      >
+      </div>
+
+    </div>
+
+  `
+
+}
 
 onMounted(() => {
 
-  map = L.map(mapEl.value).setView(props.initialCenter, 14)
+  /* =========================================
+     ⏳ ESPERAR DATOS
+  ========================================= */
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap'
-  }).addTo(map)
+  const waitData = setInterval(() => {
 
-  currentMarker = L.marker(props.initialCenter).addTo(map)
+    if (
 
-})
+      !props.initialCenter
+      ||
 
-function animateTo(coords) {
+      !props.lugares?.length
 
-  const targetLat = coords[0]
-  const targetLng = coords[1]
+    ) {
 
-  gsap.to({}, {
-    duration: 1.8,
-    ease: "power3.inOut",
-
-    onUpdate: function() {
-
-      currentLat += (targetLat - currentLat) * 0.08
-      currentLng += (targetLng - currentLng) * 0.08
-
-      map.setView([currentLat, currentLng], 15, { animate: false })
-
-      if (currentMarker) {
-        currentMarker.setLatLng([currentLat, currentLng])
-      }
-    },
-
-    onComplete: function() {
-
-      currentLat = targetLat
-      currentLng = targetLng
-
-      map.setView(coords, 16, { animate: false })
-
-      if (currentMarker) {
-        currentMarker.setLatLng(coords)
-      }
+      return
 
     }
 
-  })
+    clearInterval(waitData)
 
-}
+    /* =========================================
+       🗺️ MAP
+    ========================================= */
 
-function flyToLocation(coords) {
+    map =
+      L.map(
+        mapEl.value
+      ).setView(
+        props.initialCenter,
+        16
+      )
 
-  if (!currentMarker) {
-    currentMarker = L.marker(coords).addTo(map)
-  }
+    L.tileLayer(
 
-  animateTo(coords)
-}
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+
+      {
+
+        attribution:
+          '© OpenStreetMap'
+
+      }
+
+    ).addTo(map)
+
+    /* =========================================
+       📍 MARKERS
+    ========================================= */
+
+    props.lugares.forEach(
+      lugar => {
+
+        const icon =
+          L.divIcon({
+
+            html:
+              createPremiumMarker(
+                lugar
+              ),
+
+            className:
+              '',
+
+            iconSize:
+              [90, 120],
+
+            iconAnchor:
+              [45, 110]
+
+          })
+
+        const marker =
+          L.marker(
+
+            lugar.coords,
+
+            { icon }
+
+          ).addTo(map)
+
+        marker.on(
+          'click',
+          () => {
+
+            openGoogleMaps(
+              lugar.coords
+            )
+
+          }
+        )
+
+      }
+    )
+
+  }, 200)
+
+})
 
 function volverInicio() {
-  animateTo(props.initialCenter)
+
+  map.setView(
+    props.initialCenter,
+    16
+  )
+
 }
 
-defineExpose({
-  flyToLocation
-})
 </script>

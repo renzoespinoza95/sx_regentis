@@ -10,12 +10,12 @@
 
             <!-- NOMBRE -->
             <span class="text-gray-800">
-                {{ item.nombre }}
+                {{ item.name }}
             </span>
 
             <!-- PRECIO UNITARIO -->
             <span class="text-gray-500">
-                S/{{ item.precio }}
+                S/{{ item.precio_unitario }}
             </span>
 
             <!-- CANTIDAD -->
@@ -42,6 +42,10 @@ const props = defineProps({
 })
 
 const total = computed(() => {
-    return props.item.precio * props.item.cantidad
+    return (
+        props.item.precio_unitario
+        *
+        props.item.cantidad
+    )
 })
 </script>

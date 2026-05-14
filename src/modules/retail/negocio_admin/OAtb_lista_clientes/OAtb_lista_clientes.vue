@@ -1,6 +1,6 @@
 <template>
 
-    <div class="min-h-screen flex flex-col" :style="fondoStyle">
+    <div class="min-h-screen flex flex-col pt-20" :style="fondoStyle">
 
         <HeaderBar @openOptions="openDialog" />
 
@@ -23,52 +23,158 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useMercado } from '../../../../services/useMercado.js'
-import { cssToObject } from '../../../../services/useCss.js'
 
-import HeaderBar from './components/HeaderBar.vue'
-import SearchBar from './components/SearchBar.vue'
-import ClienteItem from './components/ClienteItem.vue'
-import OptionsDialog from './components/OptionsDialog.vue'
+import {
+    ref,
+    computed,
+    onMounted
+} from 'vue'
 
-const { mercado } = useMercado()
+import axios from 'axios'
+
+import {
+    useMercado
+} from '../../../../services/useMercado.js'
+
+import {
+    cssToObject
+} from '../../../../services/useCss.js'
+
+import {
+    useUsuario
+} from '../../../../services/usuarioService.js'
+
+import HeaderBar
+    from './components/HeaderBar.vue'
+
+import SearchBar
+    from './components/SearchBar.vue'
+
+import ClienteItem
+    from './components/ClienteItem.vue'
+
+import OptionsDialog
+    from './components/OptionsDialog.vue'
+
+const API =
+    import.meta.env.VITE_PUBLIC_URL_BASE
+
+const {
+    mercado
+} = useMercado()
+
+const {
+    getNegId
+} = useUsuario()
+
+/* ======================================
+   🎨 FONDO
+====================================== */
 
 const fondoStyle = computed(() => {
-    if (!mercado.value?.patron_fondo) return {}
-    return cssToObject(mercado.value.patron_fondo)
+
+    if (!mercado.value?.patron_fondo)
+        return {}
+
+    return cssToObject(
+        mercado.value.patron_fondo
+    )
+
 })
+
+/* ======================================
+   🔥 DIALOG
+====================================== */
 
 const dialogRef = ref(null)
+
 function openDialog() {
+
     dialogRef.value.open()
+
 }
 
-// 🔥 DATA DEMO
+/* ======================================
+   🔍 SEARCH
+====================================== */
+
 const buscar = ref('')
 
-const clientes = ref([
-    {
-        id: 1,
-        nombre: 'Frodo bolson',
-        direccion: 'Av. Alondras 2023',
-        codigo: 'A201',
-        dni: '444666777'
-    },
-    {
-        id: 2,
-        nombre: 'Samwise Gamgee',
-        direccion: 'Av. Siempre viva 123',
-        codigo: 'A202',
-        dni: '111222333'
-    }
-])
+/* ======================================
+   👥 CLIENTES
+====================================== */
+
+const clientes = ref([])
+
+/* ======================================
+   🔍 FILTRADOS
+====================================== */
 
 const filtrados = computed(() => {
-    if (!buscar.value) return clientes.value
+
+    if (!buscar.value) {
+
+        return clientes.value
+
+    }
 
     return clientes.value.filter(c =>
-        c.nombre.toLowerCase().includes(buscar.value.toLowerCase())
+
+        (c.nombre || '')
+            .toLowerCase()
+            .includes(
+                buscar.value.toLowerCase()
+            )
+
     )
+
 })
+
+/* ======================================
+   📦 CARGAR CLIENTES
+====================================== */
+
+async function cargarClientes() {
+
+    try {
+
+        const r = await axios.post(
+
+            `${API}/FjeU/clienteListar`,
+
+            {
+                neg_id:
+                    getNegId()
+            }
+
+        )
+
+        if (r.data.status === 'ok') {
+
+            clientes.value =
+                r.data.data || []
+
+        }
+
+    } catch (e) {
+
+        console.error(
+            'Error cargando clientes',
+            e
+        )
+
+    }
+
+}
+
+/* ======================================
+   🚀 INIT
+====================================== */
+
+onMounted(() => {
+
+    cargarClientes()
+
+})
+
 </script>

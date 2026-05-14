@@ -15,7 +15,7 @@
 
             <!-- PRECIO UNITARIO -->
             <span class="text-gray-500">
-                S/{{ item.precio }}
+                S/{{ Number(item.precio || 0).toFixed(2) }}
             </span>
 
             <!-- CANTIDAD -->
@@ -27,7 +27,7 @@
 
         <!-- 🔥 TOTAL -->
         <div class="text-gray-800 font-medium">
-            S/{{ total }}
+            S/{{ Number(total || 0).toFixed(2) }}
         </div>
 
     </div>

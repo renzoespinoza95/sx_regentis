@@ -1,7 +1,7 @@
 <template>
 
     <div>
-        <label class="text-sm text-gray-600">Fecha</label>
+        <label class="text-sm text-gray-600">Fecha de entrega</label>
 
         <div class="relative mt-1">
 
@@ -36,11 +36,9 @@ function openCalendar() {
 }
 
 function setFecha(fecha) {
-    const d = new Date(fecha)
 
-    const dia = String(d.getDate()).padStart(2, '0')
-    const mes = String(d.getMonth() + 1).padStart(2, '0')
-    const anio = d.getFullYear()
+    // 🔥 evitar problema UTC
+    const [anio, mes, dia] = fecha.split('-')
 
     model.value = `${dia}/${mes}/${anio}`
 }

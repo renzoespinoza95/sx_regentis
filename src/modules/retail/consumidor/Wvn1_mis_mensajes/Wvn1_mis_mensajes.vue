@@ -1,6 +1,6 @@
 <template>
 
-    <div class="min-h-screen flex flex-col" :style="fondoStyle">
+    <div class="min-h-screen flex flex-col pt-20" :style="fondoStyle">
 
         <!-- 🔥 HEADER REAL -->
         <NegpresHeader />
@@ -9,7 +9,13 @@
         <SearchBar />
 
         <!-- LISTA FULL -->
-        <div class="flex-1 overflow-y-auto bg-white/80 backdrop-blur-sm">
+        <div class="
+        flex-1
+        overflow-y-auto
+        pb-6
+
+        chat-bg
+    ">
             <ChatList />
         </div>
 
@@ -45,3 +51,41 @@ const fondoStyle = computed(() => {
 })
 
 </script>
+<style scoped>
+.chat-bg {
+
+    background-color: #95D3DA;
+
+    opacity: 0.8;
+
+    background:
+
+        radial-gradient(circle,
+            transparent 20%,
+            #95D3DA 20%,
+            #95D3DA 80%,
+            transparent 80%,
+            transparent),
+
+        radial-gradient(circle,
+            transparent 20%,
+            #95D3DA 20%,
+            #95D3DA 80%,
+            transparent 80%,
+            transparent) 25px 25px,
+
+        linear-gradient(rgba(255, 255, 255, 0.9) 2px,
+            transparent 2px) 0 -1px,
+
+        linear-gradient(90deg,
+            rgba(255, 255, 255, 0.9) 2px,
+            #95D3DA 2px) -1px 0;
+
+    background-size:
+        50px 50px,
+        50px 50px,
+        25px 25px,
+        25px 25px;
+
+}
+</style>

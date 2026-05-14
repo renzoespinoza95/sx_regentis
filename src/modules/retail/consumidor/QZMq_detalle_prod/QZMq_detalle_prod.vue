@@ -1,6 +1,6 @@
 <template>
 
-  <div class="min-h-screen" :style="fondoStyle">
+  <div class="min-h-screen pt-20" :style="fondoStyle">
 
     <!-- 🔥 MISMO HEADER DE NEGOCIO -->
     <NegpresHeader />
@@ -18,6 +18,21 @@
       </div>
 
     </div>
+    <AppChatFloat v-if="producto" :neg-id="data?.negocio?.neg_id" :texto-mensaje="`
+Buenos días. Quisiera información sobre el producto ${producto?.name || producto?.nombre}
+que se encuentra a S/ ${producto?.precio || producto?.price}.
+Muchas gracias.
+`" :contexto="{
+  tipo: 'producto',
+  data: {
+    product_id: producto?.product_id,
+    nombre: producto?.name || producto?.nombre,
+    precio: producto?.precio || producto?.price,
+    url: `/QZMq_detalle_prod/${producto?.product_id}`,
+    imagen: producto?.imagen || producto?.img
+  }
+}" />
+
 
   </div>
   <GsapToast ref="toastRef" />
@@ -25,7 +40,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import DetalleImagen from './components/DetalleImagen.vue'
 import DetalleInfoCard from './components/DetalleInfoCard.vue'
 import NegpresHeader from '../../../../components/layout/NegpresHeaderBack.vue'
@@ -34,6 +49,10 @@ import { cssToObject } from '../../../../services/useCss.js'
 import { useRoute } from 'vue-router'
 import { useTienda } from '../../../../services/useTienda.js'
 import GsapToast from '../../../../components/layout/GsapToast.vue'
+import AppChatFloat from '../../../../components/layout/AppChatFloat.vue'
+import { useTrackingQueue } from '../../../../services/useTrackingQueue.js'
+import { useUsuario } from '../../../../services/usuarioService.js'
+
 
 const toastRef = ref(null)
 
@@ -76,6 +95,38 @@ const props = defineProps({
   img: String,
   badge: String
 })
+
+const { addTracking } = useTrackingQueue()
+
+const { usuario } = useUsuario()
+
+watch(producto, (p) => {
+
+  if (!p) return
+
+  const usu_id = usuario.value?.user?.usu_id
+
+  if (!usu_id) return
+
+  addTracking({
+
+    usu_id,
+
+    accion: 'view_producto',
+
+    descripcion: 'Usuario vio producto',
+
+    extra_data: {
+
+      product_id: p.product_id,
+      nombre: p.name,
+      precio: p.price
+
+    }
+
+  })
+
+}, { immediate: true })
 
 </script>
 

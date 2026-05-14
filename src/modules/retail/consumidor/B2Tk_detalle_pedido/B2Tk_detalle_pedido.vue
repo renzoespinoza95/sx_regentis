@@ -1,8 +1,8 @@
 <template>
 
-    <div class="min-h-screen flex flex-col" :style="fondoStyle">
+    <div class="min-h-screen flex flex-col pt-20" :style="fondoStyle">
 
-        <HeaderBar @openOptions="openDialog" />
+        <NegpresHeader />
 
         <div class="flex-1 flex justify-center p-4">
 
@@ -34,7 +34,9 @@
 
                 <FieldText label="Estado" :value="pedido.estado" />
 
-                <FieldText label="Fecha entrega" :value="pedido.fecha_entrega || 'Pendiente'" />
+                <FieldText label="Fecha entrega" :value="formatFecha(
+                    pedido.fecha_entrega
+                )" />
 
                 <FieldText label="Productos" :value="String(pedido.total_productos)" />
 
@@ -52,14 +54,53 @@
                 <!-- RESUMEN -->
                 <ResumenPedido :items="productos" />
 
+                <YaplinGallery :yaplins="yaplins" />
+
                 <!-- YAPLIN -->
-                <ImagenUploader />
+                <!-- YAPLIN -->
+                <YaplinUploader v-if="
+                    String(
+                        pedido?.estado || ''
+                    )
+                        .trim()
+                        .toLowerCase()
+                    ===
+                    'enviado'
+                " titulo="Subir pantallas de pago Yaplin !" :carrito-id="pedido?.carrito_id
+        " />
 
             </div>
 
         </div>
 
         <OptionsDialog ref="dialogRef" />
+        <AppChatFloat v-if="pedido" :neg-id="pedido.neg_id" :texto-mensaje="`
+Hola. Quisiera información sobre mi pedido #${pedido.carrito_id}.
+
+Estado actual:
+${pedido.estado}
+
+Muchas gracias.
+`" :contexto="{
+    tipo: 'pedido',
+
+    data: {
+
+        pedido_id: pedido.carrito_id,
+
+        estado: pedido.estado,
+
+        total: productos.reduce((s, p) => {
+            return s + (p.precio * p.cantidad)
+        }, 0),
+
+        fecha_entrega: pedido.fecha_entrega,
+
+        url: `/B2Tk_detalle_pedido/${pedido.carrito_id}`
+
+    }
+
+}" />
 
     </div>
 
@@ -72,16 +113,25 @@ import axios from 'axios'
 
 import { useMercado } from '../../../../services/useMercado.js'
 import { cssToObject } from '../../../../services/useCss.js'
+import AppChatFloat from '../../../../components/layout/AppChatFloat.vue'
 
 /* =========================================
    COMPONENTES DEL MISMO MODULO
 ========================================= */
-import HeaderBar from './components/HeaderBar.vue'
+import NegpresHeader from '../../../../components/layout/NegpresHeaderBack.vue'
 import FieldText from './components/FieldText.vue'
 import ProductoRowView from './components/ProductoRowView.vue'
 import ResumenPedido from './components/ResumenPedido.vue'
 import OptionsDialog from './components/OptionsDialog.vue'
-import ImagenUploader from './components/ImagenUploader.vue'
+import YaplinUploader
+    from '../../../../components/YaplinUploader.vue'
+import {
+    firma
+}
+    from '../../../../services/security.js'
+
+import YaplinGallery
+    from './components/YaplinGallery.vue'
 
 const API = import.meta.env.VITE_PUBLIC_URL_BASE
 
@@ -102,9 +152,35 @@ const fondoStyle = computed(() => {
 })
 
 const dialogRef = ref(null)
+const yaplins = ref([])
 
 function openDialog() {
     dialogRef.value.open()
+}
+
+function formatFecha(fecha) {
+
+    if (!fecha)
+        return 'Pendiente'
+
+    const d =
+        new Date(fecha)
+
+    const dia =
+        String(
+            d.getDate()
+        ).padStart(2, '0')
+
+    const mes =
+        String(
+            d.getMonth() + 1
+        ).padStart(2, '0')
+
+    const anio =
+        d.getFullYear()
+
+    return `${dia}/${mes}/${anio}`
+
 }
 
 /* =========================================
@@ -122,6 +198,61 @@ async function cargarPedido() {
         )
 
         pedido.value = r.data.pedido || null
+
+        /* =========================================
+   🔥 YAPLINS
+========================================= */
+
+        try {
+
+            const seguridad =
+                firma()
+
+            const ry =
+                await axios.post(
+
+                    `${API}/nraz/lista_pedidos`,
+
+                    {
+
+                        neg_id:
+                            pedido.value?.neg_id,
+
+                        xin:
+                            seguridad.xin,
+
+                        yuan:
+                            seguridad.yuan
+
+                    }
+
+                )
+
+            const pedidos =
+                ry.data?.data || []
+
+            const actual =
+                pedidos.find(
+
+                    x => Number(x.carrito_id)
+                        ===
+                        Number(
+                            pedido.value?.carrito_id
+                        )
+
+                )
+
+            yaplins.value =
+                actual?.yaplins || []
+
+        } catch (e) {
+
+            console.error(
+                'Error cargando yaplins',
+                e
+            )
+
+        }
 
         productos.value = (r.data.productos || []).map(p => ({
             carrito_detalle_id: p.carrito_detalle_id,

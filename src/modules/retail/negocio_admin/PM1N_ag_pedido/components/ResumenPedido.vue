@@ -4,17 +4,41 @@
 
         <div class="flex justify-between">
             <span>Subtotal</span>
-            <span>S/ {{ subtotal }}</span>
+            <span>
+
+                S/
+                {{
+                    Number(subtotal)
+                        .toFixed(2)
+                }}
+
+            </span>
         </div>
 
         <div class="flex justify-between">
             <span>Delivery</span>
-            <span>S/ {{ delivery }}</span>
+            <span>
+
+                S/
+                {{
+                    Number(delivery)
+                        .toFixed(2)
+                }}
+
+            </span>
         </div>
 
         <div class="flex justify-between font-semibold border-t pt-2">
             <span>Total</span>
-            <span>S/ {{ total }}</span>
+            <span>
+
+                S/
+                {{
+                    Number(total)
+                        .toFixed(2)
+                }}
+
+            </span>
         </div>
 
     </div>
@@ -30,9 +54,17 @@ const props = defineProps({
 
 // 🔥 cálculo automático
 const subtotal = computed(() => {
+
     return props.items.reduce((sum, p) => {
-        return sum + (p.precio * p.cantidad)
+
+        return sum + (
+            Number(p.precio)
+            *
+            Number(p.cantidad)
+        )
+
     }, 0)
+
 })
 
 // 🔥 demo (puedes cambiar luego)

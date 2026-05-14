@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen" :style="fondoStyle">
+    <div class="min-h-screen pt-20" :style="fondoStyle">
 
         <NegpresHeader />
 
@@ -11,7 +11,9 @@
             <FavoritesGrid :productos="favoritos" @eliminar="handleEliminar" />
 
             <!-- VACÍO -->
-            <EmptyState v-if="favoritos.length === 0" />
+            <!-- VACÍO -->
+            <EmptyLetter v-if="favoritos.length === 0" titulo="No tienes favoritos"
+                texto="Guarda productos que te gusten 💛" />
 
         </div>
 
@@ -28,11 +30,12 @@ import { useUsuario } from '../../../../services/usuarioService.js'
 import NegpresHeader from '../../../../components/layout/NegpresHeaderBack.vue'
 import FavoritesGrid from './components/FavoritesGrid.vue'
 import SectionTitle from './components/SectionTitle.vue'
-import EmptyState from './components/EmptyState.vue'
 import GsapToast from '../../../../components/layout/GsapToast.vue'
 import { computed } from 'vue'
 import { useMercado } from '../../../../services/useMercado.js'
 import { cssToObject } from '../../../../services/useCss.js'
+import EmptyLetter
+    from '../../../../components/layout/EmptyLetter.vue'
 
 /* =========================
    STATE

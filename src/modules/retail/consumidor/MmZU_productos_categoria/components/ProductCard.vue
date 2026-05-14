@@ -58,9 +58,26 @@
 
         <!-- BOTON -->
         <div class="px-3 pb-3">
-            <button class="w-full bg-[#FD7635] text-white py-2 rounded-xl text-sm" @click.stop="onAgregarClick($event)">
+
+            <!-- 🟢 DISPONIBLE -->
+            <button v-if="Number(producto.stock) > 0"
+                class="w-full bg-[#FD7635] text-white py-2 rounded-xl text-sm font-semibold shadow-md hover:scale-[1.02] active:scale-95 transition"
+                @click.stop="abrirCantidadDialog">
+
                 Agregar
+
             </button>
+
+            <!-- 🔴 AGOTADO -->
+            <div v-else
+                class="w-full py-2 rounded-xl text-sm font-bold text-center border border-red-200 bg-gradient-to-r from-red-50 to-red-100 text-red-500 shadow-inner tracking-wide">
+
+                ✦ AGOTADO ✦
+
+            </div>
+
+            <CantidadProductoDialog ref="cantidadDialogRef" @confirm="onConfirmCantidad" />
+
         </div>
 
     </div>
@@ -70,7 +87,9 @@
 import { useRouter } from 'vue-router'
 import { gsap } from 'gsap'
 import { useUsuario } from '../../../../../services/usuarioService.js'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import CantidadProductoDialog
+    from '../components/CantidadProductoDialog.vue'
 
 const router = useRouter()
 
@@ -81,8 +100,19 @@ const props = defineProps({
 const { usuario } = useUsuario()
 
 const user = computed(() => usuario.value?.user || null)
+const cantidadDialogRef = ref(null)
 
 const emit = defineEmits(['toast', 'confetti'])
+
+function abrirCantidadDialog() {
+
+    cantidadDialogRef.value?.open(
+        props.producto
+    )
+
+}
+
+
 
 // 🔥 FUNCIÓN PRINCIPAL
 // 🔥 REUTILIZAMOS
@@ -126,55 +156,101 @@ function flyToHeart(e) {
     })
 }
 
-async function onAgregarClick(e) {
+async function onConfirmCantidad(payload) {
+
+    const e = {
+
+        target:
+            document.querySelector('.product-card')
+
+    }
 
     flyToHeart(e)
 
-    const usu_id = user.value?.usu_id
-    const neg_id = props.neg_id
+    const cantidad =
+        payload.cantidad
+
+    const usu_id =
+        user.value?.usu_id
+
+    const neg_id =
+        props.neg_id
 
     if (!usu_id) {
+
         emit('toast', {
-            text: 'Debes iniciar sesión ❌',
-            type: 'error'
+
+            text:
+                'Debes iniciar sesión ❌',
+
+            type:
+                'error'
         })
+
         return
     }
 
     if (!neg_id) {
+
         emit('toast', {
-            text: 'Error: neg_id no disponible ❌',
-            type: 'error'
+
+            text:
+                'Error: neg_id no disponible ❌',
+
+            type:
+                'error'
         })
+
         return
     }
 
     try {
 
         const res = await fetch(
+
             `${import.meta.env.VITE_PUBLIC_URL_BASE}/M0Jk/carritoCompras`,
+
             {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+
                 body: JSON.stringify({
-                    usu_id: usu_id,
-                    neg_id: neg_id,
-                    product_id: props.producto.product_id,
-                    cantidad: 1,
-                    fecha_entrega: null
+
+                    usu_id:
+                        usu_id,
+
+                    neg_id:
+                        neg_id,
+
+                    product_id:
+                        props.producto.product_id,
+
+                    cantidad:
+                        cantidad,
+
+                    fecha_entrega:
+                        null
                 })
             }
         )
 
-        const data = await res.json()
+        const data =
+            await res.json()
 
         if (data.status === 'ok') {
 
             emit('toast', {
-                text: data.msg === 'actualizado'
-                    ? 'Cantidad actualizada 🛒'
-                    : 'Agregado al carrito 🛒',
-                type: 'success'
+
+                text:
+                    data.msg === 'actualizado'
+                        ? 'Cantidad actualizada 🛒'
+                        : 'Agregado al carrito 🛒',
+
+                type:
+                    'success'
             })
 
             emit('confetti')
@@ -182,8 +258,12 @@ async function onAgregarClick(e) {
         } else {
 
             emit('toast', {
-                text: data.msg || 'Error al agregar ❌',
-                type: 'error'
+
+                text:
+                    data.msg || 'Error al agregar ❌',
+
+                type:
+                    'error'
             })
 
         }
@@ -191,11 +271,16 @@ async function onAgregarClick(e) {
     } catch (err) {
 
         emit('toast', {
-            text: 'Error de conexión ❌',
-            type: 'error'
+
+            text:
+                'Error de conexión ❌',
+
+            type:
+                'error'
         })
 
     }
+
 }
 
 function irDetalle() {

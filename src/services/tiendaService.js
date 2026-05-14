@@ -1,7 +1,41 @@
 import axios from 'axios'
-import { API_BASE, NEG_ID } from '../config/appConfig.js'
+
+import {
+  API_BASE,
+  NEG_ID
+}
+from '../config/appConfig.js'
+
+import {
+  firma
+}
+from './security.js'
 
 export async function fetchTienda() {
-  const res = await axios.get(`${API_BASE}/ArWL/tienda/${NEG_ID}`)
+
+  const seguridad =
+    firma()
+
+  const res =
+    await axios.post(
+
+      `${API_BASE}/ArWL/tienda`,
+
+      {
+
+        neg_id:
+          NEG_ID,
+
+        xin:
+          seguridad.xin,
+
+        yuan:
+          seguridad.yuan
+
+      }
+
+    )
+
   return res.data.data
-} 
+
+}

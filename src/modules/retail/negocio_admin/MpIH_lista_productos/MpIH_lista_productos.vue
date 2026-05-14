@@ -1,9 +1,9 @@
 <template>
     <div class="min-h-screen flex flex-col" :style="fondoStyle">
 
-        <HeaderBar />
+        <HeaderBar @openOptions="openDialog" />
 
-        <div class="max-w-5xl w-full mx-auto px-4 pt-4 pb-24">
+        <div class="max-w-5xl w-full mx-auto px-4 pt-28 pb-24">
 
             <SearchBar @buscar="onBuscar" @limpiar="onLimpiar" />
 
@@ -15,8 +15,21 @@
             </div>
 
             <!-- 🔴 SIN RESULTADOS -->
-            <div v-if="!loading && productos.length === 0" class="text-center mt-6 text-gray-500">
-                Sin resultados 😢
+            <div v-if="!loading && productos.length === 0"
+                class="mt-10 flex flex-col items-center justify-center text-center">
+
+                <div class="w-24 h-24 rounded-full bg-white shadow-lg flex items-center justify-center text-4xl">
+                    😢
+                </div>
+
+                <div class="mt-4 text-xl font-bold text-gray-700">
+                    Sin resultados
+                </div>
+
+                <div class="text-sm text-gray-500 mt-1 max-w-xs">
+                    No encontramos productos con esa búsqueda.
+                </div>
+
             </div>
 
             <!-- 🟢 LISTA -->
@@ -27,21 +40,29 @@
         </div>
 
         <BottomNav />
+        <OptionsDialog ref="dialogRef" />
 
     </div>
 </template>
 
 <script setup>
+import axios from 'axios'
 import HeaderBar from './components/HeaderBar.vue'
 import SearchBar from './components/SearchBar.vue'
 import ProductoItem from './components/ProductoItem.vue'
-import { api } from '../../../../services/api'
 import { useUsuario } from '../../../../services/usuarioService'
 import { computed, onMounted, ref } from 'vue'
+import {
+    enc_barsi,
+    des_barsi,
+    firma
+}
+    from '../../../../services/security'
 import CatCarousel from './components/CatCarousel.vue'
 import { useMercado } from '../../../../services/useMercado.js'
 import { cssToObject } from '../../../../services/useCss.js'
-
+import OptionsDialog
+    from './components/OptionsDialog.vue'
 
 let timeout = null
 
@@ -66,34 +87,64 @@ const fondoStyle = computed(() => {
 
 const { getNegId, getUsuId } = useUsuario()
 
+const dialogRef = ref(null)
+
+function openDialog() {
+
+    dialogRef.value?.open()
+
+}
+
 // 🔥 LISTAR
 async function cargarProductos() {
+
     loading.value = true
 
     try {
-        const res = await api.get('/MpIH/product/listar', {
-            params: {
+
+        const seguridad = firma()
+
+        const res = await axios.post(
+
+            '/MpIH/product/listar',
+
+            {
+
                 neg_id: getNegId(),
-                usu_id: getUsuId()
+
+                usu_id: getUsuId(),
+
+                xin: seguridad.xin,
+
+                yuan: seguridad.yuan
+
             }
-        })
+
+        )
 
         if (res.data.status === 'ok') {
+
             productos.value = res.data.data
+
         }
 
     } catch (e) {
+
         console.error(e)
+
     } finally {
+
         loading.value = false
+
     }
+
 }
 
 async function cargarCategorias() {
 
     try {
 
-        const res = await api.get(`/MylW/listar_categorias/${getNegId()}`)
+        const res = await axios.get(`/MylW/listar_categorias/${getNegId()}`)
 
         if (res.data.status === 'ok') {
 
@@ -132,7 +183,7 @@ async function buscarProductos(texto) {
     loading.value = true
 
     try {
-        const res = await api.post('/MpIH/buscarProducto', {
+        const res = await axios.post('/MpIH/buscarProducto', {
             neg_id: getNegId(),
             usu_id: getUsuId(),
             texto

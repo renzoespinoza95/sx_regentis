@@ -1,6 +1,6 @@
 <template>
 
-    <div class="min-h-screen" :style="fondoStyle">
+    <div class="min-h-screen pt-20" :style="fondoStyle">
 
         <NegpresHeader />
 
@@ -43,12 +43,14 @@ import { cssToObject } from '../../../../services/useCss.js'
 import GsapToast from '../../../../components/layout/GsapToast.vue'
 import GsapConfetti from '../../../../components/layout/GsapConfetti.vue'
 
+
 /* =========================
    🔥 REFS
 ========================= */
 
 const toastRef = ref(null)
 const confettiRef = ref(null)
+
 
 /* =========================
    🔥 ROUTE

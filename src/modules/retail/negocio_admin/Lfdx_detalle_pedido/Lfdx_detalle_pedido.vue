@@ -93,22 +93,22 @@
                 <!-- RESUMEN -->
                 <ResumenPedido :items="productos" />
 
-                <!-- YAPLIN -->
-                <ImagenUploader />
-
-                <BtnDespachar :carrito-id="pedido.carrito_id" :neg-id="pedido.neg_id" :usu-id="trabajador?.usu_id || 0"
-                    :direccion="pedido.direccion" :fecha-entrega="fechaEntrega" :trabajador-seleccionado="!!trabajador"
-                    @success="onDespachado" />
+                <BtnDespachar v-if="!eliminado" :carrito-id="pedido.carrito_id" :neg-id="pedido.neg_id"
+                    :usu-id="trabajador?.usu_id || 0" :direccion="pedido.direccion" :fecha-entrega="fechaEntrega"
+                    :trabajador-seleccionado="!!trabajador" @success="onDespachado" />
 
             </div>
 
         </div>
 
         <!-- DIALOGS -->
-        <OptionsDialog ref="dialogRef" />
+        <OptionsDialog ref="dialogRef" @eliminar="confirmarEliminar" @atender="abrirVentaDialog" />
 
         <TrabajadorDialog ref="trabajadorDialogRef" :neg-id="pedido?.neg_id" @selected="onTrabajadorSelected" />
+        <AppSnackbar ref="snackbarRef" />
 
+        <GsapToast ref="toastRef" />
+        <VentaDialog ref="detalleRef" @rechazar="confirmarRechazo" @entregar="onVentaRealizada" />
     </div>
 
 </template>
@@ -129,6 +129,10 @@ import OptionsDialog from './components/OptionsDialog.vue'
 import ImagenUploader from './components/ImagenUploader.vue'
 import TrabajadorDialog from './components/TrabajadorDialog.vue'
 import BtnDespachar from './components/BtnDespachar.vue'
+import AppSnackbar from '../../../../components/layout/AppSnackbar.vue'
+import GsapToast from '../../../../components/layout/GsapToast.vue'
+import VentaDialog
+    from '../../../../components/VentaDialog.vue'
 
 const API =
     import.meta.env.VITE_PUBLIC_URL_BASE
@@ -141,7 +145,7 @@ const pedido = ref(null)
 const productos = ref([])
 
 const fechaEntrega = ref('')
-
+const detalleRef = ref(null)
 const trabajador = ref(null)
 
 const trabajadorNombre = computed(() => {
@@ -161,6 +165,10 @@ const fondoStyle = computed(() => {
 })
 
 const dialogRef = ref(null)
+const snackbarRef = ref(null)
+const toastRef = ref(null)
+
+const eliminado = ref(false)
 
 function openDialog() {
     dialogRef.value.open()
@@ -176,6 +184,42 @@ function abrirTrabajadores() {
 function onTrabajadorSelected(item) {
 
     trabajador.value = item
+}
+
+function onVentaRealizada(data) {
+
+    console.log(
+        'Venta realizada',
+        data
+    )
+
+    toastRef.value?.show({
+
+        text:
+            'Venta realizada correctamente',
+
+        type:
+            'success'
+    })
+
+}
+
+function confirmarRechazo(data) {
+
+    console.log(
+        'Pedido rechazado',
+        data
+    )
+
+    toastRef.value?.show({
+
+        text:
+            'Pedido rechazado',
+
+        type:
+            'error'
+    })
+
 }
 
 /* =========================================
@@ -211,7 +255,7 @@ async function cargarPedido() {
                 carrito_detalle_id:
                     p.carrito_detalle_id,
 
-                nombre:
+                name:
                     p.name,
 
                 cantidad:
@@ -220,7 +264,7 @@ async function cargarPedido() {
                 unidad:
                     'und',
 
-                precio:
+                precio_unitario:
                     Number(p.precio_unitario || 0),
 
                 img:
@@ -253,4 +297,90 @@ function onDespachado(r) {
     pedido.value.estado =
         'transito'
 }
+
+function confirmarEliminar() {
+
+    snackbarRef.value?.open(
+
+        '¿Deseas eliminar este pedido?',
+
+        async () => {
+
+            await eliminarPedido()
+
+        }
+
+    )
+
+}
+
+async function eliminarPedido() {
+
+    try {
+
+        await axios.post(
+            `${API}/FVhB/eliminarPedido`,
+            {
+                carrito_id: pedido.value.carrito_id
+            }
+        )
+
+        eliminado.value = true
+
+        toastRef.value?.show({
+
+            text: 'Pedido eliminado correctamente',
+
+            type: 'success'
+
+        })
+
+    } catch (e) {
+
+        console.error(e)
+
+        toastRef.value?.show({
+
+            text: 'Error eliminando pedido',
+
+            type: 'error'
+
+        })
+
+    }
+
+}
+
+function abrirVentaDialog() {
+
+    detalleRef.value?.open({
+
+        carrito_id:
+            pedido.value.carrito_id,
+
+        neg_id:
+            pedido.value.neg_id,
+
+        cliente:
+            pedido.value.nombres_apellidos,
+
+        celular:
+            pedido.value.celular,
+
+        productos:
+            productos.value,
+
+        total:
+            productos.value.reduce((a, b) => {
+
+                return a + (
+                    b.precio * b.cantidad
+                )
+
+            }, 0)
+
+    })
+
+}
+
 </script>

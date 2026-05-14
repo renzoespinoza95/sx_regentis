@@ -4,12 +4,31 @@
 
         <div ref="box" class="bg-white rounded-xl p-5 w-72 space-y-3">
 
-            <button class="w-full text-left">opcionA</button>
-            <button class="w-full text-left">opcionB</button>
-            <button class="w-full text-left">opcionC</button>
+            <!-- ======================================
+                 🆕 NUEVO
+            ====================================== -->
+
+            <button class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100 transition flex items-center gap-2"
+                @click="nuevo">
+
+                <i class="fa fa-file-o text-green-500"></i>
+
+                <span>
+
+                    Nuevo
+
+                </span>
+
+            </button>
+
+            <!-- ======================================
+                 ❌ CERRAR
+            ====================================== -->
 
             <button class="w-full text-white py-2 rounded-md bg-red-500 mt-2" @click="close">
+
                 Cerrar
+
             </button>
 
         </div>
@@ -19,31 +38,88 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue'
+
+import {
+    ref,
+    nextTick
+} from 'vue'
+
 import gsap from 'gsap'
 
 const visible = ref(false)
+
 const box = ref(null)
 
+const emit = defineEmits([
+    'nuevo'
+])
+
+/* ======================================
+   🔥 OPEN
+====================================== */
+
 function open() {
+
     visible.value = true
 
     nextTick(() => {
-        gsap.fromTo(box.value,
-            { scale: 0.7, opacity: 0 },
-            { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(1.7)' }
+
+        gsap.fromTo(
+            box.value,
+            {
+                scale: 0.7,
+                opacity: 0
+            },
+            {
+                scale: 1,
+                opacity: 1,
+                duration: 0.3,
+                ease: 'back.out(1.7)'
+            }
         )
+
     })
+
 }
+
+/* ======================================
+   🔥 CLOSE
+====================================== */
 
 function close() {
+
     gsap.to(box.value, {
+
         scale: 0.7,
+
         opacity: 0,
+
         duration: 0.2,
-        onComplete: () => visible.value = false
+
+        onComplete: () => {
+
+            visible.value = false
+
+        }
+
     })
+
 }
 
-defineExpose({ open })
+/* ======================================
+   🆕 NUEVO
+====================================== */
+
+function nuevo() {
+
+    emit('nuevo')
+
+    close()
+
+}
+
+defineExpose({
+    open
+})
+
 </script>

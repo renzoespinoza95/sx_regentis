@@ -1,8 +1,8 @@
 <template>
 
-    <div class="min-h-screen flex flex-col" :style="fondoStyle">
+    <div class="min-h-screen flex flex-col pt-20" :style="fondoStyle">
 
-        <HeaderBar />
+        <NegpresHeader />
 
         <div class="flex-1 flex justify-center p-4">
 
@@ -33,7 +33,7 @@ import { useMercado } from '../../../../services/useMercado.js'
 import { cssToObject } from '../../../../services/useCss.js'
 import { useUsuario } from '../../../../services/usuarioService.js'
 
-import HeaderBar from './components/HeaderBar.vue'
+import NegpresHeader from '../../../../components/layout/NegpresHeaderBack.vue'
 import InputFecha from './components/InputFecha.vue'
 import ProductosTable from './components/ProductosTable.vue'
 import BtnGuardar from './components/BtnGuardar.vue'
@@ -168,11 +168,22 @@ async function finalizarPedido() {
 
     try {
 
+        // 🔥 convertir dd/mm/yyyy → yyyy-mm-dd
+        let fechaEntrega = null
+
+        if (form.value.fecha) {
+
+            const [dia, mes, anio] = form.value.fecha.split('/')
+
+            fechaEntrega = `${anio}-${mes}-${dia}`
+        }
+
         const res = await fetch(`${import.meta.env.VITE_PUBLIC_URL_BASE}/VS26/finalizarPedidoCarrito`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                carrito_id: carritoId.value
+                carrito_id: carritoId.value,
+                fecha_entrega: fechaEntrega
             })
         })
 
@@ -184,9 +195,14 @@ async function finalizarPedido() {
 
             snackbarRef.value?.open('Pedido enviado 🎉')
 
-            confettiRef.value?.show()
+            // 🔥 validar confetti
+            if (
+                confettiRef.value &&
+                typeof confettiRef.value.show === 'function'
+            ) {
+                confettiRef.value.show()
+            }
 
-            // 🔥 REDIRECCIÓN DESPUÉS DE 4s
             setTimeout(() => {
                 router.push(`/B2Tk_detalle_pedido/${carritoId.value}`)
             }, 4000)
@@ -198,6 +214,8 @@ async function finalizarPedido() {
         }
 
     } catch (e) {
+
+        console.error(e)
 
         snackbarRef.value?.open('Error de conexión ❌')
 

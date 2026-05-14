@@ -16,6 +16,10 @@
                     Información
                 </button>
 
+                <button @click="irContacto" class="menu-item-btn">
+                    Contacto
+                </button>
+
                 <button @click="cerrar" class="menu-cancel-btn">
                     Cancelar
                 </button>
@@ -101,6 +105,11 @@ function irAdministracion() {
 function irMiCuenta() {
     cerrar()
     router.push('/BTqw_mi_cuenta')
+}
+
+function irContacto() {
+    cerrar()
+    router.push('/mod_404')
 }
 
 // 🔥 NUEVA FUNCIÓN

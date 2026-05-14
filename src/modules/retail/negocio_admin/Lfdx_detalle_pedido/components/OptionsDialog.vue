@@ -2,14 +2,40 @@
 
     <div v-if="visible" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
 
-        <div ref="box" class="bg-white rounded-xl p-5 w-72 space-y-3">
+        <div ref="box" class="bg-white rounded-2xl p-5 w-72 space-y-3 shadow-2xl">
 
-            <button class="w-full text-left">opcionA</button>
-            <button class="w-full text-left">opcionB</button>
-            <button class="w-full text-left">opcionC</button>
+            <!-- 🔥 ATENDER -->
+            <button
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-green-50 text-green-700 font-semibold active:scale-95 transition"
+                @click="atenderAhora">
 
-            <button class="w-full text-white py-2 rounded-md bg-red-500 mt-2" @click="close">
+                <i class="fa fa-headphones text-lg"></i>
+
+                <span>
+                    Atender ahora
+                </span>
+
+            </button>
+
+            <!-- 🔥 ELIMINAR -->
+            <button
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-red-50 text-red-600 font-semibold active:scale-95 transition"
+                @click="eliminar">
+
+                <i class="fa fa-trash text-lg"></i>
+
+                <span>
+                    Eliminar
+                </span>
+
+            </button>
+
+            <!-- 🔥 CERRAR -->
+            <button class="w-full text-white py-3 rounded-xl bg-gray-800 mt-2 active:scale-95 transition"
+                @click="close">
+
                 Cerrar
+
             </button>
 
         </div>
@@ -19,31 +45,94 @@
 </template>
 
 <script setup>
+
 import { ref, nextTick } from 'vue'
 import gsap from 'gsap'
 
+const emit = defineEmits([
+    'atender',
+    'eliminar'
+])
+
 const visible = ref(false)
+
 const box = ref(null)
 
+/* =========================================
+   OPEN
+========================================= */
+
 function open() {
+
     visible.value = true
 
     nextTick(() => {
-        gsap.fromTo(box.value,
-            { scale: 0.7, opacity: 0 },
-            { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(1.7)' }
+
+        gsap.fromTo(
+            box.value,
+
+            {
+                scale: 0.7,
+                opacity: 0
+            },
+
+            {
+                scale: 1,
+                opacity: 1,
+                duration: 0.3,
+                ease: 'back.out(1.7)'
+            }
         )
+
     })
+
 }
 
+/* =========================================
+   CLOSE
+========================================= */
+
 function close() {
+
     gsap.to(box.value, {
+
         scale: 0.7,
         opacity: 0,
         duration: 0.2,
-        onComplete: () => visible.value = false
+
+        onComplete: () => {
+
+            visible.value = false
+
+        }
+
     })
+
 }
 
-defineExpose({ open })
+/* =========================================
+   ACCIONES
+========================================= */
+
+function atenderAhora() {
+
+    emit('atender')
+
+    close()
+
+}
+
+function eliminar() {
+
+    emit('eliminar')
+
+    close()
+
+}
+
+defineExpose({
+    open,
+    close
+})
+
 </script>

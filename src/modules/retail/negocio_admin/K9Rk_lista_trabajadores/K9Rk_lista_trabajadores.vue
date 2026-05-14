@@ -1,6 +1,6 @@
 <template>
 
-    <div class="min-h-screen flex flex-col" :style="fondoStyle">
+    <div class="min-h-screen flex flex-col pt-20" :style="fondoStyle">
 
         <HeaderBar />
 
@@ -25,51 +25,160 @@
     </div>
 
 </template>
-
 <script setup>
-import { ref, computed } from 'vue'
-import { useMercado } from '../../../../services/useMercado.js'
-import { cssToObject } from '../../../../services/useCss.js'
 
-import HeaderBar from './components/HeaderBar.vue'
-import SearchBar from './components/SearchBar.vue'
-import WorkerItem from './components/WorkerItem.vue'
+import {
+    ref,
+    computed,
+    onMounted
+} from 'vue'
 
-// 🔥 mercado
-const { mercado } = useMercado()
+import axios from 'axios'
 
-// 🔥 fondo dinámico
+import {
+    useMercado
+} from '../../../../services/useMercado.js'
+
+import {
+    cssToObject
+} from '../../../../services/useCss.js'
+
+import {
+    useUsuario
+} from '../../../../services/usuarioService.js'
+
+import HeaderBar
+    from './components/HeaderBar.vue'
+
+import SearchBar
+    from './components/SearchBar.vue'
+
+import WorkerItem
+    from './components/WorkerItem.vue'
+
+/* ======================================
+   🔥 API
+====================================== */
+
+const API =
+    import.meta.env.VITE_PUBLIC_URL_BASE
+
+/* ======================================
+   🔥 MERCADO
+====================================== */
+
+const {
+    mercado
+} = useMercado()
+
+/* ======================================
+   🔥 USUARIO
+====================================== */
+
+const {
+    getNegId
+} = useUsuario()
+
+/* ======================================
+   🔥 FONDO
+====================================== */
+
 const fondoStyle = computed(() => {
-    if (!mercado.value?.patron_fondo) return {}
-    return cssToObject(mercado.value.patron_fondo)
+
+    if (!mercado.value?.patron_fondo)
+        return {}
+
+    return cssToObject(
+        mercado.value.patron_fondo
+    )
+
 })
 
-// 🔥 DATA DEMO
+/* ======================================
+   🔍 SEARCH
+====================================== */
+
 const buscar = ref('')
 
-const trabajadores = ref([
-    {
-        id: 1,
-        nombre: 'Frodo Bolson',
-        cel: '999000777',
-        dni: '444666777',
-        rol: 'Delivery'
-    },
-    {
-        id: 2,
-        nombre: 'Samwise Gamgee',
-        cel: '988123456',
-        dni: '111222333',
-        rol: 'Delivery'
-    }
-])
+/* ======================================
+   👥 TRABAJADORES
+====================================== */
 
-// 🔥 FILTRO
+const trabajadores = ref([])
+
+/* ======================================
+   🔍 FILTRO
+====================================== */
+
 const filtrados = computed(() => {
-    if (!buscar.value) return trabajadores.value
+
+    if (!buscar.value) {
+
+        return trabajadores.value
+
+    }
 
     return trabajadores.value.filter(t =>
-        t.nombre.toLowerCase().includes(buscar.value.toLowerCase())
+
+        (
+            t.nombres_apellidos ||
+            t.sobrenombre ||
+            ''
+        )
+            .toLowerCase()
+            .includes(
+                buscar.value.toLowerCase()
+            )
+
     )
+
 })
+
+/* ======================================
+   📦 CARGAR
+====================================== */
+
+async function cargarTrabajadores() {
+
+    try {
+
+        const r = await axios.post(
+
+            `${API}/N3GT/contactosNeg`,
+
+            {
+                neg_id:
+                    getNegId()
+            }
+
+        )
+
+        if (r.data.status === 'ok') {
+
+            trabajadores.value =
+                r.data.data || []
+
+        }
+
+    } catch (e) {
+
+        console.error(
+            'Error cargando trabajadores',
+            e
+        )
+
+    }
+
+}
+
+/* ======================================
+   🚀 INIT
+====================================== */
+
+onMounted(() => {
+
+    cargarTrabajadores()
+
+})
+
 </script>

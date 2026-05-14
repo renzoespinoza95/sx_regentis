@@ -16,7 +16,7 @@
     <button v-if="visible" @click="despachar" :disabled="loading || !trabajadorSeleccionado"
         class="w-full h-14 rounded-2xl text-white font-bold shadow-lg transition active:scale-95 flex items-center justify-center gap-2"
         :style="{
-            background: mercado.topnavbar_color || '#FD7635',
+            background: '#16a34a',
             cursor:
                 (!trabajadorSeleccionado)
                     ? 'not-allowed'

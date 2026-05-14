@@ -1,9 +1,11 @@
 <template>
 
-    <div class="min-h-screen" :style="fondoStyle">
+    <div class="min-h-screen pt-20" :style="fondoStyle">
 
         <!-- NAVBAR -->
-        <RegHeader />
+        <RegHeader :titulo="tienda?.data?.value?.negocio?.nombre
+            || 'Dashboard'
+            " />
 
         <!-- CONTENIDO -->
         <div class="content-container">
@@ -15,10 +17,9 @@
     </div>
 
 </template>
-
 <script setup>
 import axios from 'axios'
-import { onMounted, onUnmounted, ref, computed } from 'vue'
+import { watchEffect, onMounted, onUnmounted, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 import RegHeader from '../reg_principal/components/RegHeader.vue'
@@ -30,11 +31,27 @@ import { useUsuario } from '../../services/usuarioService.js'
 import { useMercado } from '../../services/useMercado.js'
 import { cssToObject } from '../../services/useCss.js'
 
+import {
+    useTienda
+} from '../../services/useTienda.js'
+
+/* =========================================
+   🔥 SECURITY
+========================================= */
+
+import {
+    firma
+} from '../../services/security.js'
+
 const router = useRouter()
+
 const { usuario } = useUsuario()
 
 const screens = ref([])
+
 let intervalId = null
+
+const tienda = useTienda()
 
 // =========================
 // 🔥 FONDO DINÁMICO
@@ -48,39 +65,108 @@ const fondoStyle = computed(() => {
         return {}
     }
 
-    return cssToObject(mercado.value.patron_fondo)
+    return cssToObject(
+        mercado.value.patron_fondo
+    )
 
 })
 
+/* =========================================
+   FETCH SCREENS
+========================================= */
+
 async function fetchScreens() {
+
     try {
 
-        const res = await axios.post('/WAsQ/usuario/screens', {
-            usu_id: usuario.value?.user?.usu_id
-        })
+        /* =========================
+        🔥 FIRMA
+        ========================= */
 
-        if (res.data?.status !== 'ok') return
+        const seguridad =
+            firma()
 
-        const newScreens = res.data.screens
+        console.log(
+            'FIRMA >>>',
+            seguridad
+        )
 
-        // 🔥 evitar re-render innecesario
-        if (JSON.stringify(newScreens) !== JSON.stringify(screens.value)) {
+        const res = await axios.post(
+
+            '/WAsQ/usuario/screens',
+
+            {
+
+                xin: seguridad.xin,
+
+                yuan: seguridad.yuan,
+
+                usu_id: usuario.value?.user?.usu_id
+
+            }
+
+        )
+
+        if (res.data?.status !== 'ok') {
+            return
+        }
+
+        const newScreens = res.data.screens || []
+
+        /* =========================================
+           EVITAR RE-RENDER
+        ========================================= */
+
+        if (
+
+            JSON.stringify(newScreens)
+
+            !==
+
+            JSON.stringify(screens.value)
+
+        ) {
 
             screens.value = newScreens
 
-            // 🔥 guardar en localStorage
+            /* =========================================
+               🔥 LOCALSTORAGE
+            ========================================= */
+
             const nuevo = {
+
                 ...usuario.value,
+
                 screens: newScreens
+
             }
 
-            localStorage.setItem('usuario', JSON.stringify(nuevo))
+            localStorage.setItem(
+                'usuario',
+                JSON.stringify(nuevo)
+            )
+
         }
 
     } catch (e) {
-        console.error('Error cargando screens', e)
+
+        console.error(
+            'Error cargando screens',
+            e
+        )
+
     }
+
 }
+
+watchEffect(() => {
+
+    console.log(
+        'TIENDA >>>',
+        tienda
+    )
+
+})
 
 // =========================
 // INIT
@@ -88,42 +174,87 @@ async function fetchScreens() {
 
 onMounted(() => {
 
-    // 🔥 VALIDAR LOGIN
-    if (!usuario.value || !usuario.value.user) {
+    /* =========================================
+       VALIDAR LOGIN
+    ========================================= */
+
+    if (
+
+        !usuario.value ||
+
+        !usuario.value.user
+
+    ) {
+
         router.replace('/login')
+
         return
+
     }
 
-    // ⚡ carga rápida
+    /* =========================================
+       ⚡ CARGA RÁPIDA
+    ========================================= */
+
     screens.value = usuario.value.screens || []
 
-    // 🔥 refresco inmediato
+    /* =========================================
+       REFRESH INMEDIATO
+    ========================================= */
+
     fetchScreens()
 
-    // 🔥 TIEMPO DESDE ENV (MINUTOS → ms)
-    const minutos = parseInt(import.meta.env.VITE_PUBLIC_RQ_POLLING || '5')
+    /* =========================================
+       INTERVAL
+    ========================================= */
+
+    const minutos = parseInt(
+
+        import.meta.env
+            .VITE_PUBLIC_RQ_POLLING || '5'
+
+    )
+
     const intervaloMs = minutos * 60 * 1000
 
-    intervalId = setInterval(fetchScreens, intervaloMs)
+    intervalId = setInterval(
+        fetchScreens,
+        intervaloMs
+    )
 
 })
 
 onUnmounted(() => {
+
     if (intervalId) {
+
         clearInterval(intervalId)
+
     }
+
 })
 
+/* =========================================
+   TIPO DESCRIPCIÓN
+========================================= */
+
 const tipoDescripcion = computed(() => {
+
     const u = usuario.value?.user
 
     return (
+
         u?.tipoxusu_descripcion ||
+
         u?.tipoxusu?.descripcion ||
+
         'Tus módulos'
+
     )
+
 })
 </script>
+
 
 <style scoped>
 .content-container {

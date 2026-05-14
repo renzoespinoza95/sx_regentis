@@ -35,10 +35,23 @@
     </p>
 
     <!-- 🛒 BOTÓN -->
-    <button class="mt-6 w-full py-3 rounded-full text-white font-semibold shadow-lg active:scale-95 transition"
+    <!-- 🟢 DISPONIBLE -->
+    <button v-if="Number(producto?.stock) > 0"
+      class="mt-6 w-full py-3 rounded-full text-white font-semibold shadow-lg active:scale-95 hover:scale-[1.01] transition"
       :style="btnStyle" @click="onPedirAhora($event)">
       Pedir ahora
     </button>
+
+    <!-- 🔴 AGOTADO -->
+    <div v-else class="mt-6 w-full py-3 rounded-full text-center font-bold tracking-wider
+         bg-gradient-to-r from-red-50 via-red-100 to-red-50
+         border border-red-200
+         text-red-500
+         shadow-inner">
+
+      ✦ PRODUCTO AGOTADO ✦
+
+    </div>
 
   </div>
   <GsapConfetti ref="confettiRef" />

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-between items-center px-4 pt-4 pb-3" :style="{
+  <div class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-4 pt-4 pb-3" :style="{
     background: mercadoColor,
     '--header-color': mercadoColor
   }">
@@ -144,8 +144,9 @@ const showModalUsuario = ref(false)
 const showMenuUsuario = ref(false)
 
 const titulo = computed(() => {
-  return data.value?.negocio?.nombre
-    || route.query.titulo
+
+  return route.query.titulo
+    || data.value?.negocio?.nombre
     || 'Tienda'
 })
 

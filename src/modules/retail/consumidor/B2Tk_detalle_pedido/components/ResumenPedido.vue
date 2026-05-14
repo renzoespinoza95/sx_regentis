@@ -4,17 +4,23 @@
 
         <div class="flex justify-between">
             <span>Subtotal</span>
-            <span>S/ {{ subtotal }}</span>
+            <span>
+                S/ {{ Number(subtotal || 0).toFixed(2) }}
+            </span>
         </div>
 
         <div class="flex justify-between">
             <span>Delivery</span>
-            <span>S/ {{ delivery }}</span>
+            <span>
+                S/ {{ Number(delivery || 0).toFixed(2) }}
+            </span>
         </div>
 
         <div class="flex justify-between font-semibold border-t pt-2">
             <span>Total</span>
-            <span>S/ {{ total }}</span>
+            <span>
+                S/ {{ Number(total || 0).toFixed(2) }}
+            </span>
         </div>
 
     </div>

@@ -31,7 +31,7 @@ const props = defineProps({
 // 🔥 cálculo automático
 const subtotal = computed(() => {
     return props.items.reduce((sum, p) => {
-        return sum + (p.precio * p.cantidad)
+        return sum + (p.precio_unitario * p.cantidad)
     }, 0)
 })
 

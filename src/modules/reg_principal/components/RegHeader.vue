@@ -10,7 +10,9 @@
         <img :src="mercadoData.logo || 'https://barsi-img.b-cdn.net/recursos/logo-regentis.png'" class="logo-img" />
 
         <span class="logo-text">
-          {{ mercadoData.nombre || 'Regentis' }}
+
+          {{ tituloHeader }}
+
         </span>
 
       </div>
@@ -31,7 +33,7 @@
           <div class="notification cursor-pointer" @click="showMenuModal = true">
             <i class="fa fa-bell"></i>
             <span class="notification-badge">
-              3
+              1
             </span>
           </div>
 
@@ -51,6 +53,7 @@
 
   <!-- 🔥 MODAL MENU USUARIO -->
   <ModalMenuUsuario v-model="showMenuModal" />
+  <AppSnackbar ref="snackbarRef" />
 
 </template>
 
@@ -60,15 +63,34 @@ import { useRouter } from 'vue-router'
 import { useUsuario } from '../../../services/usuarioService.js'
 import { useMercado } from '../../../services/useMercado.js'
 import { usePrincipal } from '../../../services/usePrincipal.js'
-
+import AppSnackbar
+  from '../../../components/layout/AppSnackbar.vue'
 import ModalUsuario from '../../../components/ModalUsuario.vue'
 import ModalMenuUsuario from '../../../components/ModalMenuUsuario.vue'
+import {
+  signInWithPopup
+} from "firebase/auth"
+
+import {
+  auth,
+  provider
+} from '../../../services/firebase.js'
 
 const router = useRouter()
 const {
   isLogged,
-  usuario
+  usuario,
+  setLoginData
 } = useUsuario()
+
+const props = defineProps({
+
+  titulo: {
+    type: String,
+    default: ''
+  }
+
+})
 
 const user = computed(() => {
   return usuario.value?.user || null
@@ -87,12 +109,94 @@ const mercadoData = computed(() => mercado.value || {})
 const showUserModal = ref(false)
 const showMenuModal = ref(false)
 
+const snackbarRef = ref(null)
+
 function openUserModal() {
   showUserModal.value = true
 }
 
-function irLogin() {
-  router.push('/login')
+const tituloHeader = computed(() => {
+
+  return (
+    props.titulo
+    ||
+    mercadoData.value.nombre
+    ||
+    'Regentis'
+  )
+
+})
+
+async function irLogin() {
+
+  try {
+
+    // 🔥 LOGIN GOOGLE
+    const result = await signInWithPopup(
+      auth,
+      provider
+    )
+
+    const user = result.user
+
+    // 🔐 TOKEN FIREBASE
+    const idToken =
+      await user.getIdToken()
+
+    // 🚀 BACKEND
+    const res = await api.post(
+
+      '/coral/crearUsuarioFirebase',
+
+      {
+        token: idToken
+      }
+
+    )
+
+    // 🔥 LOGIN OK
+    // 🔥 LOGIN OK
+    if (res.data.status === 'ok') {
+
+      setLoginData(
+        res.data
+      )
+
+      // 🔥 USUARIO
+      const usu_id =
+        res.data?.data?.usu_id
+
+      // 🚀 REDIRECT
+      router.replace(
+        `/registroBasico/${usu_id}`
+      )
+
+    } else {
+
+      snackbarRef.value?.open(
+        res.data.msg
+        || 'Error al iniciar sesión'
+      )
+
+    }
+
+  } catch (e) {
+
+    console.error(
+      'Error login Google',
+      e
+    )
+
+    snackbarRef.value?.open(
+
+      e?.response?.data?.msg
+      ||
+      'Error al iniciar sesión'
+
+    )
+
+  }
+
 }
 
 /* =========================
@@ -110,13 +214,25 @@ onMounted(() => {
 
 <style scoped>
 .header-wrapper {
+
   width: 100%;
-  position: sticky;
+
+  position: fixed;
+
   top: 0;
-  z-index: 999;
+
+  left: 0;
+
+  right: 0;
+
+  z-index: 9999;
+
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+
   padding: 16px 0;
+
   background: var(--header-color, #FD7635);
+
 }
 
 .header-inner {

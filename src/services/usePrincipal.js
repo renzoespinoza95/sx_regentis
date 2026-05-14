@@ -1,6 +1,9 @@
 import axios from 'axios'
 import { useQuery } from '@tanstack/vue-query'
 import { useMercado } from './useMercado'
+import {
+  firma
+} from './security'
 
 const API = import.meta.env.VITE_PUBLIC_URL_BASE
 
@@ -25,6 +28,18 @@ export function usePrincipal(){
     const cache = getCache()
 
     /* =========================
+      🔥 FIRMA
+    ========================== */
+
+    const seguridad =
+      firma()
+
+    console.log(
+      'FIRMA PRINCIPAL >>>',
+      seguridad
+    )
+
+    /* =========================
        🔥 1. CACHE
     ========================== */
     if (cache) {
@@ -36,10 +51,26 @@ export function usePrincipal(){
       setTimeout(async () => {
         try {
 
-          const r = await axios.post(`${API}/app/principal`, {
-            mercado_id: MERCADO_ID,
-            neg_id: NEG_ID
-          })
+          const r = await axios.post(
+              `${API}/app/principal`,
+
+              {
+
+                mercado_id:
+                  MERCADO_ID,
+
+                neg_id:
+                  NEG_ID,
+
+                xin:
+                  seguridad.xin,
+
+                yuan:
+                  seguridad.yuan
+
+              }
+
+            )
 
           setCache(r.data.data)
 
@@ -55,10 +86,26 @@ export function usePrincipal(){
        🔥 2. FETCH
     ========================== */
 
-    const r = await axios.post(`${API}/app/principal`, {
-      mercado_id: MERCADO_ID,
-      neg_id: NEG_ID
-    })
+    const r = await axios.post(
+      `${API}/app/principal`,
+
+      {
+
+        mercado_id:
+          MERCADO_ID,
+
+        neg_id:
+          NEG_ID,
+
+        xin:
+          seguridad.xin,
+
+        yuan:
+          seguridad.yuan
+
+      }
+
+    )
 
     setCache(r.data.data)
 

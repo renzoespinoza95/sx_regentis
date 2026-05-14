@@ -6,27 +6,26 @@
 
             <!-- 🔥 SEARCH -->
             <div class="flex items-center bg-gray-100 px-3 py-2 rounded-md">
+
                 <i class="fa fa-search text-gray-400 mr-2"></i>
+
                 <input v-model="buscar" placeholder="Buscar cliente..."
                     class="flex-1 bg-transparent outline-none text-sm" />
+
             </div>
 
             <!-- 🔥 LISTA -->
             <div class="space-y-2 max-h-60 overflow-y-auto">
-
-                <div v-for="c in filtrados" :key="c.id" class="flex items-center gap-2 p-2 rounded hover:bg-gray-100">
+                <div v-for="c in filtrados" :key="c.cliente_id" @click="select(c)"
+                    class="flex items-center gap-2 p-2 rounded hover:bg-gray-100 cursor-pointer active:scale-[0.98] transition">
 
                     <img src="https://picsum.photos/40" class="w-8 h-8 rounded object-cover" />
 
                     <div class="flex-1 text-sm">
-                        {{ c.nombre }}
-                    </div>
 
-                    <!-- 🔥 BOTON ELEGIR -->
-                    <button class="text-white text-xs px-2 py-1 rounded"
-                        :style="{ background: mercado.topnavbar_color }" @click="select(c)">
-                        elegir
-                    </button>
+                        {{ c.nombre }}
+
+                    </div>
 
                 </div>
 
@@ -34,7 +33,9 @@
 
             <!-- 🔥 CERRAR -->
             <button class="w-full text-white py-2 rounded-md bg-red-500" @click="close">
+
                 Cerrar
+
             </button>
 
         </div>
@@ -44,58 +45,210 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick } from 'vue'
+
+import {
+    ref,
+    computed,
+    nextTick
+} from 'vue'
+import axios from 'axios'
 import gsap from 'gsap'
-import { useMercado } from '../../../../../services/useMercado.js'
+
+import {
+    enc_barsi,
+    des_barsi,
+    firma
+}
+    from '../../../../../services/security'
+
+import {
+    useUsuario
+} from '../../../../../services/usuarioService'
+
+import {
+    useMercado
+} from '../../../../../services/useMercado.js'
 
 const { mercado } = useMercado()
 
+const {
+    getNegId
+} = useUsuario()
+
 const visible = ref(false)
+
 const box = ref(null)
+
 const buscar = ref('')
 
-// 🔥 DATA DEMO
-const clientes = [
-    { id: 1, nombre: 'Bilbo Bolson' },
-    { id: 2, nombre: 'Frodo Bolson' },
-    { id: 3, nombre: 'Samwise Gamgee' },
-    { id: 4, nombre: 'Gandalf Gris' }
-]
+const clientes = ref([])
 
-// 🔥 FILTRO
+/* ======================================
+   🔥 FILTRADOS
+====================================== */
+
 const filtrados = computed(() => {
-    if (!buscar.value) return clientes
-    return clientes.filter(c =>
-        c.nombre.toLowerCase().includes(buscar.value.toLowerCase())
+
+    if (!buscar.value) {
+
+        return clientes.value
+
+    }
+
+    return clientes.value.filter(c =>
+
+        (c.nombre || '')
+            .toLowerCase()
+            .includes(
+                buscar.value.toLowerCase()
+            )
+
     )
+
 })
 
-const emit = defineEmits(['select'])
+const emit = defineEmits([
+    'select'
+])
 
-function open() {
+/* ======================================
+   🔥 OPEN
+====================================== */
+
+async function open() {
+
     visible.value = true
 
+    await cargarClientes()
+
     nextTick(() => {
-        gsap.fromTo(box.value,
-            { scale: 0.7, opacity: 0 },
-            { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(1.7)' }
+
+        gsap.fromTo(
+            box.value,
+            {
+                scale: 0.7,
+                opacity: 0
+            },
+            {
+                scale: 1,
+                opacity: 1,
+                duration: 0.3,
+                ease: 'back.out(1.7)'
+            }
         )
+
     })
+
 }
+
+/* ======================================
+   🔥 CLOSE
+====================================== */
 
 function close() {
+
     gsap.to(box.value, {
+
         scale: 0.7,
+
         opacity: 0,
+
         duration: 0.2,
-        onComplete: () => visible.value = false
+
+        onComplete: () => {
+
+            visible.value = false
+
+        }
+
     })
+
 }
+
+/* ======================================
+   🔥 CARGAR CLIENTES
+====================================== */
+
+async function cargarClientes() {
+
+    try {
+
+        /* ======================================
+           🔥 FIRMA
+        ====================================== */
+
+        const seguridad =
+            firma()
+
+        console.log(
+            'FIRMA CLIENTES >>>',
+            seguridad
+        )
+
+        /* ======================================
+           🔥 REQUEST
+        ====================================== */
+
+        const res = await axios.post(
+
+            '/FjeU/clienteListar',
+
+            {
+
+                neg_id:
+                    getNegId(),
+
+                xin:
+                    seguridad.xin,
+
+                yuan:
+                    seguridad.yuan
+
+            }
+
+        )
+
+        console.log(
+            'CLIENTES >>>',
+            res.data
+        )
+
+        /* ======================================
+           🔥 OK
+        ====================================== */
+
+        if (res.data.status === 'ok') {
+
+            clientes.value =
+                res.data.data || []
+
+        }
+
+    } catch (e) {
+
+        console.error(
+            'ERROR CLIENTES >>>',
+            e
+        )
+
+    }
+
+}
+
+/* ======================================
+   🔥 SELECT
+====================================== */
 
 function select(cliente) {
+
     emit('select', cliente)
+
     close()
+
 }
 
-defineExpose({ open })
+defineExpose({
+    open
+})
+
 </script>

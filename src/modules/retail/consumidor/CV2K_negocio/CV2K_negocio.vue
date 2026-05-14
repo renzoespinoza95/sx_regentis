@@ -1,6 +1,6 @@
 <template>
 
-  <div class="min-h-screen" :style="fondoStyle">
+  <div class="min-h-screen pt-20" :style="fondoStyle">
 
     <!-- HEADER -->
     <RegHeader v-if="!isLogged" />
@@ -13,7 +13,8 @@
       <NegpresHero :banners="data?.sliders || []" />
       <NegpresMasVendidos :productos="data?.mas_vendidos || []" />
       <NegpresCategoriasGrid :categorias="data?.categorias || []" />
-      <AppChatFloat />
+      <AppChatFloat :neg-id="data?.negocio?.neg_id || data?.neg_id"
+        texto-mensaje="Buenos días. Me gustaría recibir información sobre sus productos, precios y métodos de entrega. Muchas gracias." />
 
     </div>
 
@@ -36,7 +37,7 @@ import NegpresCategoriasGrid from './components/NegpresCategoriasGrid.vue'
 import NegpresHeader from '../../../../components/layout/NegpresHeaderBack.vue'
 import NegpresSearch from './components/NegpresSearch.vue'
 import NegpresHero from './components/NegpresHero.vue'
-import AppChatFloat from '../../consumidor/CV2K_negocio/components/AppChatFloat.vue'
+import AppChatFloat from '../../../../components/layout/AppChatFloat.vue'
 import { useTienda } from '../../../../services/useTienda.js'
 
 /* =========================

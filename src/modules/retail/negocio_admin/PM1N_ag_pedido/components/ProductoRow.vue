@@ -15,7 +15,12 @@
 
             <!-- PRECIO UNITARIO -->
             <span class="text-gray-500">
-                S/.{{ item.precio }}
+
+                S/{{
+                    Number(item.precio)
+                        .toFixed(2)
+                }}
+
             </span>
 
             <!-- CANTIDAD -->
@@ -61,7 +66,15 @@ const props = defineProps({
 })
 
 const total = computed(() => {
-    return props.item.precio * props.item.cantidad
+
+    return Number(
+
+        props.item.precio
+        *
+        props.item.cantidad
+
+    ).toFixed(2)
+
 })
 
 const emit = defineEmits(['edit', 'delete'])

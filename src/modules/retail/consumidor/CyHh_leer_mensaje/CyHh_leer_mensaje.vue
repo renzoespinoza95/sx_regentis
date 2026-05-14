@@ -1,6 +1,6 @@
 <template>
 
-    <div class="min-h-screen flex flex-col" :style="fondoStyle">
+    <div class="min-h-screen flex flex-col pt-20" :style="fondoStyle">
 
         <!-- 🔥 HEADER GLOBAL -->
         <NegpresHeader />

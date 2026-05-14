@@ -1,5 +1,5 @@
 <template>
-  <div class="bottom-nav fixed bottom-0 left-0 w-full h-20
+  <div v-show="!hideBottomNav" class="bottom-nav fixed bottom-0 left-0 w-full h-20
            flex items-center
            bg-white
            shadow-[0_-5px_20px_rgba(0,0,0,0.08)]
@@ -15,11 +15,12 @@
       </span>
     </button>
 
-    <!-- PEDIDOS -->
+    <!-- CHATS -->
     <button class="flex-1 h-full flex flex-col items-center justify-center relative" @click="go('/Wvn1_mis_mensajes')">
+
       <i class="fa fa-list-alt text-xl" :class="isActive('/chat') ? 'text-orange-500' : 'text-gray-800'"></i>
 
-      <!-- BADGE -->
+      <!-- 🔥 BADGE MENSAJES -->
       <span v-if="cantMensajes > 0" class="absolute top-3 right-8
          bg-red-500 text-white text-xs
          w-5 h-5 rounded-full
@@ -30,35 +31,53 @@
       <span class="text-xs mt-1" :class="isActive('/mis-modelos') ? 'text-orange-500 font-medium' : 'text-gray-800'">
         Chats
       </span>
+
     </button>
 
-    <!-- FAVORITOS -->
-    <button class="flex-1 h-full flex flex-col items-center justify-center" @click="go('/mod_pedidos')">
+    <!-- PEDIDOS -->
+    <button class="flex-1 h-full flex flex-col items-center justify-center relative" @click="go('/mod_pedidos')">
+
       <i class="fa fa-shopping-basket text-xl"
         :class="isActive('/mod_pedidos') ? 'text-orange-500' : 'text-gray-800'"></i>
+
+      <!-- 🔥 BADGE PEDIDOS -->
+      <span v-if="cantPedidos > 0" class="absolute top-3 right-8
+         bg-red-500 text-white text-xs
+         w-5 h-5 rounded-full
+         flex items-center justify-center">
+        {{ cantPedidos }}
+      </span>
+
       <span class="text-xs mt-1" :class="isActive('/mod_pedidos') ? 'text-orange-500 font-medium' : 'text-gray-800'">
         Pedidos
       </span>
+
     </button>
 
-    <!-- PERFIL -->
-    <button class="flex-1 h-full flex flex-col items-center justify-center" @click="go('/mod_plano_mercado')">
+    <!-- UBICACIONES -->
+    <button class="flex-1 h-full flex flex-col items-center justify-center" @click="go('/PCJj_mapa_ubicacion')">
+
       <i class="fa fa-map-marker text-xl"
-        :class="isActive('/mod_plano_mercado') ? 'text-orange-500' : 'text-gray-800'"></i>
+        :class="isActive('/PCJj_mapa_ubicacion') ? 'text-orange-500' : 'text-gray-800'"></i>
+
       <span class="text-xs mt-1"
-        :class="isActive('/mod_plano_mercado') ? 'text-orange-500 font-medium' : 'text-gray-800'">
+        :class="isActive('/PCJj_mapa_ubicacion') ? 'text-orange-500 font-medium' : 'text-gray-800'">
         Ubicaciones
       </span>
+
     </button>
 
   </div>
 </template>
+
 <script setup>
 import { useRouter, useRoute } from 'vue-router'
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
 import { useUsuario } from '../../services/usuarioService.js'
 import { bus } from '../../services/eventBus.js'
+import { useTrackingQueue } from '../../services/useTrackingQueue.js'
+
 
 const API = import.meta.env.VITE_PUBLIC_URL_BASE
 const POLLING = Number(import.meta.env.VITE_PUBLIC_RQ_POLLING || 1)
@@ -68,6 +87,14 @@ const negId = import.meta.env.VITE_PUBLIC_NEG_ID
 
 const router = useRouter()
 const route = useRoute()
+const hideBottomNav = ref(false)
+
+const {
+
+  getTracking,
+  clearTracking
+
+} = useTrackingQueue()
 
 const currentPath = computed(() => route?.path || '')
 
@@ -75,8 +102,9 @@ const currentPath = computed(() => route?.path || '')
 const { getUsuId } = useUsuario()
 const usu_id = getUsuId()
 
-// 🔴 badge
+// 🔴 badges
 const cantMensajes = ref(0)
+const cantPedidos = ref(0)
 
 // ⏱️ interval
 let interval = null
@@ -89,34 +117,48 @@ async function cargarCantidadMensajes() {
   try {
 
     const res = await axios.post(`${API}/reg/tk_cant_msg`, {
-      usu_id
+
+      usu_id,
+
+      tracking: getTracking()
+
     })
 
     console.log('📨 tk_cant_msg:', res.data)
 
-    // 🔴 badge
+    // 🔥 badge chats
     cantMensajes.value = res.data.mensajes_nuevos || 0
 
-    // 🔥 guardar en cache (para cuando regreses a la vista)
+    // 🔥 badge pedidos
+    cantPedidos.value = res.data.carritos_enviados || 0
+
+    // 🔥 guardar cache
     localStorage.setItem('regentis_chats_cache', JSON.stringify({
       ts: Date.now(),
       data: res.data.data || []
     }))
 
-    // 🔥 avisar a ChatList
+    // 🔥 eventos
     bus.emit('chat:update', res.data.data || [])
 
     bus.emit('header:updateCounts', {
       mensajes: res.data.mensajes_nuevos || 0,
       carrito: res.data.carrito_count || 0,
-      favoritos: res.data.favoritos_count || 0
+      favoritos: res.data.favoritos_count || 0,
+      pedidos: res.data.carritos_enviados || 0
     })
 
+    if (res.data.estado === 'ok') {
+
+      clearTracking()
+
+    }
+
   } catch (e) {
+
     console.error('❌ error badge:', e)
+
   }
-
-
 
 }
 
@@ -125,10 +167,27 @@ onMounted(() => {
 
   cargarCantidadMensajes()
 
-  // 🔁 polling cada X minutos
+  // 🔁 polling
   interval = setInterval(() => {
     cargarCantidadMensajes()
   }, POLLING * 60 * 1000)
+
+  /* ======================================
+   🔥 TOGGLE GLOBAL
+====================================== */
+
+  bus.on(
+
+    'bottomnav:toggle',
+
+    (estado) => {
+
+      hideBottomNav.value =
+        !!estado
+
+    }
+
+  )
 
 })
 
@@ -147,21 +206,24 @@ function isActive(path) {
 }
 
 function goInicio() {
+
   if (String(mercadoId) === '0') {
     router.push(`/CV2K_negocio/${negId}`)
   } else {
     router.push('/principal')
   }
+
 }
 
 function isActiveInicio() {
+
   if (String(mercadoId) === '0') {
     return currentPath.value.startsWith('/CV2K_negocio')
   }
+
   return currentPath.value === '/principal'
 }
 </script>
-
 
 <style scoped>
 .bottom-nav {

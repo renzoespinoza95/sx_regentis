@@ -1,6 +1,7 @@
 <template>
 
-    <div class="flex justify-between items-center px-4 py-4" :style="{ background: mercado.topnavbar_color }">
+    <div class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-4 py-4 shadow-md"
+        :style="{ background: mercado.topnavbar_color }">
 
         <!-- LEFT -->
         <div class="flex items-center gap-2 cursor-pointer" @click="goBack">

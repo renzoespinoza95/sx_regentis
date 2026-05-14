@@ -3,8 +3,19 @@
     <div v-if="modelValue" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[9999]"
         @click.self="close">
 
-        <div ref="modalRef" class="bg-white w-[90%] max-w-md rounded-2xl shadow-2xl p-5">
+        <div ref="modalRef" class="relative bg-white w-[90%] max-w-md rounded-2xl shadow-2xl p-5 overflow-hidden">
 
+            <!-- 🔥 CERRAR -->
+            <div class="absolute top-3 right-3 z-10">
+
+                <button @click="close"
+                    class="w-8 h-8 rounded-full bg-red-500 text-white shadow-md flex items-center justify-center hover:scale-105 active:scale-95 transition">
+
+                    <i class="fa fa-times text-sm"></i>
+
+                </button>
+
+            </div>
             <!-- HEADER -->
             <div class="text-center mb-4">
 
@@ -68,13 +79,24 @@
             </div>
 
             <!-- BOTONES -->
-            <button class="mt-5 w-full bg-green-500 text-white py-2 rounded-xl">
-                Actualizar app V.{{ version }}
-            </button>
+            <button @click="actualizarApp" :disabled="!necesitaActualizar"
+                class="mt-5 w-full text-white py-2 rounded-xl transition" :class="necesitaActualizar
+                    ? 'bg-green-500 hover:scale-[1.02]'
+                    : 'bg-gray-400 cursor-not-allowed'
+                    ">
 
-            <!-- 🔥 AHORA SOLO CIERRA -->
-            <button @click="close" class="mt-3 w-full bg-gray-400 text-white py-2 rounded-xl">
-                Cerrar
+                <template v-if="necesitaActualizar">
+
+                    Actualizar app V.{{ versionPrincipal }}
+
+                </template>
+
+                <template v-else>
+
+                    Al día
+
+                </template>
+
             </button>
 
         </div>
@@ -88,12 +110,17 @@
 import { ref, watch, nextTick, computed } from 'vue'
 import { gsap } from 'gsap'
 import { useUsuario } from '../services/usuarioService.js'
+import { usePrincipal } from '../services/usePrincipal.js'
+import { bus } from '../services/eventBus.js'
 
 /* =========================
    ENV
 ========================= */
 
 const version = import.meta.env.VITE_PUBLIC_VERSION
+
+const principal =
+    usePrincipal()
 
 /* =========================
    PROPS / EMITS
@@ -116,20 +143,134 @@ const { usuario, clearUsuario } = useUsuario()
 const user = computed(() => usuario.value?.user || null)
 const screens = computed(() => usuario.value?.screens || [])
 
+const versionPrincipal = computed(() => {
+
+    try {
+
+        const cache = JSON.parse(
+            localStorage.getItem(
+                'regentis_principal_cache'
+            ) || '{}'
+        )
+
+        return cache.version || '0'
+
+    } catch (e) {
+
+        return '0'
+
+    }
+
+})
+
+const playstoreUrl = computed(() => {
+
+    try {
+
+        const cache = JSON.parse(
+            localStorage.getItem(
+                'regentis_principal_cache'
+            ) || '{}'
+        )
+
+        return cache.playstore || ''
+
+    } catch (e) {
+
+        return ''
+
+    }
+
+})
+
+const necesitaActualizar = computed(() => {
+
+    const local =
+        String(version || '0')
+            .split('.')
+            .map(Number)
+
+    const remoto =
+        String(versionPrincipal.value || '0')
+            .split('.')
+            .map(Number)
+
+    for (let i = 0; i < Math.max(local.length, remoto.length); i++) {
+
+        const l = local[i] || 0
+        const r = remoto[i] || 0
+
+        if (r > l) return true
+
+        if (r < l) return false
+
+    }
+
+    return false
+
+})
+
+function actualizarApp() {
+
+    if (!playstoreUrl.value) {
+
+        return
+
+    }
+
+    window.open(
+        playstoreUrl.value,
+        '_blank'
+    )
+
+}
+
 /* =========================
    ANIMACIÓN
 ========================= */
 
 watch(() => props.modelValue, (val) => {
+
     if (val) {
+
+        bus.emit(
+            'bottomnav:toggle',
+            true
+        )
+
         nextTick(() => {
+
             gsap.fromTo(
+
                 modalRef.value,
-                { scale: 0.8, opacity: 0, y: 40 },
-                { scale: 1, opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' }
+
+                {
+                    scale: 0.8,
+                    opacity: 0,
+                    y: 40
+                },
+
+                {
+                    scale: 1,
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.4,
+                    ease: 'power3.out'
+                }
+
             )
+
         })
+
+    } else {
+
+        bus.emit(
+            'bottomnav:toggle',
+            false
+        )
+
     }
+
 })
 
 /* =========================
@@ -137,6 +278,12 @@ watch(() => props.modelValue, (val) => {
 ========================= */
 
 function close() {
+
+    bus.emit(
+        'bottomnav:toggle',
+        false
+    )
+
     gsap.to(modalRef.value, {
         scale: 0.8,
         opacity: 0,

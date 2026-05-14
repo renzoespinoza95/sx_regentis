@@ -35,7 +35,12 @@
 import HeaderBar from './components/HeaderBar.vue'
 import SearchBar from './components/SearchBar.vue'
 import ProductoItem from './components/ProductoItem.vue'
-import { api } from '../../../../services/api'
+import {
+    enc_barsi,
+    des_barsi,
+    firma
+}
+    from '../../../../services/security'
 import { useUsuario } from '../../../../services/usuarioService'
 import { computed, onMounted, ref } from 'vue'
 import CatCarousel from './components/CatCarousel.vue'

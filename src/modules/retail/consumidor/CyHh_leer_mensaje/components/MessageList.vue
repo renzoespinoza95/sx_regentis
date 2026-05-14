@@ -44,9 +44,17 @@ async function cargarMensajes() {
         console.log('📦 MENSAJES:', data)
 
         mensajes.value = data.map(m => ({
+
             text: m.contenido_rem,
-            from: Number(m.rem_id) === Number(usu_id) ? 'me' : 'other',
-            fecha: m.fecha_creacion
+
+            from: Number(m.rem_id) === Number(usu_id)
+                ? 'me'
+                : 'other',
+
+            fecha: m.fecha_creacion,
+
+            contexto: m.contexto_json || null
+
         }))
 
         console.log('💬 transformados:', mensajes.value)

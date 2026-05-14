@@ -1,6 +1,6 @@
 <template>
 
-    <div class="flex justify-between items-center px-4 py-4" :style="{
+    <div class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-4 py-4 shadow-md" :style="{
         background: mercado.topnavbar_color || '#FD7635',
         '--header-color': mercado.topnavbar_color || '#FD7635'
     }">

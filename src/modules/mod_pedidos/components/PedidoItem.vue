@@ -1,6 +1,28 @@
 <template>
 
-    <div class="bg-white rounded-2xl shadow-md p-3 cursor-pointer active:scale-[0.98] transition" @click="irDetalle">
+    <div class="relative rounded-2xl shadow-md p-3 cursor-pointer active:scale-[0.98] transition" :class="{
+
+        'bg-green-50 border border-green-200':
+            item.estado === 'enviado',
+
+        'bg-orange-50 border border-orange-200':
+            item.estado === 'transito',
+
+        'bg-white':
+            item.estado !== 'enviado'
+            &&
+            item.estado !== 'transito'
+
+    }" @click="irDetalle">
+
+        <!-- 🔥 CHECK RECIBIR -->
+        <div v-if="modo === 'transito'"
+            class="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+
+            <i class="fa fa-check-circle-o text-green-500 opacity-20" style="font-size: 110px;">
+            </i>
+
+        </div>
 
         <div class="flex gap-3">
 
@@ -73,15 +95,27 @@ import { useRouter } from 'vue-router'
 /* =========================================
    API ENCRYPT
 ========================================= */
-import { enc_barsi } from '../../../services/api.js'
+import {
+    enc_barsi,
+    des_barsi,
+    firma
+}
+    from '../../../services/security'
 
 const router = useRouter()
 
 const props = defineProps({
+
     item: {
         type: Object,
         required: true
+    },
+
+    modo: {
+        type: String,
+        default: 'normal'
     }
+
 })
 
 /* =========================================

@@ -1,29 +1,30 @@
 <template>
 
-    <div class="min-h-screen flex flex-col" :style="fondoStyle">
+    <div class="min-h-screen flex flex-col pt-20" :style="fondoStyle">
 
         <HeaderBar @openOptions="openDialog" @openAdd="openAddDialog" />
 
-        <AddProductoDialog ref="addRef" />
+        <AddProductoDialog ref="addRef" @add="onAgregarProducto" />
 
         <div class="flex-1 flex justify-center p-4">
 
             <div class="w-full max-w-md md:max-w-4xl bg-white rounded-2xl shadow-md p-4 space-y-3">
 
                 <InputFecha v-model="form.fecha" />
-                <InputCliente v-model="form.cliente" />
+                <InputCliente v-model="form.cliente" @select="onSelectCliente" />
+                <InputTipoPago v-model="form.tipo_pago_id" />
 
                 <ProductosTable :items="productos" @edit="openEdit" @delete="confirmDelete" />
 
                 <ResumenPedido :items="productos" />
 
-                <BtnGuardar />
+                <BtnGuardar :loading="loadingGuardar" @guardar="guardarVenta" />
 
             </div>
 
         </div>
 
-        <OptionsDialog ref="dialogRef" />
+        <OptionsDialog ref="dialogRef" @nuevo="nuevoPedido" />
         <EditarCantidadDialog ref="editRef" @update="updateProducto" />
         <AppSnackbar ref="snackbarRef" />
 
@@ -36,7 +37,7 @@
 import { ref, computed } from 'vue'
 import { useMercado } from '../../../../services/useMercado.js'
 import { cssToObject } from '../../../../services/useCss.js'
-
+import axios from 'axios'
 import HeaderBar from './components/HeaderBar.vue'
 import InputFecha from './components/InputFecha.vue'
 import InputCliente from './components/InputCliente.vue'
@@ -47,9 +48,23 @@ import AddProductoDialog from './components/AddProductoDialog.vue'
 import ResumenPedido from './components/ResumenPedido.vue'
 import EditarCantidadDialog from './components/EditarCantidadDialog.vue'
 import AppSnackbar from '../../../../components/layout/AppSnackbar.vue'
+import {
+    useUsuario
+} from '../../../../services/usuarioService.js'
+import InputTipoPago
+    from './components/InputTipoPago.vue'
 
 const { mercado } = useMercado()
 const addRef = ref(null)
+const API =
+    import.meta.env.VITE_PUBLIC_URL_BASE
+
+const {
+    getNegId,
+    getUsuId
+} = useUsuario()
+
+const loadingGuardar = ref(false)
 
 const fondoStyle = computed(() => {
     if (!mercado.value?.patron_fondo) return {}
@@ -77,6 +92,156 @@ function openAddDialog() {
     addRef.value.open()
 }
 
+function onAgregarProducto(p) {
+
+    productos.value.push(p)
+
+}
+
+function nuevoPedido() {
+
+    productos.value = []
+
+    form.value = {
+
+        fecha:
+            getFechaHoy(),
+
+        cliente_id:
+            1,
+
+        cliente:
+            'PUBLICO GENERAL',
+
+        tipo_pago_id:
+            1
+
+    }
+
+    snackbarRef.value?.open(
+        'Nuevo pedido ✨'
+    )
+
+}
+
+async function guardarVenta() {
+
+    try {
+
+        /* ======================================
+           VALIDAR
+        ====================================== */
+
+        if (!productos.value.length) {
+
+            snackbarRef.value?.open(
+                'Debes agregar productos'
+            )
+
+            return
+
+        }
+
+        loadingGuardar.value = true
+
+        /* ======================================
+           PAYLOAD
+        ====================================== */
+
+        const payload = {
+
+            neg_id:
+                getNegId(),
+
+            usu_id:
+                getUsuId(),
+
+            cliente_id:
+                form.value.cliente_id || 1,
+
+            tipo_pago_id:
+                1,
+
+            yaplin_id:
+                null,
+
+            items:
+                productos.value.map(p => ({
+
+                    product_id:
+                        p.product_id,
+
+                    cantidad:
+                        p.cantidad,
+
+                    precio:
+                        p.precio
+
+                }))
+
+        }
+
+        /* ======================================
+           REQUEST
+        ====================================== */
+
+        const r = await axios.post(
+
+            `${API}/BnyQ/ventaDirecta`,
+
+            payload
+
+        )
+
+        /* ======================================
+           OK
+        ====================================== */
+
+        if (r.data.status === 'ok') {
+
+            snackbarRef.value?.open(
+                'Venta registrada correctamente ✅'
+            )
+
+            // 🔥 LIMPIAR
+            productos.value = []
+
+            form.value.cliente_id = 1
+
+            form.value.cliente =
+                'PUBLICO GENERAL'
+
+        } else {
+
+            snackbarRef.value?.open(
+                r.data.msg || 'Error'
+            )
+
+        }
+
+    } catch (e) {
+
+        console.error(e)
+
+        snackbarRef.value?.open(
+            'Error al guardar venta'
+        )
+
+    } finally {
+
+        loadingGuardar.value = false
+
+    }
+
+}
+
+function onSelectCliente(cliente) {
+
+    form.value.cliente_id =
+        cliente.cliente_id
+
+}
+
 // 🔥 DATA DEMO
 function getFechaHoy() {
     const d = new Date()
@@ -89,7 +254,16 @@ function getFechaHoy() {
 }
 
 const form = ref({
-    fecha: getFechaHoy()
+
+    fecha:
+        getFechaHoy(),
+
+    cliente_id:
+        1,
+
+    cliente:
+        'PUBLICO GENERAL'
+
 })
 
 const snackbarRef = ref(null)
@@ -106,10 +280,5 @@ function eliminarProducto(p) {
     productos.value = productos.value.filter(x => x !== p)
 }
 
-const productos = ref([
-    { nombre: 'Palta hass', cantidad: 3, unidad: 'und', precio: 20 },
-    { nombre: 'Membrillo', cantidad: 4, unidad: 'kg', precio: 10 },
-    { nombre: 'Tinte cabello', cantidad: 3, unidad: 'und', precio: 16 },
-    { nombre: 'Shampoo tio', cantidad: 5, unidad: 'und', precio: 18 }
-])
+const productos = ref([])
 </script>
