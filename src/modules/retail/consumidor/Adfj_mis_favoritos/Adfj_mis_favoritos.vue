@@ -1,7 +1,7 @@
 <template>
     <div class="min-h-screen pt-20" :style="fondoStyle">
 
-        <NegpresHeader />
+        <HeaderBack />
 
         <div class="content-container">
 
@@ -27,7 +27,7 @@
 import { ref, onMounted } from 'vue'
 import { useUsuario } from '../../../../services/usuarioService.js'
 
-import NegpresHeader from '../../../../components/layout/NegpresHeaderBack.vue'
+import HeaderBack from '../../../../components/layout/HeaderBack.vue'
 import FavoritesGrid from './components/FavoritesGrid.vue'
 import SectionTitle from './components/SectionTitle.vue'
 import GsapToast from '../../../../components/layout/GsapToast.vue'
@@ -94,13 +94,31 @@ async function cargarFavoritos() {
         if (data.status === 'ok') {
 
             favoritos.value = data.data.map(p => ({
-                fav_id: p.fav_id,
-                product_id: p.product_id,
-                name: p.name,
-                price: p.price,
-                stock: p.stock,
-                img: p.img,
-                descuento: 10
+
+                fav_id:
+                    p.fav_id,
+
+                product_id:
+                    p.product_id,
+
+                neg_id:
+                    p.neg_id,
+
+                name:
+                    p.name,
+
+                price:
+                    p.price,
+
+                stock:
+                    p.stock,
+
+                img:
+                    p.img,
+
+                descuento:
+                    10
+
             }))
 
         } else {

@@ -10,6 +10,8 @@
 
                 <InputFecha v-model="form.fecha" />
 
+                <TipoPedidoPills v-model="form.tipo_pedido" />
+
                 <ProductosTable :items="productos" @edit="openEdit" @delete="confirmDelete" />
 
                 <ResumenPedido :items="productos" />
@@ -41,6 +43,8 @@ import ResumenPedido from './components/ResumenPedido.vue'
 import EditarCantidadDialog from './components/EditarCantidadDialog.vue'
 import AppSnackbar from '../../../../components/layout/AppSnackbar.vue'
 import { useRouter } from 'vue-router'
+import TipoPedidoPills
+    from './components/TipoPedidoPills.vue'
 
 const { mercado } = useMercado()
 const { usuario } = useUsuario()
@@ -73,9 +77,14 @@ function getFechaHoy() {
 }
 
 const form = ref({
-    fecha: getFechaHoy()
-})
 
+    fecha:
+        getFechaHoy(),
+
+    tipo_pedido:
+        'DELIVERY'
+
+})
 /* =========================
    🔥 LISTAR CARRITO (NUEVO)
 ========================= */
@@ -182,8 +191,16 @@ async function finalizarPedido() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                carrito_id: carritoId.value,
-                fecha_entrega: fechaEntrega
+
+                carrito_id:
+                    carritoId.value,
+
+                fecha_entrega:
+                    fechaEntrega,
+
+                tipo_pedido:
+                    form.value.tipo_pedido
+
             })
         })
 
@@ -205,7 +222,7 @@ async function finalizarPedido() {
 
             setTimeout(() => {
                 router.push(`/B2Tk_detalle_pedido/${carritoId.value}`)
-            }, 4000)
+            }, 3000)
 
         } else {
 

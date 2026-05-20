@@ -3,8 +3,9 @@
     <div class="min-h-screen pt-20" :style="fondoStyle">
 
         <!-- NAVBAR -->
-        <RegHeader :titulo="tienda?.data?.value?.negocio?.nombre
-            || 'Dashboard'
+        <RegHeader :titulo="usuario?.user?.negocio_nombre
+            ||
+            'Dashboard'
             " />
 
         <!-- CONTENIDO -->
@@ -31,10 +32,6 @@ import { useUsuario } from '../../services/usuarioService.js'
 import { useMercado } from '../../services/useMercado.js'
 import { cssToObject } from '../../services/useCss.js'
 
-import {
-    useTienda
-} from '../../services/useTienda.js'
-
 /* =========================================
    🔥 SECURITY
 ========================================= */
@@ -51,7 +48,7 @@ const screens = ref([])
 
 let intervalId = null
 
-const tienda = useTienda()
+
 
 // =========================
 // 🔥 FONDO DINÁMICO
@@ -159,14 +156,7 @@ async function fetchScreens() {
 
 }
 
-watchEffect(() => {
 
-    console.log(
-        'TIENDA >>>',
-        tienda
-    )
-
-})
 
 // =========================
 // INIT

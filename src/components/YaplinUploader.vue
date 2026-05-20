@@ -48,45 +48,164 @@
         </div>
 
         <!-- PREVIEW -->
-        <div v-if="previewPago"
-            class="relative w-full h-48 rounded-3xl overflow-hidden shadow-lg border border-gray-200">
+        <!-- PREVIEW -->
+        <div v-if="previewPago" class="
+        relative
+        w-full
+        rounded-3xl
+        overflow-hidden
+        shadow-lg
+        border
+        border-gray-200
+        bg-white
+    ">
 
-            <img :src="previewPago" class="w-full h-full object-cover" />
+            <!-- IMG -->
+            <img :src="previewPago" class="
+            w-full
+            h-56
+            object-cover
+        " />
 
             <!-- CAMBIAR -->
-            <button
-                class="absolute top-3 right-3 w-10 h-10 rounded-full bg-black/60 text-white flex items-center justify-center backdrop-blur active:scale-95 transition"
-                @click="openPicker">
+            <button class="
+            absolute
+            top-3
+            right-3
+            w-11
+            h-11
+            rounded-full
+            bg-black/60
+            text-white
+            flex
+            items-center
+            justify-center
+            backdrop-blur
+            active:scale-95
+            transition
+        " @click="openPicker">
 
                 <i class="fa fa-camera"></i>
 
             </button>
 
+            <!-- FOOTER -->
+            <div class="
+            p-4
+            bg-white
+        ">
+
+                <button @click="enviarImagen" :disabled="loadingYaplin" class="
+                w-full
+                h-14
+                rounded-2xl
+                bg-gradient-to-r
+                from-purple-500
+                via-fuchsia-500
+                to-pink-500
+                text-white
+                font-black
+                text-lg
+                shadow-xl
+                active:scale-[0.98]
+                transition
+                disabled:opacity-50
+            ">
+
+                    <i class="fa fa-paper-plane mr-2"></i>
+
+                    Enviar
+
+                </button>
+
+            </div>
+
         </div>
 
         <!-- EMPTY -->
-        <button v-else
-            class="w-full h-44 rounded-3xl border-2 border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center gap-3 active:scale-[0.98] transition"
-            @click="openPicker">
+        <button v-if="!previewPago" class="
+        relative
+        w-full
+        h-44
+        rounded-3xl
+        overflow-hidden
+        border
+        border-purple-200
+        active:scale-[0.98]
+        transition
+    " @click="openPicker">
 
-            <!-- ICON -->
-            <div
-                class="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-fuchsia-500 text-white flex items-center justify-center shadow-xl">
+            <!-- FONDO -->
+            <img src="/yaplin.png" class="
+            absolute
+            inset-0
+            w-full
+            h-full
+            object-cover
+        " />
 
-                <i class="fa fa-camera text-3xl"></i>
+            <!-- OVERLAY -->
+            <div class="
+            absolute
+            inset-0
+            bg-black/25
+            backdrop-blur-[1px]
+        ">
 
             </div>
 
-            <!-- TEXT -->
-            <div class="text-sm font-semibold text-gray-700">
+            <!-- CONTENT -->
+            <div class="
+            relative
+            z-10
+            h-full
+            flex
+            flex-col
+            items-center
+            justify-center
+            gap-3
+        ">
 
-                Subir captura
+                <!-- CAMARA -->
+                <div class="
+                w-20
+                h-20
+                rounded-full
+                bg-white/20
+                backdrop-blur-md
+                border
+                border-white/30
+                text-white
+                flex
+                items-center
+                justify-center
+                shadow-2xl
+            ">
 
-            </div>
+                    <i class="fa fa-camera text-3xl"></i>
 
-            <div class="text-xs text-gray-400">
+                </div>
 
-                Yape o Plin
+                <!-- TEXT -->
+                <div class="
+                text-base
+                font-black
+                text-white
+                drop-shadow
+            ">
+
+                    Subir captura
+
+                </div>
+
+                <div class="
+                text-xs
+                text-white/90
+            ">
+
+                    Yape o Plin
+
+                </div>
 
             </div>
 
@@ -200,6 +319,9 @@ const yaplinId = ref(null)
 
 const toastRef = ref(null)
 
+const imagenBlob =
+    ref(null)
+
 /* =========================================
    PICKER
 ========================================= */
@@ -207,6 +329,293 @@ const toastRef = ref(null)
 function openPicker() {
 
     inputPago.value?.click()
+
+}
+
+async function enviarImagen() {
+
+    try {
+
+        if (!imagenBlob.value) {
+
+            return
+
+        }
+
+        loadingYaplin.value =
+            true
+
+        const seguridad =
+            firma()
+
+        /* =========================================
+           FORM
+        ========================================= */
+
+        const formData =
+            new FormData()
+
+        formData.append(
+
+            'imagen',
+
+            imagenBlob.value,
+
+            'voucher.jpg'
+
+        )
+
+        if (props.carritoId) {
+
+            formData.append(
+
+                'carrito_id',
+
+                props.carritoId
+
+            )
+
+        }
+
+        formData.append(
+
+            'xin',
+
+            seguridad.xin
+
+        )
+
+        formData.append(
+
+            'yuan',
+
+            seguridad.yuan
+
+        )
+
+        /* =========================================
+           UPLOAD
+        ========================================= */
+
+        const r =
+            await axios.post(
+
+                `${FLASK}/tk_yaplin`,
+
+                formData,
+
+                {
+
+                    headers: {
+
+                        'Content-Type':
+                            'multipart/form-data'
+
+                    }
+
+                }
+
+            )
+
+        const job_id =
+            r.data.job_id
+
+        if (!job_id) {
+
+            loadingYaplin.value =
+                false
+
+            toastRef.value?.show({
+
+                text:
+                    'No se recibió job_id',
+
+                type:
+                    'error'
+
+            })
+
+            return
+
+        }
+
+        /* =========================================
+           POLLING
+        ========================================= */
+
+        let intentos = 0
+
+        const MAX_INTENTOS = 60
+
+        const interval =
+            setInterval(
+
+                async () => {
+
+                    try {
+
+                        intentos++
+
+                        const rr =
+                            await axios.get(
+
+                                `${FLASK}/jobs/result`,
+
+                                {
+
+                                    params: {
+
+                                        job_id
+
+                                    }
+
+                                }
+
+                            )
+
+                        if (
+
+                            rr.data.status === 'queued'
+                            ||
+
+                            rr.data.status === 'started'
+
+                        ) {
+
+                            return
+
+                        }
+
+                        clearInterval(interval)
+
+                        loadingYaplin.value =
+                            false
+
+                        /* =========================================
+                           ERROR
+                        ========================================= */
+
+                        if (
+
+                            rr.data?.result?.ok === false
+
+                        ) {
+
+                            toastRef.value?.show({
+
+                                text:
+
+                                    rr.data?.result?.error
+                                    ||
+
+                                    'No se pudo procesar el voucher',
+
+                                type:
+                                    'error'
+
+                            })
+
+                            return
+
+                        }
+
+                        /* =========================================
+                           SUCCESS
+                        ========================================= */
+
+                        yaplinId.value =
+
+                            rr.data?.result?.regentis?.yaplin_id
+                            ||
+
+                            null
+
+                        toastRef.value?.show({
+
+                            text:
+
+                                rr.data?.result?.regentis?.msg
+                                ||
+
+                                'Voucher procesado correctamente',
+
+                            type:
+                                'success'
+
+                        })
+
+                    } catch (err) {
+
+                        clearInterval(interval)
+
+                        loadingYaplin.value =
+                            false
+
+                        console.error(err)
+
+                        toastRef.value?.show({
+
+                            text:
+                                'Error obteniendo resultado',
+
+                            type:
+                                'error'
+
+                        })
+
+                    }
+
+                    /* =========================================
+                       TIMEOUT
+                    ========================================= */
+
+                    if (
+
+                        intentos >= MAX_INTENTOS
+
+                    ) {
+
+                        clearInterval(interval)
+
+                        loadingYaplin.value =
+                            false
+
+                        toastRef.value?.show({
+
+                            text:
+                                'Tiempo agotado',
+
+                            type:
+                                'error'
+
+                        })
+
+                    }
+
+                },
+
+                2000
+
+            )
+
+    } catch (e) {
+
+        loadingYaplin.value =
+            false
+
+        console.error(e)
+
+        toastRef.value?.show({
+
+            text:
+                'Error enviando imagen',
+
+            type:
+                'error'
+
+        })
+
+    }
 
 }
 
@@ -228,6 +637,7 @@ async function onFilePago(e) {
             loadingYaplin.value = false
 
             return
+
         }
 
         /* =========================================
@@ -323,251 +733,21 @@ async function onFilePago(e) {
             previewPago.value =
                 URL.createObjectURL(blob)
 
-            const seguridad =
-                firma()
+            imagenBlob.value =
+                blob
 
-            /* =========================================
-               FORM
-            ========================================= */
+            loadingYaplin.value =
+                false
 
-            const formData =
-                new FormData()
+            toastRef.value?.show({
 
-            formData.append(
+                text:
+                    'Imagen lista para enviar',
 
-                'imagen',
+                type:
+                    'success'
 
-                blob,
-
-                'voucher.jpg'
-
-            )
-
-            if (props.carritoId) {
-
-                formData.append(
-
-                    'carrito_id',
-
-                    props.carritoId
-
-                )
-
-            }
-
-            formData.append(
-
-                'xin',
-
-                seguridad.xin
-
-            )
-
-            formData.append(
-
-                'yuan',
-
-                seguridad.yuan
-
-            )
-
-            /* =========================================
-               UPLOAD
-            ========================================= */
-
-            const r =
-                await axios.post(
-
-                    `${FLASK}/tk_yaplin`,
-
-                    formData,
-
-                    {
-
-                        headers: {
-
-                            'Content-Type':
-                                'multipart/form-data'
-
-                        }
-
-                    }
-
-                )
-
-            const job_id =
-                r.data.job_id
-
-            if (!job_id) {
-
-                loadingYaplin.value = false
-
-                toastRef.value?.show({
-
-                    text:
-                        'No se recibió job_id',
-
-                    type:
-                        'error'
-
-                })
-
-                return
-            }
-
-            /* =========================================
-               POLLING
-            ========================================= */
-
-            let intentos = 0
-
-            const MAX_INTENTOS = 60
-
-            const interval =
-                setInterval(
-
-                    async () => {
-
-                        try {
-
-                            intentos++
-
-                            const rr =
-                                await axios.get(
-
-                                    `${FLASK}/jobs/result`,
-
-                                    {
-
-                                        params: {
-
-                                            job_id
-
-                                        }
-
-                                    }
-
-                                )
-
-                            if (
-
-                                rr.data.status === 'queued'
-                                ||
-
-                                rr.data.status === 'started'
-
-                            ) {
-
-                                return
-                            }
-
-                            clearInterval(interval)
-
-                            loadingYaplin.value = false
-
-                            /* =========================================
-                               ERROR
-                            ========================================= */
-
-                            if (
-
-                                rr.data?.result?.ok === false
-
-                            ) {
-
-                                toastRef.value?.show({
-
-                                    text:
-
-                                        rr.data?.result?.error
-                                        ||
-
-                                        'No se pudo procesar el voucher',
-
-                                    type:
-                                        'error'
-
-                                })
-
-                                return
-                            }
-
-                            /* =========================================
-                               SUCCESS
-                            ========================================= */
-
-                            yaplinId.value =
-
-                                rr.data?.result?.regentis?.yaplin_id
-                                ||
-
-                                null
-
-                            toastRef.value?.show({
-
-                                text:
-
-                                    rr.data?.result?.regentis?.msg
-                                    ||
-
-                                    'Voucher procesado correctamente',
-
-                                type:
-                                    'success'
-
-                            })
-
-                        } catch (err) {
-
-                            clearInterval(interval)
-
-                            loadingYaplin.value = false
-
-                            console.error(err)
-
-                            toastRef.value?.show({
-
-                                text:
-                                    'Error obteniendo resultado',
-
-                                type:
-                                    'error'
-
-                            })
-
-                        }
-
-                        /* =========================================
-                           TIMEOUT
-                        ========================================= */
-
-                        if (
-
-                            intentos >= MAX_INTENTOS
-
-                        ) {
-
-                            clearInterval(interval)
-
-                            loadingYaplin.value = false
-
-                            toastRef.value?.show({
-
-                                text:
-                                    'Tiempo agotado',
-
-                                type:
-                                    'error'
-
-                            })
-
-                        }
-
-                    },
-
-                    2000
-
-                )
+            })
 
         }
 

@@ -29,7 +29,10 @@ import { useMercado } from '../../../../services/useMercado.js'
 import { cssToObject } from '../../../../services/useCss.js'
 import { useUsuario } from '../../../../services/usuarioService.js'
 import { usePrincipal } from '../../../../services/usePrincipal.js'
-
+import {
+  useRoute
+}
+  from 'vue-router'
 import RegHeader from '../../../../modules/reg_principal/components/RegHeader.vue'
 
 import NegpresMasVendidos from './components/NegpresMasVendidos.vue'
@@ -41,28 +44,50 @@ import AppChatFloat from '../../../../components/layout/AppChatFloat.vue'
 import { useTienda } from '../../../../services/useTienda.js'
 
 /* =========================
-   🔥 DATA TIENDA
-========================= */
-
-const { data, loading } = useTienda()
-
-/* =========================
    🔥 PRINCIPAL (CLAVE)
 ========================= */
 
 const principal = usePrincipal()
-
-onMounted(() => {
-  // 🔥 esto es lo que te faltaba
-  principal.refetch?.()
-})
 
 /* =========================
    🔥 ESTADO GLOBAL
 ========================= */
 
 const { mercado } = useMercado()
-const { isLogged } = useUsuario()
+const {
+
+  isLogged,
+
+  setNegIdTienda
+
+} = useUsuario()
+const route = useRoute()
+
+/* =========================
+   🔥 DATA TIENDA
+========================= */
+
+const { data, loading } = useTienda()
+
+/* =========================================
+   🏪 NEG_ID INMEDIATO
+========================================= */
+
+const neg_id_route =
+  route.params?.neg_id
+
+console.log(
+  '🏪 neg_id route =>',
+  neg_id_route
+)
+
+/* =========================================
+   💾 GUARDAR ANTES DE useTienda
+========================================= */
+
+setNegIdTienda(
+  neg_id_route
+)
 
 /* =========================
    🔥 FONDO DINÁMICO
@@ -75,6 +100,12 @@ const fondoStyle = computed(() => {
   }
 
   return cssToObject(mercado.value.patron_fondo)
+
+})
+
+onMounted(() => {
+
+  principal.refetch?.()
 
 })
 

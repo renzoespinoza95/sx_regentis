@@ -51,6 +51,10 @@
 <script setup>
 import { ref, nextTick, computed } from 'vue'
 import gsap from 'gsap'
+import {
+    bus
+}
+    from '../../../../../services/eventBus.js'
 
 const visible = ref(false)
 const box = ref(null)
@@ -123,6 +127,10 @@ function getClass(d) {
 const emit = defineEmits(['select'])
 
 function open() {
+    bus.emit(
+        'bottomnav:toggle',
+        true
+    )
     visible.value = true
 
     nextTick(() => {
@@ -134,6 +142,10 @@ function open() {
 }
 
 function close() {
+    bus.emit(
+        'bottomnav:toggle',
+        false
+    )
     gsap.to(box.value, {
         scale: 0.7,
         opacity: 0,

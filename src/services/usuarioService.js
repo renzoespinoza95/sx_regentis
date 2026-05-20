@@ -72,6 +72,39 @@ export function useUsuario() {
      GETTERS
   ========================= */
 
+  /* =========================================
+   🏪 TIENDA ACTUAL
+========================================= */
+
+function setNegIdTienda(neg_id) {
+
+    localStorage.setItem(
+
+        'neg_id_tienda',
+
+        String(neg_id || 0)
+
+    )
+    console.log("neg_id_tienda → " + neg_id);
+
+}
+
+function getNegIdTienda() {
+
+    return Number(
+
+        localStorage.getItem(
+            'neg_id_tienda'
+        )
+
+        ||
+
+        0
+
+    )
+
+}
+
   function getUsuId() {
     return usuarioState.usuario?.user?.usu_id ?? null
   }
@@ -138,7 +171,8 @@ export function useUsuario() {
     getNegId,
     getScreens,
     getUser,
-
+    setNegIdTienda,
+    getNegIdTienda,
     setCampo
   }
 }

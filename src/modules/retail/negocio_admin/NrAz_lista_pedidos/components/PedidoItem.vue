@@ -1,56 +1,168 @@
 <template>
 
-    <div class="bg-white rounded-2xl shadow-sm p-4 cursor-pointer active:scale-[0.98] transition" @click="irDetalle">
+    <div class="relative bg-white rounded-2xl shadow-md p-3 cursor-pointer active:scale-[0.98] transition"
+        @click="irDetalle">
 
-        <!-- TOP -->
-        <div class="flex justify-between items-center">
+        <!-- 🔥 CHECK -->
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
 
-            <div class="font-bold text-base">
-                {{ item.codigo }}
-            </div>
+            <!-- ENVIADO -->
+            <i v-if="
+                (
+                    item.estado
+                    ||
+                    item.entrega_estado
+                    ||
+                    ''
+                ).toLowerCase() === 'enviado'
+            " class="fa fa-send text-blue-500 opacity-20" style="font-size: 110px;">
+            </i>
 
-            <div class="text-xs text-gray-500">
-                {{ item.fecha }}
-            </div>
+            <!-- TRANSITO -->
+            <i v-else-if="
+                (
+                    item.estado
+                    ||
+                    item.entrega_estado
+                    ||
+                    ''
+                ).toLowerCase() === 'transito'
+            " class="fa fa-shopping-cart text-orange-500 opacity-20" style="font-size: 110px;">
+            </i>
+
+            <!-- COMPRADO -->
+            <i v-else-if="
+                (
+                    item.estado
+                    ||
+                    item.entrega_estado
+                    ||
+                    ''
+                ).toLowerCase() === 'comprado'
+            " class="fa fa-check-circle text-green-500 opacity-20" style="font-size: 110px;">
+            </i>
+
+            <!-- RECHAZADO -->
+            <i v-else-if="
+                (
+                    item.estado
+                    ||
+                    item.entrega_estado
+                    ||
+                    ''
+                ).toLowerCase() === 'rechazado'
+            " class="fa fa-times-circle text-red-500 opacity-20" style="font-size: 110px;">
+            </i>
+
+            <!-- DEFAULT -->
+            <i v-else class="fa fa-cube text-gray-400 opacity-20" style="font-size: 110px;">
+            </i>
 
         </div>
 
-        <!-- CLIENTE -->
-        <div class="mt-3 flex justify-between items-center">
+        <div class="flex gap-3">
 
-            <div>
-                <div class="font-semibold text-gray-800">
-                    {{ item.cliente }}
+            <!-- INFO -->
+            <div class="flex-1 min-w-0">
+
+                <!-- TOP -->
+                <div class="flex justify-between items-start gap-2">
+
+                    <div class="font-semibold text-sm text-gray-800 truncate">
+
+                        #{{ item.carrito_id }}
+                        —
+                        {{ item.neg_nombre }}
+
+                    </div>
+
+                    <div class="text-xs text-gray-500 whitespace-nowrap">
+
+                        {{ fechaFormateada }}
+
+                    </div>
+
                 </div>
 
-                <div class="text-xs text-gray-500 mt-1">
-                    {{ item.productos }} productos
+                <!-- CLIENTE -->
+                <div class="mt-1 text-xs text-gray-500">
+
+                    👤
+                    {{
+                        item.cliente
+                        ||
+                        item.nombres_apellidos
+                        ||
+                        item.sobrenombre
+                    }}
+
                 </div>
+
+                <!-- DIRECCION -->
+                <div class="mt-1 text-xs text-gray-500 line-clamp-1">
+
+                    📍
+                    {{ item.direccion }}
+
+                </div>
+
+                <!-- PRODUCTOS -->
+                <div class="mt-2 text-xs text-gray-600">
+
+                    {{
+                        item.productos
+                        ||
+                        item.total_productos
+                    }}
+                    productos
+
+                </div>
+
+                <!-- TOTAL -->
+                <div class="mt-1 font-bold text-sm text-gray-800">
+
+                    S/
+                    {{
+                        Number(
+
+                            item.total
+                            ||
+                            item.total_pedido
+                            ||
+                            0
+
+                        ).toFixed(2)
+                    }}
+
+                </div>
+
+                <!-- ESTADO -->
+                <div class="mt-2">
+
+                    <span
+                        class="inline-block text-[11px] px-2 py-1 rounded-full bg-green-100 text-green-600 font-semibold">
+
+                        {{
+                            item.estado
+                            ||
+                            item.entrega_estado
+                        }}
+
+                    </span>
+
+                </div>
+
             </div>
 
-            <div class="font-bold text-lg">
-                S/ {{ Number(item.total).toFixed(2) }}
+            <!-- IMG -->
+            <div class="w-24 h-24 shrink-0">
+
+                <img :src="item.neg_logo
+                    ||
+                    `https://picsum.photos/200?random=${item.neg_id}`
+                    " class="w-full h-full rounded-xl object-cover" />
+
             </div>
-
-        </div>
-
-        <!-- REPARTIDOR -->
-        <div class="mt-3 flex items-center gap-2 text-xs text-gray-500">
-
-            <i class="fa fa-motorcycle"></i>
-
-            <span>
-                {{ item.repartidor }}
-            </span>
-
-        </div>
-
-        <!-- ESTADO -->
-        <div class="mt-3">
-
-            <span class="px-3 py-1 rounded-full text-white text-xs font-semibold" :style="{ background: colorEstado }">
-                {{ item.estado }}
-            </span>
 
         </div>
 
@@ -59,30 +171,66 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
 
-const router = useRouter()
+import {
+    computed
+}
+    from 'vue'
 
-const props = defineProps({
-    item: Object
-})
+import {
+    useRouter
+}
+    from 'vue-router'
 
-const colorEstado = computed(() => {
+const router =
+    useRouter()
 
-    const estado = (props.item.estado || '').toLowerCase()
+const props =
+    defineProps({
 
-    if (estado === 'enviado') return '#22c55e'
-    if (estado === 'transito') return '#f59e0b'
-    if (estado === 'activo') return '#3b82f6'
+        item: Object,
 
-    return '#6b7280'
-})
+        estadoActual: {
+
+            type: String,
+
+            default: ''
+
+        }
+
+    })
+
+const fechaFormateada =
+    computed(() => {
+
+        if (
+            !props.item.fecha
+            &&
+            !props.item.fecha_creacion
+        ) {
+            return ''
+        }
+
+        return new Date(
+
+            props.item.fecha
+            ||
+            props.item.fecha_creacion
+
+        ).toLocaleDateString(
+            'es-PE'
+        )
+
+    })
 
 function irDetalle() {
 
     router.push(
+
         `/Lfdx_detalle_pedido/${props.item.carrito_id}`
+
     )
+
 }
+
 </script>

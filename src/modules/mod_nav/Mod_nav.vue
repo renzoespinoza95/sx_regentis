@@ -5,7 +5,7 @@
         <TopBar />
 
         <div class="content-container">
-
+            <SearchBar v-model="textoBusqueda" />
             <!-- LOADER -->
             <div v-if="loading" class="flex justify-center py-10">
                 <div class="regentis-loader"></div>
@@ -14,7 +14,7 @@
             <!-- GRID -->
             <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
 
-                <UsuarioCard v-for="item in usuarios" :key="item.usu_id" :usuario="item"
+                <UsuarioCard v-for="item in usuariosFiltrados" :key="item.usu_id" :usuario="item"
                     :selected="selectedUserId === item.usu_id" @select="seleccionar(item.usu_id)" />
 
             </div>
@@ -27,19 +27,34 @@
 
 </template>
 <script setup>
-import { ref, onMounted } from 'vue'
+import {
+    ref,
+    computed,
+    onMounted
+}
+    from 'vue'
 import TopBar from './components/TopBar.vue'
 import UsuarioCard from './components/UsuarioCard.vue'
 import BotonGuardar from './components/BotonGuardar.vue'
 import { useUsuario } from '../../services/usuarioService.js'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import SearchBar
+    from './components/SearchBar.vue'
 
 const usuarios = ref([])
 const loading = ref(true)
 
-const { setLoginData } = useUsuario()
+const {
+
+    setLoginData,
+
+    clearUsuario
+
+} = useUsuario()
 const router = useRouter()
+const textoBusqueda =
+    ref('')
 
 /* 🔥 SOLO UNO */
 const selectedUserId = ref(null)
@@ -57,7 +72,7 @@ async function listar() {
 
         usuarios.value = res.data.map(u => ({
             ...u,
-            nombre: u.sobrenombre || 'Sin nombre',
+            nombre: u.nombres_apellidos || 'Sin nombre',
             tienda: u.negocio_nombre,
             rol: u.tipoxusu_descripcion,
             foto: u.img_perfil || `https://picsum.photos/80?random=${u.usu_id}`
@@ -138,7 +153,75 @@ async function guardar() {
 
 }
 
-onMounted(listar)
+const usuariosFiltrados =
+    computed(() => {
+
+        const txt =
+            textoBusqueda.value
+                .trim()
+                .toLowerCase()
+
+        if (!txt) {
+
+            return usuarios.value
+
+        }
+
+        return usuarios.value.filter(u =>
+
+            (
+                u.nombre || ''
+            )
+                .toLowerCase()
+                .includes(txt)
+
+            ||
+
+            (
+                u.tienda || ''
+            )
+                .toLowerCase()
+                .includes(txt)
+
+            ||
+
+            (
+                u.rol || ''
+            )
+                .toLowerCase()
+                .includes(txt)
+
+        )
+
+    })
+
+onMounted(() => {
+
+    console.log(
+        '🧹 limpiando sesión'
+    )
+
+    /* =========================================
+       🔥 LIMPIAR SESIÓN
+    ========================================= */
+
+    clearUsuario()
+
+    localStorage.removeItem(
+        'screens'
+    )
+
+    localStorage.removeItem(
+        'login_data'
+    )
+
+    /* =========================================
+       🚀 LISTAR
+    ========================================= */
+
+    listar()
+
+})
 </script>
 
 <style scoped>

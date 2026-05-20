@@ -1,4 +1,8 @@
 import axios from 'axios'
+import {
+  ref
+}
+from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { useMercado } from './useMercado'
 import {
@@ -126,17 +130,52 @@ export function usePrincipal(){
 
   }
 
-  /* =========================
-     💥 AXIOS DIRECTO
-  ========================== */
+/* =========================
+   💥 AXIOS DIRECTO
+========================== */
 
-  return {
-    data: null,
-    isLoading: false,
-    async refetch(){
-      return await fetchPrincipal()
-    }
+const data =
+  ref(null)
+
+const isLoading =
+  ref(false)
+
+async function refetch(){
+
+  try {
+
+    isLoading.value = true
+
+    const res =
+      await fetchPrincipal()
+
+    data.value = res
+
+    return res
+
+  } finally {
+
+    isLoading.value = false
+
   }
+
+}
+
+/* =========================================
+🔥 AUTOLOAD
+========================================= */
+
+refetch()
+
+return {
+
+  data,
+
+  isLoading,
+
+  refetch
+
+}
 
   /* =========================
      🔥 CACHE HELPERS

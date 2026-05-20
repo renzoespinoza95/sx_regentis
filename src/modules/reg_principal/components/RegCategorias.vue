@@ -1,38 +1,79 @@
 <template>
   <div class="flex gap-2 flex-wrap">
-    <span v-for="cat in categorias" :key="cat.reg_cat_neg_id" @click="seleccionar(cat)"
-      class="bg-white shadow-sm px-3 py-1 rounded-full text-xs cursor-pointer hover:scale-105 transition">
-      {{ cat.icono || '❔' }} {{ cat.nombre }}
+    <span v-for="cat in categorias" :key="cat.rubro_id" @click="seleccionar(cat)" :class="[
+
+      'px-3 py-1 rounded-full text-xs cursor-pointer transition-all duration-300 border shadow-sm hover:scale-105',
+
+      categoriaSeleccionada?.rubro_id === cat.rubro_id
+
+        ?
+
+        'bg-[#FD7635] text-white border-[#FD7635] shadow-lg scale-105'
+
+        :
+
+        'bg-white text-gray-700 border-gray-200'
+
+    ]
+
+      ">
+
+      {{ cat.icono || '❔' }}
+      {{ cat.nombre }}
+
     </span>
   </div>
 </template>
-
 <script setup>
-import { ref, onMounted } from 'vue'
-import { categoriaSeleccionada } from '../../../services/useCategoria'
 
-const categorias = ref([])
-
-onMounted(() => {
-
-  try {
-    const raw = localStorage.getItem('regentis_principal_cache')
-    const cache = raw ? JSON.parse(raw) : null
-
-    if (cache?.categorias) {
-      categorias.value = cache.categorias
-    }
-
-  } catch (e) {
-    console.error('Error leyendo cache categorias', e)
-  }
-
-})
-
-// 🔥 CLICK
-function seleccionar(cat) {
-  categoriaSeleccionada.value = cat
+import {
+  computed
 }
+  from 'vue'
+
+import {
+  categoriaSeleccionada
+}
+  from '../../../services/useCategoria'
+
+import {
+  usePrincipal
+}
+  from '../../../services/usePrincipal'
+
+const q =
+  usePrincipal()
+
+/* =========================================
+🔥 CATEGORIAS
+========================================= */
+
+const categorias =
+  computed(() => {
+
+    return (
+
+      q.data?.value?.rubros
+
+      ||
+
+      []
+
+    )
+
+  })
+
+/* =========================================
+🔥 CLICK
+========================================= */
+
+function seleccionar(cat) {
+
+  categoriaSeleccionada.value =
+    cat
+
+}
+
 </script>
 
 <style scoped></style>

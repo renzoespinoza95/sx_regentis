@@ -1,8 +1,7 @@
 import axios from 'axios'
 
 import {
-  API_BASE,
-  NEG_ID
+  API_BASE
 }
 from '../config/appConfig.js'
 
@@ -11,10 +10,41 @@ import {
 }
 from './security.js'
 
+import {
+  useUsuario
+}
+from './usuarioService.js'
+
+const {
+
+  getNegIdTienda
+
+} = useUsuario()
+
 export async function fetchTienda() {
+
+  /* =========================================
+     🔐 SECURITY
+  ========================================= */
 
   const seguridad =
     firma()
+
+  /* =========================================
+     🏪 NEG_ID DINÁMICO
+  ========================================= */
+
+  const neg_id =
+    getNegIdTienda()
+
+  console.log(
+    '🏪 fetchTienda neg_id =>',
+    neg_id
+  )
+
+  /* =========================================
+     🚀 REQUEST
+  ========================================= */
 
   const res =
     await axios.post(
@@ -23,8 +53,7 @@ export async function fetchTienda() {
 
       {
 
-        neg_id:
-          NEG_ID,
+        neg_id,
 
         xin:
           seguridad.xin,
@@ -35,6 +64,11 @@ export async function fetchTienda() {
       }
 
     )
+
+  console.log(
+    '📦 tienda response =>',
+    res.data
+  )
 
   return res.data.data
 

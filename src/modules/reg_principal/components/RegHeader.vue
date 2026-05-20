@@ -5,15 +5,45 @@
     <div class="header-inner">
 
       <!-- LOGO -->
-      <div class="logo-box">
+      <!-- LEFT -->
+      <div class="flex items-center gap-3">
 
-        <img :src="mercadoData.logo || 'https://barsi-img.b-cdn.net/recursos/logo-regentis.png'" class="logo-img" />
+        <!-- 🔙 BACK -->
+        <button v-if="route.query?.titulo" @click="router.back()" class="
+      w-9
+      h-9
 
-        <span class="logo-text">
+      rounded-full
 
-          {{ tituloHeader }}
+      bg-white/20
 
-        </span>
+      flex
+      items-center
+      justify-center
+
+      text-white
+
+      active:scale-95
+
+      transition
+    ">
+
+          <i class="fa fa-arrow-left"></i>
+
+        </button>
+
+        <!-- LOGO -->
+        <div class="logo-box">
+
+          <img :src="mercadoData.logo || 'https://barsi-img.b-cdn.net/recursos/logo-regentis.png'" class="logo-img" />
+
+          <span class="logo-text">
+
+            {{ tituloHeader }}
+
+          </span>
+
+        </div>
 
       </div>
 
@@ -31,10 +61,16 @@
 
           <!-- NOTIFICACIONES -->
           <div class="notification cursor-pointer" @click="showMenuModal = true">
+
             <i class="fa fa-bell"></i>
-            <span class="notification-badge">
+
+            <!-- 🔥 SOLO SI HAY NUEVA VERSION -->
+            <span v-if="necesitaActualizar" class="notification-badge">
+
               1
+
             </span>
+
           </div>
 
           <!-- AVATAR -->
@@ -59,7 +95,11 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import {
+  useRouter,
+  useRoute
+}
+  from 'vue-router'
 import { useUsuario } from '../../../services/usuarioService.js'
 import { useMercado } from '../../../services/useMercado.js'
 import { usePrincipal } from '../../../services/usePrincipal.js'
@@ -82,6 +122,8 @@ const {
   usuario,
   setLoginData
 } = useUsuario()
+
+const route = useRoute()
 
 const props = defineProps({
 
@@ -117,12 +159,26 @@ function openUserModal() {
 
 const tituloHeader = computed(() => {
 
+  const tituloQuery =
+
+    route.query?.titulo
+
   return (
+
+    tituloQuery
+
+    ||
+
     props.titulo
+
     ||
+
     mercadoData.value.nombre
+
     ||
+
     'Regentis'
+
   )
 
 })
@@ -198,6 +254,60 @@ async function irLogin() {
   }
 
 }
+
+/* =========================================
+   🔥 VERSION APP
+========================================= */
+
+const version =
+  import.meta.env.VITE_PUBLIC_VERSION
+
+const versionPrincipal = computed(() => {
+
+  try {
+
+    const cache = JSON.parse(
+      localStorage.getItem(
+        'regentis_principal_cache'
+      ) || '{}'
+    )
+
+    return cache.version || '0'
+
+  } catch (e) {
+
+    return '0'
+
+  }
+
+})
+
+const necesitaActualizar = computed(() => {
+
+  const local =
+    String(version || '0')
+      .split('.')
+      .map(Number)
+
+  const remoto =
+    String(versionPrincipal.value || '0')
+      .split('.')
+      .map(Number)
+
+  for (let i = 0; i < Math.max(local.length, remoto.length); i++) {
+
+    const l = local[i] || 0
+    const r = remoto[i] || 0
+
+    if (r > l) return true
+
+    if (r < l) return false
+
+  }
+
+  return false
+
+})
 
 /* =========================
    🔥 FIX REAL DEL ERROR

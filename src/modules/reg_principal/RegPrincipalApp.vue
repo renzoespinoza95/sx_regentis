@@ -29,12 +29,20 @@ import RegSearch from './components/RegSearch.vue'
 import RegCategorias from './components/RegCategorias.vue'
 import RegMiniApps from './components/RegMiniApps.vue'
 import RegHero from './components/RegHero.vue'
-
+import {
+  useUsuario
+}
+  from '../../services/usuarioService.js'
 import { useMercado } from '../../services/useMercado.js'
 import { cssToObject } from '../../services/useCss.js'
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 
 const { mercado } = useMercado()
+const {
+
+  setNegIdTienda
+
+} = useUsuario()
 
 const fondoStyle = computed(() => {
 
@@ -46,6 +54,19 @@ const fondoStyle = computed(() => {
   return cssToObject(mercado.value.patron_fondo)
 })
 
+onMounted(() => {
+
+  /* =========================================
+     🧹 LIMPIAR TIENDA
+  ========================================= */
+
+  setNegIdTienda(null)
+
+  console.log(
+    '🧹 neg_id_tienda limpiado'
+  )
+
+})
 </script>
 
 <style scoped>

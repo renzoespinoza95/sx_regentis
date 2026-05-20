@@ -2,7 +2,7 @@
 
     <div class="min-h-screen flex flex-col pt-20" :style="fondoStyle">
 
-        <NegpresHeader />
+        <HeaderBack />
 
         <div class="flex-1 flex justify-center p-4">
 
@@ -67,7 +67,7 @@
                     ===
                     'enviado'
                 " titulo="Subir pantallas de pago Yaplin !" :carrito-id="pedido?.carrito_id
-        " />
+                    " />
 
             </div>
 
@@ -118,7 +118,7 @@ import AppChatFloat from '../../../../components/layout/AppChatFloat.vue'
 /* =========================================
    COMPONENTES DEL MISMO MODULO
 ========================================= */
-import NegpresHeader from '../../../../components/layout/NegpresHeaderBack.vue'
+import HeaderBack from '../../../../components/layout/HeaderBack.vue'
 import FieldText from './components/FieldText.vue'
 import ProductoRowView from './components/ProductoRowView.vue'
 import ResumenPedido from './components/ResumenPedido.vue'

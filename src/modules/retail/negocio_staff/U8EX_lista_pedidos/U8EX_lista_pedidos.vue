@@ -1,6 +1,6 @@
 <template>
 
-    <div class="min-h-screen flex flex-col" :style="fondoStyle">
+    <div class="min-h-screen flex flex-col pt-20" :style="fondoStyle">
 
         <HeaderBar @openOptions="openDialog" />
 
@@ -38,28 +38,37 @@
     </div>
 
 </template>
-
 <script setup>
 
 import {
     ref,
     computed,
     onMounted
-} from 'vue'
+}
+    from 'vue'
 
-import axios from 'axios'
+import {
+    useRouter
+}
+    from 'vue-router'
+
+import axios
+    from 'axios'
 
 import {
     useMercado
-} from '../../../../services/useMercado.js'
+}
+    from '../../../../services/useMercado.js'
 
 import {
     cssToObject
-} from '../../../../services/useCss.js'
+}
+    from '../../../../services/useCss.js'
 
 import {
     useUsuario
-} from '../../../../services/usuarioService.js'
+}
+    from '../../../../services/usuarioService.js'
 
 import HeaderBar
     from './components/HeaderBar.vue'
@@ -70,9 +79,6 @@ import PedidoItem
 import OptionsDialog
     from './components/OptionsDialog.vue'
 
-import VentaDialog
-    from '../../../../components/VentaDialog.vue'
-
 import AppSnackbar
     from '../../../../components/layout/AppSnackbar.vue'
 
@@ -80,7 +86,11 @@ import EmptyLetter
     from '../../../../components/layout/EmptyLetter.vue'
 
 const API =
-    import.meta.env.VITE_PUBLIC_URL_BASE
+    import.meta.env
+        .VITE_PUBLIC_URL_BASE
+
+const router =
+    useRouter()
 
 const {
     mercado
@@ -90,23 +100,31 @@ const {
     getUsuId
 } = useUsuario()
 
-const pedidos = ref([])
+const pedidos =
+    ref([])
 
-const detalleRef = ref(null)
-const snackbarRef = ref(null)
+const snackbarRef =
+    ref(null)
 
-const fondoStyle = computed(() => {
+const fondoStyle =
+    computed(() => {
 
-    if (!mercado.value?.patron_fondo)
-        return {}
+        if (
+            !mercado.value
+                ?.patron_fondo
+        ) {
+            return {}
+        }
 
-    return cssToObject(
-        mercado.value.patron_fondo
-    )
+        return cssToObject(
+            mercado.value
+                .patron_fondo
+        )
 
-})
+    })
 
-const dialogRef = ref(null)
+const dialogRef =
+    ref(null)
 
 function openDialog() {
 
@@ -122,7 +140,9 @@ function confirmarRechazo(item) {
 
         async () => {
 
-            console.log('rechazado')
+            console.log(
+                'rechazado'
+            )
 
         }
 
@@ -130,21 +150,31 @@ function confirmarRechazo(item) {
 
 }
 
+/* =========================================
+   🔥 IR A DETALLE
+========================================= */
 function openPedido(item) {
 
-    detalleRef.value?.open(item)
+    sessionStorage.setItem(
+
+        'pedido_actual',
+
+        JSON.stringify(item)
+
+    )
+
+    setTimeout(() => {
+
+        router.push({
+
+            path:
+                `/Khjs_despachar/${item.carrito_id}`
+
+        })
+
+    }, 0)
 
 }
-
-async function onVentaRealizada() {
-
-    await cargarPedidos()
-
-}
-
-/* =========================================
-   🚚 PEDIDOS DELIVERY
-========================================= */
 
 async function cargarPedidos() {
 
@@ -156,15 +186,18 @@ async function cargarPedidos() {
         if (!trab_usu_id)
             return
 
-        const r = await axios.post(
+        const r =
+            await axios.post(
 
-            `${API}/QFeC/pedidosDelivery`,
+                `${API}/QFeC/pedidosDelivery`,
 
-            {
-                trab_usu_id
-            }
+                {
 
-        )
+                    trab_usu_id
+
+                }
+
+            )
 
         pedidos.value =
             r.data.data || []
@@ -172,8 +205,11 @@ async function cargarPedidos() {
     } catch (e) {
 
         console.error(
+
             'Error cargando pedidos delivery',
+
             e
+
         )
 
     }
@@ -187,6 +223,7 @@ onMounted(() => {
 })
 
 </script>
+
 <style scoped>
 .letter-wrapper {
 

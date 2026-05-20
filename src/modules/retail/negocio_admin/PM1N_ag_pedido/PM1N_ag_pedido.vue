@@ -12,7 +12,7 @@
 
                 <InputFecha v-model="form.fecha" />
                 <InputCliente v-model="form.cliente" @select="onSelectCliente" />
-                <InputTipoPago v-model="form.tipo_pago_id" />
+                <InputTipoPago v-model="form.tipo_pago" />
 
                 <ProductosTable :items="productos" @edit="openEdit" @delete="confirmDelete" />
 
@@ -24,9 +24,10 @@
 
         </div>
 
-        <OptionsDialog ref="dialogRef" @nuevo="nuevoPedido" />
+        <OptionsDialog ref="optionsRef" @nuevo="nuevo" @nuevo-cliente="abrirCrearCliente" />
         <EditarCantidadDialog ref="editRef" @update="updateProducto" />
         <AppSnackbar ref="snackbarRef" />
+        <CrearClienteDialog ref="crearClienteRef" />
 
     </div>
 
@@ -53,6 +54,13 @@ import {
 } from '../../../../services/usuarioService.js'
 import InputTipoPago
     from './components/InputTipoPago.vue'
+import CrearClienteDialog
+    from './components/CrearClienteDialog.vue'
+import {
+    firma
+}
+    from '../../../../services/security.js'
+
 
 const { mercado } = useMercado()
 const addRef = ref(null)
@@ -71,9 +79,13 @@ const fondoStyle = computed(() => {
     return cssToObject(mercado.value.patron_fondo)
 })
 
-const dialogRef = ref(null)
+const optionsRef =
+    ref(null)
 
 const editRef = ref(null)
+
+const crearClienteRef =
+    ref(null)
 
 function openEdit(p) {
     editRef.value.open(p)
@@ -85,7 +97,9 @@ function updateProducto(updated) {
 }
 
 function openDialog() {
-    dialogRef.value.open()
+
+    optionsRef.value?.open()
+
 }
 
 function openAddDialog() {
@@ -93,6 +107,45 @@ function openAddDialog() {
 }
 
 function onAgregarProducto(p) {
+
+    /* ======================================
+       🔍 BUSCAR EXISTENTE
+    ====================================== */
+
+    const existe =
+        productos.value.find(x =>
+
+            Number(x.product_id)
+            ===
+            Number(p.product_id)
+
+        )
+
+    /* ======================================
+       ➕ SUMAR CANTIDAD
+    ====================================== */
+
+    if (existe) {
+
+        existe.cantidad =
+
+            Number(
+                existe.cantidad || 0
+            )
+
+            +
+
+            Number(
+                p.cantidad || 0
+            )
+
+        return
+
+    }
+
+    /* ======================================
+       🆕 NUEVO
+    ====================================== */
 
     productos.value.push(p)
 
@@ -145,6 +198,13 @@ async function guardarVenta() {
         loadingGuardar.value = true
 
         /* ======================================
+           🔐 FIRMA
+        ====================================== */
+
+        const seguridad =
+            firma()
+
+        /* ======================================
            PAYLOAD
         ====================================== */
 
@@ -159,11 +219,20 @@ async function guardarVenta() {
             cliente_id:
                 form.value.cliente_id || 1,
 
-            tipo_pago_id:
-                1,
+            modo_order:
+                'PAGO_DIRECTO',
+
+            tipo_pago:
+                form.value.tipo_pago || 'EFECTIVO',
 
             yaplin_id:
                 null,
+
+            xin:
+                seguridad.xin,
+
+            yuan:
+                seguridad.yuan,
 
             items:
                 productos.value.map(p => ({
@@ -206,10 +275,21 @@ async function guardarVenta() {
             // 🔥 LIMPIAR
             productos.value = []
 
-            form.value.cliente_id = 1
+            form.value = {
 
-            form.value.cliente =
-                'PUBLICO GENERAL'
+                fecha:
+                    getFechaHoy(),
+
+                cliente_id:
+                    1,
+
+                cliente:
+                    'PUBLICO GENERAL',
+
+                tipo_pago:
+                    'EFECTIVO'
+
+            }
 
         } else {
 
@@ -232,6 +312,12 @@ async function guardarVenta() {
         loadingGuardar.value = false
 
     }
+
+}
+
+function abrirCrearCliente() {
+
+    crearClienteRef.value?.open()
 
 }
 

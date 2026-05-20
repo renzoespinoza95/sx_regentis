@@ -78,7 +78,6 @@
   </div>
 
 </template>
-
 <script setup>
 
 import {
@@ -91,44 +90,46 @@ import {
 }
   from '../../../../../services/useMercado.js'
 
-import {
-  useTienda
-}
-  from '../../../../../services/useTienda.js'
+/* =========================================
+🔥 MERCADO
+========================================= */
 
-const { mercado } =
-  useMercado()
+const {
+  mercado
+} = useMercado()
 
-const { data } =
-  useTienda()
+/* =========================================
+🔥 DATA
+========================================= */
 
-const mercadoData = computed(() => {
+const mercadoData =
+  computed(() => {
 
-  return {
+    return {
 
-    nombre:
+      nombre:
 
-      data.value?.negocio?.nombre
-      ||
+        mercado.value?.nombre
+        ||
 
-      'Regentis',
+        'Regentis',
 
-    logo:
+      logo:
 
-      data.value?.negocio?.img_logo
-      ||
+        mercado.value?.logo
+        ||
 
-      'https://barsi-img.b-cdn.net/recursos/logo-regentis.png',
+        'https://barsi-img.b-cdn.net/recursos/logo-regentis.png',
 
-    topnavbar_color:
+      topnavbar_color:
 
-      mercado.value?.topnavbar_color
-      ||
+        mercado.value?.topnavbar_color
+        ||
 
-      '#FD7635'
+        '#FD7635'
 
-  }
+    }
 
-})
+  })
 
 </script>

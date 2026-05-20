@@ -1,97 +1,139 @@
 <template>
 
-    <div v-if="visible" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div v-if="visible" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[999]"
+        @click.self="close">
 
-        <div ref="box" class="bg-white rounded-xl p-4 w-80 max-h-[85vh] overflow-hidden flex flex-col space-y-3">
+        <div ref="box"
+            class="relative bg-white w-[90%] max-w-md h-[85vh] rounded-2xl shadow-2xl p-5 overflow-visible flex flex-col space-y-3">
+
+            <!-- 🔥 CERRAR -->
+            <div class="absolute top-3 right-3 z-10">
+
+                <button @click="close"
+                    class="w-8 h-8 rounded-full bg-red-500 text-white shadow-md flex items-center justify-center hover:scale-105 active:scale-95 transition">
+
+                    <i class="fa fa-times text-sm"></i>
+
+                </button>
+
+            </div>
 
             <!-- 🔥 SEARCH -->
-            <div class="flex items-center bg-gray-100 px-3 py-2 rounded-md">
+            <!-- 🔥 SEARCH -->
+            <div class="flex items-center bg-gray-100 px-3 py-2 rounded-md gap-2">
 
                 <!-- 🔍 SEARCH -->
-                <i class="fa fa-search text-gray-400 mr-2"></i>
-
-                <!-- INPUT -->
-                <input v-model="texto" placeholder="Buscar producto..."
-                    class="flex-1 bg-transparent outline-none text-sm" @input="onBuscar" />
+                <i class="fa fa-search text-gray-400"></i>
 
                 <!-- ❌ LIMPIAR -->
-                <i v-if="texto" @click="limpiarBusqueda"
-                    class="fa fa-times text-gray-400 cursor-pointer hover:text-red-500 transition"></i>
+                <i v-if="texto" @click="limpiarBusqueda" class="
+            fa
+            fa-times
+            text-gray-400
+            cursor-pointer
+            hover:text-red-500
+            transition
+        ">
+
+                </i>
+
+                <!-- INPUT -->
+                <input v-model="texto" placeholder="Buscar producto..." class="
+            flex-1
+            bg-transparent
+            outline-none
+            text-sm
+        " @input="onBuscar" />
 
             </div>
 
             <!-- 🔥 CATEGORIAS -->
-            <div class="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+            <div ref="categoriasScroll"
+                class="overflow-x-auto pb-2 no-scrollbar cursor-grab active:cursor-grabbing select-none"
+                @mousedown="onMouseDown" @mousemove="onMouseMove" @mouseup="onMouseUp" @mouseleave="onMouseUp"
+                @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd">
 
-                <!-- TODOS -->
-                <div @click="selectCategoria(null)"
-                    class="flex-shrink-0 px-3 py-2 rounded-full text-xs flex items-center gap-1 cursor-pointer transition active:scale-95"
-                    :class="activeCat === null
-                        ? 'bg-orange-500 text-white'
-                        : 'bg-orange-100 text-orange-600'
-                        ">
+                <div class="grid grid-rows-2 grid-flow-col gap-2 w-max">
 
-                    🔥 Todos
+                    <!-- TODOS -->
+                    <div @click="selectCategoria(null)"
+                        class="flex-shrink-0 px-3 py-2 rounded-full text-xs flex items-center gap-1 cursor-pointer transition active:scale-95"
+                        :class="activeCat === null
+                            ? 'bg-orange-500 text-white'
+                            : 'bg-orange-100 text-orange-600'
+                            ">
 
-                </div>
+                        🔥 Todos
 
-                <!-- CATEGORIAS -->
-                <div v-for="cat in categorias" :key="cat.category_id" @click="selectCategoria(cat.category_id)"
-                    class="flex-shrink-0 px-3 py-2 rounded-full text-xs flex items-center gap-1 cursor-pointer transition active:scale-95"
-                    :class="activeCat === cat.category_id
-                        ? 'bg-orange-500 text-white'
-                        : 'bg-orange-100 text-orange-600'
-                        ">
+                    </div>
 
-                    <span class="text-base leading-none">
-                        {{ cat.icon || '📦' }}
-                    </span>
+                    <!-- CATEGORIAS -->
+                    <div v-for="cat in categorias" :key="cat.category_id" @click="selectCategoria(cat.category_id)"
+                        class="flex-shrink-0 px-3 py-2 rounded-full text-xs flex items-center gap-1 cursor-pointer transition active:scale-95"
+                        :class="activeCat === cat.category_id
+                            ? 'bg-orange-500 text-white'
+                            : 'bg-orange-100 text-orange-600'
+                            ">
 
-                    <span>
-                        {{ cat.descripcion }}
-                    </span>
+                        <span class="text-base leading-none">
+
+                            {{ cat.icon || '📦' }}
+
+                        </span>
+
+                        <span>
+
+                            {{ cat.descripcion }}
+
+                        </span>
+
+                    </div>
 
                 </div>
 
             </div>
 
             <!-- 🔥 LISTA -->
-            <div class="space-y-2 overflow-y-auto flex-1">
+            <div class="space-y-2 overflow-y-auto flex-1 min-h-0 pr-1">
 
                 <div v-for="p in productosFiltrados" :key="p.product_id" @click="selectProducto(p)"
                     class="flex items-center gap-2 p-2 rounded hover:bg-gray-100 cursor-pointer active:scale-[0.98] transition">
 
-                    <img :src="p.img || 'https://picsum.photos/40'" class="w-8 h-8 rounded object-cover" />
+                    <!-- IMG -->
+                    <img :src="p.img
+                        ||
+                        'https://picsum.photos/40'
+                        " class="w-8 h-8 rounded object-cover" />
 
+                    <!-- NOMBRE -->
                     <div class="flex-1 text-sm">
 
                         {{ p.name }}
 
                     </div>
 
+                    <!-- PRECIO -->
                     <span class="text-xs text-gray-500">
 
-                        S/ {{ Number(p.price).toFixed(2) }}
+                        S/
+                        {{
+                            Number(
+                                p.price
+                            ).toFixed(2)
+                        }}
 
                     </span>
 
                 </div>
 
+                <!-- 🔥 CANTIDAD -->
+                <EditarCantidadDialog ref="cantRef" @update="agregarProducto" />
+
             </div>
-
-            <!-- 🔥 CERRAR -->
-            <button class="w-full text-white py-2 rounded-md bg-red-500" @click="close">
-
-                Cerrar
-
-            </button>
 
         </div>
 
     </div>
-
-    <!-- 🔥 CANTIDAD -->
-    <EditarCantidadDialog ref="cantRef" @update="agregarProducto" />
 
 </template>
 <script setup>
@@ -102,7 +144,10 @@ import {
     computed,
     watch
 } from 'vue'
-
+import {
+    bus
+}
+    from '../../../../../services/eventBus.js'
 import axios from 'axios'
 
 import gsap from 'gsap'
@@ -139,6 +184,16 @@ const cantRef = ref(null)
 const emit = defineEmits([
     'add'
 ])
+
+const categoriasScroll =
+    ref(null)
+
+const isDragging =
+    ref(false)
+
+let startX = 0
+
+let scrollLeft = 0
 
 const {
     getNegId,
@@ -213,6 +268,10 @@ const productosFiltrados = computed(() => {
 function open() {
 
     visible.value = true
+    bus.emit(
+        'bottomnav:toggle',
+        true
+    )
 
     nextTick(() => {
 
@@ -239,6 +298,11 @@ function open() {
 ====================================== */
 
 function close() {
+
+    bus.emit(
+        'bottomnav:toggle',
+        false
+    )
 
     gsap.to(box.value, {
 
@@ -440,6 +504,92 @@ async function cargarCategorias() {
         )
 
     }
+
+}
+
+/* ======================================
+   🖱️ DRAG SCROLL
+====================================== */
+
+function onMouseDown(e) {
+
+    isDragging.value = true
+
+    startX =
+        e.pageX
+        -
+        categoriasScroll.value.offsetLeft
+
+    scrollLeft =
+        categoriasScroll.value.scrollLeft
+
+}
+
+function onMouseMove(e) {
+
+    if (!isDragging.value)
+        return
+
+    e.preventDefault()
+
+    const x =
+        e.pageX
+        -
+        categoriasScroll.value.offsetLeft
+
+    const walk =
+        (x - startX) * 1.2
+
+    categoriasScroll.value.scrollLeft =
+        scrollLeft - walk
+
+}
+
+function onMouseUp() {
+
+    isDragging.value = false
+
+}
+
+/* ======================================
+   📱 TOUCH
+====================================== */
+
+function onTouchStart(e) {
+
+    isDragging.value = true
+
+    startX =
+        e.touches[0].pageX
+        -
+        categoriasScroll.value.offsetLeft
+
+    scrollLeft =
+        categoriasScroll.value.scrollLeft
+
+}
+
+function onTouchMove(e) {
+
+    if (!isDragging.value)
+        return
+
+    const x =
+        e.touches[0].pageX
+        -
+        categoriasScroll.value.offsetLeft
+
+    const walk =
+        (x - startX) * 1.2
+
+    categoriasScroll.value.scrollLeft =
+        scrollLeft - walk
+
+}
+
+function onTouchEnd() {
+
+    isDragging.value = false
 
 }
 

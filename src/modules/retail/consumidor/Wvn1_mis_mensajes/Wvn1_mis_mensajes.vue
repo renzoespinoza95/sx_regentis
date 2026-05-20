@@ -3,7 +3,7 @@
     <div class="min-h-screen flex flex-col pt-20" :style="fondoStyle">
 
         <!-- 🔥 HEADER REAL -->
-        <NegpresHeader />
+        <HeaderBack />
 
         <!-- BUSCADOR -->
         <SearchBar />
@@ -29,7 +29,7 @@ import { computed } from 'vue'
 import { useMercado } from '../../../../services/useMercado.js'
 import { cssToObject } from '../../../../services/useCss.js'
 
-import NegpresHeader from '../../../../components/layout/NegpresHeaderBack.vue'
+import HeaderBack from '../../../../components/layout/HeaderBack.vue'
 import SearchBar from './components/SearchBar.vue'
 import ChatList from './components/ChatList.vue'
 import { useUsuario } from '../../../../services/usuarioService.js'

@@ -22,7 +22,7 @@ import CyHh_leer_mensaje from '../modules/retail/consumidor/CyHh_leer_mensaje/Cy
 import Adfj_mis_favoritos from '../modules/retail/consumidor/Adfj_mis_favoritos/Adfj_mis_favoritos.vue'
 import B2Tk_detalle_pedido from '../modules/retail/consumidor/B2Tk_detalle_pedido/B2Tk_detalle_pedido.vue'
 import CV2K_negocio from '../modules/retail/consumidor/CV2K_negocio/CV2K_negocio.vue'
-
+import TyB3CrearTienda from '../modules/retail/consumidor/TyB3_crear_tienda/TyB3_crear_tienda.vue'
 
 /* NEGOCIO_ADMIN */
 import ZpB1_ag_producto from '../modules/retail/negocio_admin/ZpB1_ag_producto/ZpB1_ag_producto.vue'
@@ -38,6 +38,10 @@ import WhEb_ed_cliente from '../modules/retail/negocio_admin/WhEb_ed_cliente/WhE
 import XtfF_ag_cliente from '../modules/retail/negocio_admin/XtfF_ag_cliente/XtfF_ag_cliente.vue'
 import Lfdx_detalle_pedido from '../modules/retail/negocio_admin/Lfdx_detalle_pedido/Lfdx_detalle_pedido.vue'
 import MpIH_lista_productos from '../modules/retail/negocio_admin/MpIH_lista_productos/MpIH_lista_productos.vue'
+import LJmi_item_producto from '../modules/retail/negocio_admin/LJmi_item_producto/LJmi_item_producto.vue'
+import Khjs_despachar from '../modules/retail/negocio_admin/Khjs_despachar/Khjs_despachar.vue'
+
+
 
 /* NEGOCIO_STAFF */
 import Vlsz_venta_directa from '../modules/retail/negocio_staff/Vlsz_venta_directa/Vlsz_venta_directa.vue'
@@ -93,6 +97,7 @@ const routes = [
   { path: '/UbpF_ed_pedido/:id', component: UbpF_ed_pedido, meta: { hideNav: true } },
   { path: '/OAtb_lista_clientes', component: OAtb_lista_clientes, meta: { hideNav: true } },
   { path: '/WhEb_ed_cliente/:id', component: WhEb_ed_cliente, meta: { hideNav: true } },
+  { path: '/TyB3_crear_tienda', component: TyB3CrearTienda, meta: { hideNav: false } },
   // =========================================
   // RETAIL - ADMIN
   // =========================================
@@ -104,6 +109,19 @@ const routes = [
   { path: '/U8EX_lista_pedidos', component: U8EX_lista_pedidos, meta: { hideNav: true } },
   { path: '/RPsB_lista_clientes', component: RPsB_lista_clientes, meta: { hideNav: true } },
   { path: '/Mod_pedidos', component: Mod_pedidos, meta: { hideNav: true } },
+  {
+    path: '/Khjs_despachar/:id',
+    component: Khjs_despachar,
+    meta: { hideNav: true }
+  },
+  {
+      path: '/LJmi_item_producto',
+      component: LJmi_item_producto,
+      meta: {
+          hideNav: true
+      }
+  },
+
   // =========================================
   // RETAIL - DELIVERY
   // =========================================

@@ -78,26 +78,59 @@
                 </div>
             </div>
 
-            <!-- BOTONES -->
-            <button @click="actualizarApp" :disabled="!necesitaActualizar"
-                class="mt-5 w-full text-white py-2 rounded-xl transition" :class="necesitaActualizar
-                    ? 'bg-green-500 hover:scale-[1.02]'
-                    : 'bg-gray-400 cursor-not-allowed'
-                    ">
+            <!-- SUSCRIPCION -->
+            <div class="bg-orange-50 rounded-xl p-3 mt-5">
 
-                <template v-if="necesitaActualizar">
+                <div class="font-semibold mb-2">
 
-                    Actualizar app V.{{ versionPrincipal }}
+                    Suscripción ✨
 
-                </template>
+                </div>
 
-                <template v-else>
+                <div class="text-sm space-y-1">
 
-                    Al día
+                    <div>
 
-                </template>
+                        <b>Fecha inicio:</b>
 
-            </button>
+                        {{
+
+                            formatFecha(
+                                user?.fecha_inicio_premium
+                        )
+
+                        }}
+
+                    </div>
+
+                    <div>
+
+                        <b>Fecha término:</b>
+
+                        {{
+
+                            formatFecha(
+                                user?.fecha_fin_premium
+                        )
+
+                        }}
+
+                        <span v-if="diasRestantes !== null" class="
+            text-xs
+            text-green-600
+            font-semibold
+            ml-1
+        ">
+
+                            ({{ diasRestantes }} días)
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
 
         </div>
 
@@ -107,171 +140,144 @@
 
 <script setup>
 
-import { ref, watch, nextTick, computed } from 'vue'
-import { gsap } from 'gsap'
-import { useUsuario } from '../services/usuarioService.js'
-import { usePrincipal } from '../services/usePrincipal.js'
-import { bus } from '../services/eventBus.js'
+import {
+    ref,
+    watch,
+    nextTick,
+    computed
+}
+    from 'vue'
 
-/* =========================
-   ENV
-========================= */
+import {
+    gsap
+}
+    from 'gsap'
 
-const version = import.meta.env.VITE_PUBLIC_VERSION
+import {
+    useUsuario
+}
+    from '../services/usuarioService.js'
 
-const principal =
-    usePrincipal()
+import {
+    bus
+}
+    from '../services/eventBus.js'
 
 /* =========================
    PROPS / EMITS
 ========================= */
 
 const props = defineProps({
-    modelValue: Boolean
+
+    modelValue:
+        Boolean
+
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit =
+    defineEmits([
+
+        'update:modelValue'
+
+    ])
 
 /* =========================
    STATE
 ========================= */
 
-const modalRef = ref(null)
+const modalRef =
+    ref(null)
 
-const { usuario, clearUsuario } = useUsuario()
+const {
+    usuario,
+    clearUsuario
+} = useUsuario()
 
-const user = computed(() => usuario.value?.user || null)
-const screens = computed(() => usuario.value?.screens || [])
+const user =
+    computed(() =>
 
-const versionPrincipal = computed(() => {
+        usuario.value?.user
+        || null
 
-    try {
-
-        const cache = JSON.parse(
-            localStorage.getItem(
-                'regentis_principal_cache'
-            ) || '{}'
-        )
-
-        return cache.version || '0'
-
-    } catch (e) {
-
-        return '0'
-
-    }
-
-})
-
-const playstoreUrl = computed(() => {
-
-    try {
-
-        const cache = JSON.parse(
-            localStorage.getItem(
-                'regentis_principal_cache'
-            ) || '{}'
-        )
-
-        return cache.playstore || ''
-
-    } catch (e) {
-
-        return ''
-
-    }
-
-})
-
-const necesitaActualizar = computed(() => {
-
-    const local =
-        String(version || '0')
-            .split('.')
-            .map(Number)
-
-    const remoto =
-        String(versionPrincipal.value || '0')
-            .split('.')
-            .map(Number)
-
-    for (let i = 0; i < Math.max(local.length, remoto.length); i++) {
-
-        const l = local[i] || 0
-        const r = remoto[i] || 0
-
-        if (r > l) return true
-
-        if (r < l) return false
-
-    }
-
-    return false
-
-})
-
-function actualizarApp() {
-
-    if (!playstoreUrl.value) {
-
-        return
-
-    }
-
-    window.open(
-        playstoreUrl.value,
-        '_blank'
     )
 
-}
+const screens =
+    computed(() =>
+
+        usuario.value?.screens
+        || []
+
+    )
 
 /* =========================
    ANIMACIÓN
 ========================= */
 
-watch(() => props.modelValue, (val) => {
+watch(
 
-    if (val) {
+    () => props.modelValue,
 
-        bus.emit(
-            'bottomnav:toggle',
-            true
-        )
+    (val) => {
 
-        nextTick(() => {
+        if (val) {
 
-            gsap.fromTo(
+            bus.emit(
 
-                modalRef.value,
+                'bottomnav:toggle',
 
-                {
-                    scale: 0.8,
-                    opacity: 0,
-                    y: 40
-                },
-
-                {
-                    scale: 1,
-                    opacity: 1,
-                    y: 0,
-                    duration: 0.4,
-                    ease: 'power3.out'
-                }
+                true
 
             )
 
-        })
+            nextTick(() => {
 
-    } else {
+                gsap.fromTo(
 
-        bus.emit(
-            'bottomnav:toggle',
-            false
-        )
+                    modalRef.value,
+
+                    {
+
+                        scale: 0.8,
+
+                        opacity: 0,
+
+                        y: 40
+
+                    },
+
+                    {
+
+                        scale: 1,
+
+                        opacity: 1,
+
+                        y: 0,
+
+                        duration: 0.4,
+
+                        ease: 'power3.out'
+
+                    }
+
+                )
+
+            })
+
+        } else {
+
+            bus.emit(
+
+                'bottomnav:toggle',
+
+                false
+
+            )
+
+        }
 
     }
 
-})
+)
 
 /* =========================
    METHODS
@@ -280,35 +286,153 @@ watch(() => props.modelValue, (val) => {
 function close() {
 
     bus.emit(
+
         'bottomnav:toggle',
+
         false
+
     )
 
-    gsap.to(modalRef.value, {
-        scale: 0.8,
-        opacity: 0,
-        y: 40,
-        duration: 0.3,
-        ease: 'power3.in',
-        onComplete: () => {
-            emit('update:modelValue', false)
+    gsap.to(
+
+        modalRef.value,
+
+        {
+
+            scale: 0.8,
+
+            opacity: 0,
+
+            y: 40,
+
+            duration: 0.3,
+
+            ease: 'power3.in',
+
+            onComplete: () => {
+
+                emit(
+
+                    'update:modelValue',
+
+                    false
+
+                )
+
+            }
+
         }
-    })
+
+    )
+
 }
+
+/* =========================
+   📅 FECHAS
+========================= */
+
+function formatFecha(fecha) {
+
+    if (!fecha) {
+
+        return '—'
+
+    }
+
+    const d =
+        new Date(fecha)
+
+    if (isNaN(d.getTime())) {
+
+        return '—'
+
+    }
+
+    const dia =
+        String(d.getDate())
+            .padStart(2, '0')
+
+    const mes =
+        String(d.getMonth() + 1)
+            .padStart(2, '0')
+
+    const anio =
+        d.getFullYear()
+
+    return `${dia}/${mes}/${anio}`
+
+}
+
+const diasRestantes =
+    computed(() => {
+
+        const fechaFin =
+            user.value?.fecha_fin_premium
+
+        if (!fechaFin) {
+
+            return null
+
+        }
+
+        const hoy =
+            new Date()
+
+        const fin =
+            new Date(fechaFin)
+
+        const diff =
+            Math.ceil(
+
+                (
+                    fin.getTime()
+                    -
+                    hoy.getTime()
+                )
+
+                /
+
+                (
+                    1000 * 60 * 60 * 24
+                )
+
+            )
+
+        return diff
+
+    })
 
 function logout() {
 
     clearUsuario()
 
-    localStorage.removeItem('screens')
-    localStorage.removeItem('login_data')
+    localStorage.removeItem(
+        'screens'
+    )
 
-    const mercadoId = parseInt(import.meta.env.VITE_PUBLIC_MERCADO_ID || '0')
+    localStorage.removeItem(
+        'login_data'
+    )
+
+    const mercadoId =
+        parseInt(
+
+            import.meta.env
+                .VITE_PUBLIC_MERCADO_ID
+            || '0'
+
+        )
 
     if (mercadoId === 0) {
-        window.location.href = '/'
+
+        window.location.href =
+            '/'
+
     } else {
-        window.location.href = '/principal'
+
+        window.location.href =
+            '/principal'
+
     }
 
 }

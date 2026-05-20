@@ -7,7 +7,6 @@
 
   </div>
 </template>
-
 <script setup>
 
 import {
@@ -17,9 +16,9 @@ import {
   from 'vue'
 
 import {
-  useTienda
+  useMercado
 }
-  from '../../../../services/useTienda.js'
+  from '../../../../services/useMercado.js'
 
 import TopHeader
   from './components/TopHeader.vue'
@@ -27,69 +26,86 @@ import TopHeader
 import MapView
   from './components/MapView.vue'
 
-const { data } =
-  useTienda()
-
-const mapRef = ref(null)
-
 /* =========================================
-   📍 CENTER
+🔥 MERCADO
 ========================================= */
 
-const initialCenter = computed(() => {
+const {
+  mercado
+} = useMercado()
 
-  const lat =
-    Number(
-      data.value?.negocio?.map_lat
-    ) || -12.056273847827748
-
-  const lng =
-    Number(
-      data.value?.negocio?.map_lng
-    ) || -77.03712625305339
-
-  return [lat, lng]
-
-})
+const mapRef =
+  ref(null)
 
 /* =========================================
-   📍 LUGARES
+📍 CENTER
 ========================================= */
-const lugares = computed(() => {
 
-  const negocio =
-    data.value?.negocio || {}
+const initialCenter =
+  computed(() => {
 
-  return [
+    const lat =
 
-    {
+      Number(
+        mercado.value?.map_lat
+      )
 
-      nombre:
+      ||
 
-        negocio.nombre
-        ||
+      -12.056273847827748
 
-        'Regentis',
+    const lng =
 
-      logo:
+      Number(
+        mercado.value?.map_lng
+      )
 
-        negocio.img_logo
-        ||
+      ||
 
-        negocio.logo
-        ||
+      -77.03712625305339
 
-        'https://barsi-img.b-cdn.net/recursos/logo-regentis.png',
+    return [
 
-      coords:
+      lat,
+      lng
 
-        initialCenter.value
+    ]
 
-    }
+  })
 
-  ]
+/* =========================================
+📍 LUGARES
+========================================= */
 
-})
+const lugares =
+  computed(() => {
 
+    return [
+
+      {
+
+        nombre:
+
+          mercado.value?.nombre
+          ||
+
+          'Regentis',
+
+        logo:
+
+          mercado.value?.logo
+          ||
+
+          'https://barsi-img.b-cdn.net/recursos/logo-regentis.png',
+
+        coords:
+
+          initialCenter.value
+
+      }
+
+    ]
+
+  })
 
 </script>

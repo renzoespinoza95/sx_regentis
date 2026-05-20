@@ -24,7 +24,7 @@
         <!-- LOGO -->
         <div class="logo-header">
 
-          <img src="/logo-final02.png" class="logo-img" alt="Logo" />
+          <img src="https://barsi-img.b-cdn.net/recursos/sg3f.png" class="logo-img w-32 h-auto" alt="Logo" />
 
         </div>
 
@@ -80,54 +80,6 @@
           <input v-model="nombre" type="text" placeholder="Ingresa tu nombre completo" class="input-style" />
 
         </div>
-
-        <!-- TIPO -->
-        <div class="tipo-box">
-
-          <label class="label-title">
-
-            Tipo de cuenta
-
-          </label>
-
-          <div class="tipo-grid">
-
-            <!-- CLIENTE -->
-            <div class="tipo-card" :class="{
-              active:
-                tipo === 'CLIENTE'
-            }" @click="tipo = 'CLIENTE'">
-
-              <i class="fa fa-shopping-bag"></i>
-
-              <span>
-
-                CLIENTE
-
-              </span>
-
-            </div>
-
-            <!-- NEGOCIANTE -->
-            <div class="tipo-card" :class="{
-              active:
-                tipo === 'NEGOCIANTE'
-            }" @click="tipo = 'NEGOCIANTE'">
-
-              <i class="fa fa-building"></i>
-
-              <span>
-
-                NEGOCIANTE
-
-              </span>
-
-            </div>
-
-          </div>
-
-        </div>
-
         <!-- BOTON -->
         <button class="btn-login" :disabled="loading || !usuarioExiste" :class="{
           'opacity-50 cursor-not-allowed':
@@ -147,51 +99,6 @@
           </span>
 
         </button>
-
-
-        <!-- ======================================
-            🔥 DIALOG NEGOCIANTE
-        ====================================== -->
-
-        <div v-if="showNegocianteDialog" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-
-          <div class="bg-white rounded-3xl p-6 w-[90%] max-w-sm text-center shadow-2xl animate-fadeIn">
-
-            <div class="w-20 h-20 mx-auto rounded-full bg-orange-100 flex items-center justify-center mb-4">
-
-              <i class="fa fa-phone text-3xl text-[#EA6223]"></i>
-
-            </div>
-
-            <h2 class="text-xl font-bold text-gray-800">
-
-              Activación de negociante
-
-            </h2>
-
-            <p class="text-gray-500 mt-3 leading-relaxed">
-
-              Para activar una cuenta de negociante
-              comunícate al:
-
-            </p>
-
-            <div class="mt-4 text-2xl font-extrabold text-[#EA6223]">
-
-              988 689 682
-
-            </div>
-
-            <button class="mt-6 w-full py-3 rounded-full bg-[#EA6223] text-white font-semibold"
-              @click="showNegocianteDialog = false">
-
-              Entendido
-
-            </button>
-
-          </div>
-
-        </div>
 
         <AppSnackbar ref="snackbarRef" />
         <GsapToast ref="toastRef" />
@@ -939,16 +846,9 @@ async function login() {
 }
 
 .logo-img {
-
-  width: 260px;
-
-  height: auto;
-
   filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.25));
-
   animation:
     float 5s ease-in-out infinite;
-
 }
 
 @keyframes float {

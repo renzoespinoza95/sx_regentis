@@ -16,9 +16,28 @@
         </div>
 
         <!-- 🔥 ELIPSIS -->
-        <div class="w-9 h-9 bg-white rounded-full flex items-center justify-center cursor-pointer"
-            @click="$emit('openOptions')">
-            <i class="fa fa-ellipsis-v text-sm" :style="{ color: mercado.topnavbar_color }"></i>
+        <div class="flex items-center gap-2">
+
+            <!-- 🔥 NUEVO CLIENTE -->
+            <div class="w-9 h-9 bg-white rounded-full flex items-center justify-center cursor-pointer active:scale-95 transition"
+                @click="$emit('openNuevoCliente')">
+
+                <i class="fa fa-plus text-sm" :style="{ color: mercado.topnavbar_color }">
+
+                </i>
+
+            </div>
+
+            <!-- 🔥 ELIPSIS -->
+            <div class="w-9 h-9 bg-white rounded-full flex items-center justify-center cursor-pointer active:scale-95 transition"
+                @click="$emit('openOptions')">
+
+                <i class="fa fa-ellipsis-v text-sm" :style="{ color: mercado.topnavbar_color }">
+
+                </i>
+
+            </div>
+
         </div>
 
     </div>

@@ -89,7 +89,7 @@ import { gsap } from 'gsap'
 import { useUsuario } from '../../../../../services/usuarioService.js'
 import { computed, ref } from 'vue'
 import CantidadProductoDialog
-    from '../components/CantidadProductoDialog.vue'
+    from '../../../../../components/layout/CantidadProductoDialog.vue'
 
 const router = useRouter()
 

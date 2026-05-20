@@ -14,67 +14,30 @@
                         Pedido #{{ pedido?.carrito_id }}
                     </div>
 
-                    <div class="text-xs text-gray-500 mt-1 line-clamp-2">
-                        <i>Los producto y Metodos de pagos se pueden deslizar</i>
-                    </div>
-
                 </div>
 
                 <!-- CERRAR -->
-                <button
-                    class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0 active:scale-95 transition"
-                    @click="close">
+                <div class="absolute top-4 right-4 z-20">
 
-                    <i class="fa fa-times text-gray-500"></i>
+                    <button
+                        class="w-10 h-10 rounded-full bg-red-500 shadow-md flex items-center justify-center active:scale-95 transition"
+                        @click="close">
 
-                </button>
+                        <i class="fa fa-times text-white text-sm"></i>
+
+                    </button>
+
+                </div>
 
             </div>
 
             <!-- PRODUCTOS -->
-            <div v-if="mostrarProductos" ref="productosRef"
-                class="max-h-[320px] overflow-y-auto p-4 space-y-3 custom-scroll">
+            <div v-if="mostrarProductos" class="max-h-[320px] overflow-y-auto p-4 space-y-3 custom-scroll">
 
                 <div v-for="p in pedido?.productos || []" :key="p.carrito_detalle_id"
-                    class="relative overflow-hidden rounded-2xl">
+                    class="bg-white border border-gray-100 rounded-2xl shadow-sm p-2">
 
-                    <!-- ACTIONS -->
-                    <div class="absolute inset-y-0 right-0 flex z-0">
-
-                        <!-- CHECK -->
-                        <button class="w-16 bg-green-500 flex items-center justify-center text-white"
-                            @click="marcarProducto(p, 'ok')">
-
-                            <i class="fa fa-check text-xl"></i>
-
-                        </button>
-
-                        <!-- ERROR -->
-                        <button class="w-16 bg-red-500 flex items-center justify-center text-white"
-                            @click="marcarProducto(p, 'error')">
-
-                            <i class="fa fa-times text-xl"></i>
-
-                        </button>
-
-                    </div>
-
-                    <!-- CARD -->
-                    <div class="relative z-10 flex gap-3 items-center p-2 transition-transform duration-300" :class="{
-
-                        'translate-x-[-128px]':
-                            p.openActions,
-
-                        'bg-green-300':
-                            p.estado_revision === 'ok',
-
-                        'bg-red-300':
-                            p.estado_revision === 'error',
-
-                        'bg-white':
-                            !p.estado_revision
-
-                    }" @touchstart="touchStart($event, p)" @touchmove="touchMove($event, p)" @touchend="touchEnd(p)">
+                    <div class="flex gap-3 items-center">
 
                         <!-- IMG -->
                         <img :src="p.img || 'https://picsum.photos/100'" class="w-14 h-14 rounded-xl object-cover" />
@@ -115,146 +78,64 @@
             </div>
 
             <!-- ======================================
-                👁 VER PRODUCTOS
-            ====================================== -->
+    💳 TIPO PAGO
+====================================== -->
 
-            <div v-if="!mostrarProductos" ref="btnVerRef" class="px-4 pb-3 flex justify-center">
+            <div class="p-4 pt-0 space-y-2">
 
-                <button
-                    class="btn-ver-productos relative overflow-hidden h-10 px-5 rounded-full text-white text-xs font-semibold active:scale-95 transition shadow-xl"
-                    @click="volverProductos">
+                <!-- FILA 1 -->
+                <div class="grid grid-cols-2 gap-2">
 
-                    <span class="relative z-10">
-
-                        👁 Ver productos
-
-                    </span>
-
-                    <!-- BRILLO -->
-                    <span class="shine"></span>
-
-                </button>
-
-            </div>
-
-            <!-- ======================================
-        💳 TIPO PAGO
-    ====================================== -->
-            <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-
-                <!-- EFECTIVO -->
-                <button
-                    class="shrink-0 px-4 h-10 rounded-full border text-xs font-semibold transition-all duration-200 active:scale-95"
-                    :class="tipoPagoId == 1
-                        ? 'bg-green-500 border-green-500 text-white shadow-md'
-                        : 'bg-white border-gray-200 text-gray-700'" @click="tipoPagoId = 1">
-
-                    💵 EFECTIVO
-
-                </button>
-
-                <!-- YAPE -->
-                <button
-                    class="shrink-0 px-4 h-10 rounded-full border text-xs font-semibold transition-all duration-200 active:scale-95"
-                    :class="tipoPagoId == 2
-                        ? 'bg-purple-500 border-purple-500 text-white shadow-md'
-                        : 'bg-white border-gray-200 text-gray-700'" @click="tipoPagoId = 2">
-
-                    📱 YAPE
-
-                </button>
-
-                <!-- PLIN -->
-                <button
-                    class="shrink-0 px-4 h-10 rounded-full border text-xs font-semibold transition-all duration-200 active:scale-95"
-                    :class="tipoPagoId == 3
-                        ? 'bg-fuchsia-500 border-fuchsia-500 text-white shadow-md'
-                        : 'bg-white border-gray-200 text-gray-700'" @click="tipoPagoId = 3">
-
-                    🟣 PLIN
-
-                </button>
-
-                <!-- TARJETA -->
-                <button
-                    class="shrink-0 px-4 h-10 rounded-full border text-xs font-semibold transition-all duration-200 active:scale-95"
-                    :class="tipoPagoId == 4
-                        ? 'bg-blue-500 border-blue-500 text-white shadow-md'
-                        : 'bg-white border-gray-200 text-gray-700'" @click="tipoPagoId = 4">
-
-                    💳 TARJETA
-
-                </button>
-
-                <!-- CREDITO -->
-                <button
-                    class="shrink-0 px-4 h-10 rounded-full border text-xs font-semibold transition-all duration-200 active:scale-95"
-                    :class="tipoPagoId == 5
-                        ? 'bg-orange-500 border-orange-500 text-white shadow-md'
-                        : 'bg-white border-gray-200 text-gray-700'" @click="tipoPagoId = 5">
-
-                    🧾 CRÉDITO
-
-                </button>
-
-            </div>
-
-            <!-- ======================================
-                📸 SUBIR CAPTURA
-            ====================================== -->
-
-            <div v-if="tipoPagoId == 2 || tipoPagoId == 3" class="mt-4">
-
-                <!-- LABEL -->
-                <div class="text-sm font-semibold text-gray-700 mb-3">
-
-                    Subir captura de pago
-
-                </div>
-
-                <!-- PREVIEW -->
-                <div v-if="previewPago"
-                    class="relative w-full h-48 rounded-3xl overflow-hidden shadow-lg border border-gray-200">
-
-                    <img :src="previewPago" class="w-full h-full object-cover" />
-
-                    <!-- CAMBIAR -->
+                    <!-- EFECTIVO -->
                     <button
-                        class="absolute top-3 right-3 w-10 h-10 rounded-full bg-black/60 text-white flex items-center justify-center backdrop-blur active:scale-95 transition"
-                        @click="openPicker">
+                        class="h-11 rounded-2xl border text-xs font-semibold transition-all duration-200 active:scale-95"
+                        :class="tipoPagoId == 1
+                            ? 'bg-green-500 border-green-500 text-white shadow-md'
+                            : 'bg-white border-gray-200 text-gray-700'" @click="tipoPagoId = 1">
 
-                        <i class="fa fa-camera"></i>
+                        💵 EFECTIVO
+
+                    </button>
+
+                    <!-- CRÉDITO -->
+                    <button
+                        class="h-11 rounded-2xl border text-xs font-semibold transition-all duration-200 active:scale-95"
+                        :class="tipoPagoId == 5
+                            ? 'bg-orange-500 border-orange-500 text-white shadow-md'
+                            : 'bg-white border-gray-200 text-gray-700'" @click="tipoPagoId = 5">
+
+                        🧾 CRÉDITO
 
                     </button>
 
                 </div>
 
-                <!-- EMPTY -->
-                <button v-else
-                    class="w-full h-44 rounded-3xl border-2 border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center gap-3 active:scale-[0.98] transition"
-                    @click="openPicker">
+                <!-- FILA 2 -->
+                <div class="grid grid-cols-2 gap-2">
 
-                    <!-- ICON -->
-                    <div
-                        class="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-fuchsia-500 text-white flex items-center justify-center shadow-xl">
+                    <!-- YAPE -->
+                    <button
+                        class="h-11 rounded-2xl border text-xs font-semibold transition-all duration-200 active:scale-95"
+                        :class="tipoPagoId == 2
+                            ? 'bg-purple-500 border-purple-500 text-white shadow-md'
+                            : 'bg-white border-gray-200 text-gray-700'" @click="tipoPagoId = 2">
 
-                        <i class="fa fa-camera text-3xl"></i>
+                        📱 YAPE
 
-                    </div>
+                    </button>
 
-                    <!-- TEXT -->
-                    <div class="text-sm font-semibold text-gray-700">
-                        Subir captura
-                    </div>
+                    <!-- PLIN -->
+                    <button
+                        class="h-11 rounded-2xl border text-xs font-semibold transition-all duration-200 active:scale-95"
+                        :class="tipoPagoId == 3
+                            ? 'bg-fuchsia-500 border-fuchsia-500 text-white shadow-md'
+                            : 'bg-white border-gray-200 text-gray-700'" @click="tipoPagoId = 3">
 
-                    <div class="text-xs text-gray-400">
-                        Yape o Plin
-                    </div>
+                        🟣 PLIN
 
-                </button>
+                    </button>
 
-                <!-- INPUT -->
-                <input ref="inputPago" type="file" accept="image/*" class="hidden" @change="onFilePago" />
+                </div>
 
             </div>
 
@@ -287,7 +168,6 @@
     <AppLoader :show="loadingYaplin" />
 
 </template>
-
 <script setup>
 
 import {
@@ -298,10 +178,17 @@ import {
 
 import gsap from 'gsap'
 import axios from 'axios'
+import {
+    bus
+}
+    from '../services/eventBus.js'
+
 import AppLoader
     from '../components/layout/AppLoader.vue'
+
 import GsapToast
     from '../components/layout/GsapToast.vue'
+
 import AppSnackbar
     from '../components/layout/AppSnackbar.vue'
 
@@ -309,42 +196,68 @@ const emit = defineEmits([
     'rechazar',
     'entregar'
 ])
+
 const API =
     import.meta.env.VITE_PUBLIC_URL_BASE
-const tipoPagoId = ref(1)
-
-const loadingYaplin = ref(false)
-
-const visible = ref(false)
-
-const pedido = ref(null)
-
-const box = ref(null)
-const snackbarRef = ref(null)
-const inputPago = ref(null)
-
-const filePago = ref(null)
-
-const previewPago = ref('')
-const loading = ref(false)
-const yaplinId = ref(null)
-const toastRef = ref(null)
-
-const mostrarProductos = ref(true)
-
-const productosRef = ref(null)
-
-const btnVerRef = ref(null)
 
 const FLASK =
     import.meta.env.VITE_PUBLIC_URL_FLASK
-let startX = 0
+
+const tipoPagoId =
+    ref(1)
+
+const loadingYaplin =
+    ref(false)
+
+const visible =
+    ref(false)
+
+const pedido =
+    ref(null)
+
+const box =
+    ref(null)
+
+const snackbarRef =
+    ref(null)
+
+const inputPago =
+    ref(null)
+
+const filePago =
+    ref(null)
+
+const previewPago =
+    ref('')
+
+const loading =
+    ref(false)
+
+const yaplinId =
+    ref(null)
+
+const toastRef =
+    ref(null)
+
+const mostrarProductos =
+    ref(true)
+
+const btnVerRef =
+    ref(null)
+
+/* =========================================
+   OPEN PICKER
+========================================= */
 
 function openPicker() {
 
     inputPago.value?.click()
 
 }
+
+/* =========================================
+   SUBIR IMAGEN
+========================================= */
 
 async function onFilePago(e) {
 
@@ -357,10 +270,6 @@ async function onFilePago(e) {
 
         if (!file) return
 
-        /* =========================================
-           🖼️ LEER IMAGEN
-        ========================================= */
-
         const img =
             new Image()
 
@@ -369,15 +278,12 @@ async function onFilePago(e) {
 
         reader.onload = () => {
 
-            img.src = reader.result
+            img.src =
+                reader.result
 
         }
 
         img.onload = async () => {
-
-            /* =========================================
-               📐 REDIMENSIONAR
-            ========================================= */
 
             const canvas =
                 document.createElement('canvas')
@@ -403,8 +309,11 @@ async function onFilePago(e) {
 
             }
 
-            canvas.width = width
-            canvas.height = height
+            canvas.width =
+                width
+
+            canvas.height =
+                height
 
             ctx.drawImage(
                 img,
@@ -414,79 +323,52 @@ async function onFilePago(e) {
                 height
             )
 
-            /* =========================================
-               JPG QUALITY 70
-            ========================================= */
+            const blob =
+                await new Promise(resolve => {
 
-            const blob = await new Promise(resolve => {
+                    canvas.toBlob(
 
-                canvas.toBlob(
+                        resolve,
 
-                    resolve,
+                        'image/jpeg',
 
-                    'image/jpeg',
+                        0.7
 
-                    0.7
+                    )
 
-                )
-
-            })
-
-            /* =========================================
-               PREVIEW
-            ========================================= */
+                })
 
             previewPago.value =
                 URL.createObjectURL(blob)
-
-            /* =========================================
-               FORM DATA
-            ========================================= */
 
             const formData =
                 new FormData()
 
             formData.append(
-
                 'imagen',
-
                 blob,
-
                 'voucher.jpg'
-
             )
 
-            /* =========================================
-               🚀 ENVIAR A FLASK
-            ========================================= */
+            const r =
+                await axios.post(
 
-            const r = await axios.post(
+                    `${FLASK}/tk_yaplin`,
 
-                `${FLASK}/tk_yaplin`,
+                    formData,
 
-                formData,
+                    {
 
-                {
+                        headers: {
 
-                    headers: {
+                            'Content-Type':
+                                'multipart/form-data'
 
-                        'Content-Type':
-                            'multipart/form-data'
+                        }
 
                     }
 
-                }
-
-            )
-
-            /* =========================================
-   🚀 RESPONSE INICIAL
-========================================= */
-
-            console.log(
-                '🚀 JOB CREADO:',
-                r.data
-            )
+                )
 
             const job_id =
                 r.data.job_id
@@ -495,66 +377,9 @@ async function onFilePago(e) {
 
                 loadingYaplin.value = false
 
-                /* =========================================
-                   ❌ ERROR OCR
-                ========================================= */
-
-                if (
-                    rr.data?.result?.ok === false
-                ) {
-
-                    toastRef.value?.show({
-
-                        text:
-                            rr.data?.result?.error
-                            ||
-                            'No se pudo procesar el voucher',
-
-                        type:
-                            'error'
-
-                    })
-
-                    return
-
-                }
-
-                /* =========================================
-                   ✅ EXITO
-                ========================================= */
-
-                /* =========================================
-                🖼️ URL FINAL
-                ========================================= */
-
-                yaplinId.value =
-                    rr.data?.result?.regentis?.yaplin_id
-                    || null
-
-                toastRef.value?.show({
-
-                    text:
-                        rr.data?.result?.regentis?.msg
-                        ||
-                        'Voucher procesado correctamente',
-
-                    type:
-                        'success'
-
-                })
-
-                console.log(
-                    '✅ RESULTADO FINAL',
-                    rr.data
-                )
-
                 return
 
             }
-
-            /* =========================================
-               🔄 POLLING
-            ========================================= */
 
             let intentos = 0
 
@@ -568,34 +393,22 @@ async function onFilePago(e) {
 
                         intentos++
 
-                        console.log(
-                            `🔄 Polling ${intentos}`
-                        )
+                        const rr =
+                            await axios.get(
 
-                        const rr = await axios.get(
+                                `${FLASK}/jobs/result`,
 
-                            `${FLASK}/jobs/result`,
+                                {
 
-                            {
+                                    params: {
 
-                                params: {
+                                        job_id
 
-                                    job_id
+                                    }
 
                                 }
 
-                            }
-
-                        )
-
-                        console.log(
-                            '📦 POLLING RESPONSE:',
-                            rr.data
-                        )
-
-                        /* =========================================
-                           ⏳ AUN PROCESANDO
-                        ========================================= */
+                            )
 
                         if (
                             rr.data.status === 'queued'
@@ -607,17 +420,9 @@ async function onFilePago(e) {
 
                         }
 
-                        /* =========================================
-                           ✅ TERMINADO
-                        ========================================= */
-
                         clearInterval(interval)
 
                         loadingYaplin.value = false
-
-                        /* =========================================
-                           ❌ ERROR OCR
-                        ========================================= */
 
                         if (
                             rr.data?.result?.ok === false
@@ -639,14 +444,6 @@ async function onFilePago(e) {
 
                         }
 
-                        /* =========================================
-                           ✅ EXITO
-                        ========================================= */
-
-                        /* =========================================
-                        🖼️ URL FINAL
-                        ========================================= */
-
                         yaplinId.value =
                             rr.data?.result?.regentis?.yaplin_id
                             || null
@@ -663,19 +460,9 @@ async function onFilePago(e) {
 
                         })
 
-                        console.log(
-                            '✅ RESULTADO FINAL',
-                            rr.data
-                        )
-
                     } catch (e) {
 
                         clearInterval(interval)
-
-                        console.error(
-                            '❌ Error polling',
-                            e
-                        )
 
                         loadingYaplin.value = false
 
@@ -690,10 +477,6 @@ async function onFilePago(e) {
                         })
 
                     }
-
-                    /* =========================================
-                       ⏰ TIMEOUT
-                    ========================================= */
 
                     if (
                         intentos >= MAX_INTENTOS
@@ -750,8 +533,13 @@ async function onFilePago(e) {
 function open(item) {
 
     /* =========================================
-    🔥 RESET UI
+       🔥 HIDE BOTTOMNAV
     ========================================= */
+
+    bus.emit(
+        'bottomnav:toggle',
+        true
+    )
 
     previewPago.value = ''
     yaplinId.value = null
@@ -769,17 +557,7 @@ function open(item) {
 
     pedido.value = {
 
-        ...item,
-
-        productos: (item.productos || []).map(p => ({
-
-            ...p,
-
-            openActions: false,
-
-            estado_revision: null
-
-        }))
+        ...item
 
     }
 
@@ -809,11 +587,21 @@ function open(item) {
 
 }
 
+
 /* =========================================
    CLOSE
 ========================================= */
 
 function close() {
+
+    /* =========================================
+       🔥 SHOW BOTTOMNAV
+    ========================================= */
+
+    bus.emit(
+        'bottomnav:toggle',
+        false
+    )
 
     gsap.to(box.value, {
 
@@ -832,7 +620,7 @@ function close() {
 }
 
 /* =========================================
-   ACCIONES
+   RECHAZAR
 ========================================= */
 
 function rechazar() {
@@ -847,22 +635,19 @@ function rechazar() {
 
                 loading.value = true
 
-                const r = await axios.post(
+                const r =
+                    await axios.post(
 
-                    `${API}/ULx3/rechazarPedido`,
+                        `${API}/ULx3/rechazarPedido`,
 
-                    {
+                        {
 
-                        carrito_id:
-                            pedido.value.carrito_id
+                            carrito_id:
+                                pedido.value.carrito_id
 
-                    }
+                        }
 
-                )
-
-                /* =========================================
-                   🔥 TOAST
-                ========================================= */
+                    )
 
                 toastRef.value?.show({
 
@@ -876,18 +661,10 @@ function rechazar() {
 
                 })
 
-                /* =========================================
-                   🔥 EMIT
-                ========================================= */
-
                 emit(
                     'rechazar',
                     r.data
                 )
-
-                /* =========================================
-                   🔥 CLOSE
-                ========================================= */
 
                 close()
 
@@ -919,46 +696,9 @@ function rechazar() {
 
 }
 
-function touchStart(e, item) {
-
-    startX =
-        e.touches[0].clientX
-
-}
-
-function touchMove(e, item) {
-
-    const currentX =
-        e.touches[0].clientX
-
-    const diff =
-        startX - currentX
-
-    if (diff > 40) {
-
-        item.openActions = true
-
-    }
-
-    if (diff < -40) {
-
-        item.openActions = false
-
-    }
-
-}
-
-function touchEnd(item) {
-
-}
-
-function marcarProducto(item, estado) {
-
-    item.estado_revision = estado
-
-    item.openActions = false
-
-}
+/* =========================================
+   ENTREGAR
+========================================= */
 
 async function entregar() {
 
@@ -966,28 +706,22 @@ async function entregar() {
 
         loading.value = true
 
-        const r = await axios.post(
+        const r =
+            await axios.post(
 
-            `${API}/YCTK/registrarVenta`,
+                `${API}/YCTK/registrarVenta`,
 
-            {
+                {
 
-                carrito_id:
-                    pedido.value.carrito_id,
+                    carrito_id:
+                        pedido.value.carrito_id,
 
-                tipo_pago_id:
-                    tipoPagoId.value,
+                    tipo_pago_id:
+                        tipoPagoId.value
 
-                yaplin_id:
-                    yaplinId.value
+                }
 
-            }
-
-        )
-
-        /* =========================================
-           🔥 TOAST
-        ========================================= */
+            )
 
         toastRef.value?.show({
 
@@ -999,18 +733,10 @@ async function entregar() {
 
         })
 
-        /* =========================================
-           🔥 EMIT
-        ========================================= */
-
         emit(
             'entregar',
             r.data
         )
-
-        /* =========================================
-           🔥 CERRAR
-        ========================================= */
 
         close()
 
@@ -1036,111 +762,11 @@ async function entregar() {
 
 }
 
-watch(
-
-    tipoPagoId,
-
-    async (v) => {
-
-        /* =========================================
-           📱 YAPE / PLIN
-        ========================================= */
-
-        if (v == 2 || v == 3) {
-
-            if (!mostrarProductos.value)
-                return
-
-            gsap.to(
-
-                productosRef.value,
-
-                {
-
-                    x: 80,
-                    opacity: 0,
-                    duration: 0.28,
-                    ease: 'power2.in',
-
-                    onComplete: async () => {
-
-                        mostrarProductos.value = false
-
-                        await nextTick()
-
-                        gsap.fromTo(
-
-                            btnVerRef.value,
-
-                            {
-                                x: 60,
-                                opacity: 0
-                            },
-
-                            {
-                                x: 0,
-                                opacity: 1,
-                                duration: 0.35,
-                                ease: 'power3.out'
-                            }
-
-                        )
-
-                    }
-
-                }
-
-            )
-
-        }
-
-    }
-
-)
-
 async function volverProductos() {
 
-    gsap.to(
+    mostrarProductos.value = true
 
-        btnVerRef.value,
-
-        {
-
-            x: 60,
-            opacity: 0,
-            duration: 0.2,
-
-            onComplete: async () => {
-
-                mostrarProductos.value = true
-
-                tipoPagoId.value = 1
-
-                await nextTick()
-
-                gsap.fromTo(
-
-                    productosRef.value,
-
-                    {
-                        x: 80,
-                        opacity: 0
-                    },
-
-                    {
-                        x: 0,
-                        opacity: 1,
-                        duration: 0.35,
-                        ease: 'power3.out'
-                    }
-
-                )
-
-            }
-
-        }
-
-    )
+    tipoPagoId.value = 1
 
 }
 
@@ -1152,11 +778,15 @@ defineExpose({
 </script>
 <style scoped>
 .no-scrollbar::-webkit-scrollbar {
+
     display: none;
+
 }
 
 .no-scrollbar {
+
     scrollbar-width: none;
+
 }
 
 .custom-scroll::-webkit-scrollbar {

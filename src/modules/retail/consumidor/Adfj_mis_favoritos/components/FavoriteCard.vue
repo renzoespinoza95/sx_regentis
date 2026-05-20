@@ -51,9 +51,47 @@
 
         <!-- BOTON -->
         <div class="px-3 pb-3 mt-auto">
-            <button class="w-full bg-[#FD7635] text-white py-2 rounded-xl text-sm">
+            <button v-if="Number(producto.stock) > 0" class="
+        w-full
+        bg-[#FD7635]
+        text-white
+        py-2
+        rounded-xl
+        text-sm
+        font-semibold
+        shadow-md
+        hover:scale-[1.02]
+        active:scale-95
+        transition
+    " @click.stop="abrirCantidadDialog">
+
                 Pedir ahora
+
             </button>
+
+            <!-- 🔴 AGOTADO -->
+            <div v-else class="
+        w-full
+        py-2
+        rounded-xl
+        text-sm
+        font-bold
+        text-center
+        border
+        border-red-200
+        bg-gradient-to-r
+        from-red-50
+        to-red-100
+        text-red-500
+        shadow-inner
+        tracking-wide
+    ">
+
+                ✦ AGOTADO ✦
+
+            </div>
+
+            <CantidadProductoDialog ref="cantidadDialogRef" @confirm="onConfirmCantidad" />
         </div>
 
     </div>
@@ -66,6 +104,16 @@
 <script setup>
 import { ref } from 'vue'
 import AppSnackbar from '../../../../../components/layout/AppSnackbar.vue'
+import CantidadProductoDialog
+    from '../../../../../components/layout/CantidadProductoDialog.vue'
+
+import {
+    useUsuario
+}
+    from '../../../../../services/usuarioService.js'
+
+import { gsap }
+    from 'gsap'
 
 const props = defineProps({
     producto: Object
@@ -74,6 +122,14 @@ const props = defineProps({
 const emit = defineEmits(['eliminar'])
 
 const snackbarRef = ref(null)
+const cantidadDialogRef =
+    ref(null)
+
+const {
+
+    usuario
+
+} = useUsuario()
 
 // 🔥 CONFIRMACIÓN
 function eliminar() {
@@ -84,6 +140,124 @@ function eliminar() {
             emit('eliminar', props.producto.fav_id)
         }
     )
+
+}
+
+/* =========================================
+   🔥 CANTIDAD
+========================================= */
+
+function abrirCantidadDialog() {
+
+    cantidadDialogRef.value?.open(
+        props.producto
+    )
+
+}
+
+/* =========================================
+   🛒 AGREGAR CARRITO
+========================================= */
+
+async function onConfirmCantidad(payload) {
+
+    const cantidad =
+        payload.cantidad
+
+    const usu_id =
+        usuario.value?.user?.usu_id
+
+    if (!usu_id) {
+
+        snackbarRef.value?.open(
+            'Debes iniciar sesión ❌'
+        )
+
+        return
+    }
+
+    try {
+
+        const res =
+            await fetch(
+
+                `${import.meta.env.VITE_PUBLIC_URL_BASE}/M0Jk/carritoCompras`,
+
+                {
+
+                    method: 'POST',
+
+                    headers: {
+
+                        'Content-Type':
+                            'application/json'
+
+                    },
+
+                    body: JSON.stringify({
+
+                        usu_id,
+
+                        neg_id:
+                            props.producto.neg_id,
+
+                        product_id:
+                            props.producto.product_id,
+
+                        cantidad,
+
+                        fecha_entrega:
+                            null
+
+                    })
+
+                }
+
+            )
+
+        const data =
+            await res.json()
+
+        if (
+
+            data.status === 'ok'
+
+        ) {
+
+            snackbarRef.value?.open(
+
+                data.msg === 'actualizado'
+
+                    ?
+
+                    'Cantidad actualizada 🛒'
+
+                    :
+
+                    'Agregado al carrito 🛒'
+
+            )
+
+        } else {
+
+            snackbarRef.value?.open(
+
+                data.msg
+                ||
+
+                'Error al agregar ❌'
+
+            )
+
+        }
+
+    } catch (err) {
+
+        snackbarRef.value?.open(
+            'Error de conexión ❌'
+        )
+
+    }
 
 }
 </script>

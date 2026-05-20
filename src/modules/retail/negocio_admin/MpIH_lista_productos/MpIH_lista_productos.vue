@@ -1,7 +1,7 @@
 <template>
     <div class="min-h-screen flex flex-col" :style="fondoStyle">
 
-        <HeaderBar @openOptions="openDialog" />
+        <HeaderBar @openOptions="openDialog" @nuevo="openNuevoProducto" />
 
         <div class="max-w-5xl w-full mx-auto px-4 pt-28 pb-24">
 
@@ -34,13 +34,29 @@
 
             <!-- 🟢 LISTA -->
             <div v-if="!loading && productos.length" class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                <ProductoItem v-for="item in productos" :key="item.product_id" :item="item" />
+                <ProductoItem v-for="item in productos" :key="item.product_id" :item="item" @click="openProducto" />
             </div>
 
         </div>
 
         <BottomNav />
-        <OptionsDialog ref="dialogRef" />
+        <OptionsDialog ref="dialogRef" @categoria-created="
+            openNuevaCategoria
+        " />
+
+        <NuevaCategoriaDialog ref="nuevaCategoriaRef" @created="
+            onCategoriaCreated
+        " />
+        <ProductoOpcionesDialog ref="productoDialogRef" @stock-updated="
+            onStockUpdated
+        " @visible-updated="
+            onVisibleUpdated
+        " />
+        <GsapToast ref="toastRef" />
+        <NuevoProductoDialog ref="nuevoProductoRef" @created="
+            onProductoCreated
+        " />
+
 
     </div>
 </template>
@@ -63,6 +79,15 @@ import { useMercado } from '../../../../services/useMercado.js'
 import { cssToObject } from '../../../../services/useCss.js'
 import OptionsDialog
     from './components/OptionsDialog.vue'
+import ProductoOpcionesDialog
+    from './components/ProductoOpcionesDialog.vue'
+import NuevaCategoriaDialog
+    from './components/NuevaCategoriaDialog.vue'
+
+import GsapToast
+    from '../../../../components/layout/GsapToast.vue'
+import NuevoProductoDialog
+    from './components/NuevoProductoDialog.vue'
 
 let timeout = null
 
@@ -70,7 +95,8 @@ const productos = ref([])
 const loading = ref(false)
 const categorias = ref([])
 const activeCat = ref(null)
-
+const productoDialogRef =
+    ref(null)
 // 🔥 MERCADO
 const { mercado } = useMercado()
 
@@ -84,14 +110,120 @@ const fondoStyle = computed(() => {
     return cssToObject(mercado.value.patron_fondo)
 
 })
-
+const nuevaCategoriaRef =
+    ref(null)
+const nuevoProductoRef =
+    ref(null)
+const toastRef =
+    ref(null)
 const { getNegId, getUsuId } = useUsuario()
 
 const dialogRef = ref(null)
+const productosOriginales =
+    ref([])
 
 function openDialog() {
 
     dialogRef.value?.open()
+
+}
+
+function openProducto(item) {
+
+    productoDialogRef.value?.open(
+        item
+    )
+
+}
+
+function openNuevoProducto() {
+
+    nuevoProductoRef.value?.open()
+
+}
+
+/* =========================================
+   🔥 STOCK UPDATED
+========================================= */
+
+function onStockUpdated(payload) {
+
+    console.log(
+        '📦 actualizar listado',
+        payload
+    )
+
+    const item =
+        productos.value.find(
+
+            p =>
+
+                Number(
+                    p.product_id
+                )
+
+                ===
+
+                Number(
+                    payload.product_id
+                )
+
+        )
+
+    if (!item) {
+        return
+    }
+
+    item.stock =
+        payload.stock
+
+}
+
+async function onProductoCreated() {
+
+    await cargarProductos()
+
+    await cargarCategorias()
+
+    toastRef.value?.show({
+
+        text:
+            'Producto creado ✨',
+
+        type:
+            'success'
+
+    })
+
+}
+
+/* =========================================
+🔥 OPEN NUEVA CATEGORIA
+========================================= */
+
+function openNuevaCategoria() {
+
+    nuevaCategoriaRef.value?.open()
+
+}
+
+/* =========================================
+🔥 CREATED
+========================================= */
+
+async function onCategoriaCreated() {
+
+    await cargarCategorias()
+
+    toastRef.value?.show({
+
+        text:
+            'Categoría creada ✨',
+
+        type:
+            'success'
+
+    })
 
 }
 
@@ -124,11 +256,25 @@ async function cargarProductos() {
 
         if (res.data.status === 'ok') {
 
-            productos.value = res.data.data
+            productos.value =
+                res.data.data
+
+            productosOriginales.value =
+                res.data.data
 
         }
 
     } catch (e) {
+
+        toastRef.value?.show({
+
+            text:
+                'Ocurrió un error 😢',
+
+            type:
+                'error'
+
+        })
 
         console.error(e)
 
@@ -178,34 +324,8 @@ function onSelectCategoria(cat) {
 
 }
 
-// 🔥 BUSCAR
-async function buscarProductos(texto) {
-    loading.value = true
 
-    try {
-        const res = await axios.post('/MpIH/buscarProducto', {
-            neg_id: getNegId(),
-            usu_id: getUsuId(),
-            texto
-        })
-
-        if (res.data.status === 'ok') {
-
-            categorias.value = res.data.data
-
-            // 🔥 TODOS los productos al inicio (seguro)
-            productos.value = categorias.value.flatMap(c => c.productos || [])
-
-            activeCat.value = null
-        }
-
-    } catch (e) {
-        console.error(e)
-    } finally {
-        loading.value = false
-    }
-}
-
+// 🔥 INPUT
 // 🔥 INPUT
 function onBuscar(texto) {
 
@@ -213,18 +333,130 @@ function onBuscar(texto) {
 
     timeout = setTimeout(() => {
 
-        if (texto.length >= 4) {
-            buscarProductos(texto)
-        } else {
-            cargarProductos()
+        const txt =
+
+            normalizeText(
+                texto || ''
+            )
+
+        /* =========================================
+        🔥 VACIO
+        ========================================= */
+
+        if (!txt) {
+
+            /* =========================================
+            🔥 TODOS
+            ========================================= */
+
+            if (!activeCat.value) {
+
+                productos.value =
+                    productosOriginales.value
+
+                return
+
+            }
+
+            /* =========================================
+            🔥 CATEGORIA ACTIVA
+            ========================================= */
+
+            const cat =
+                categorias.value.find(
+
+                    c =>
+
+                        Number(c.category_id)
+
+                        ===
+
+                        Number(activeCat.value)
+
+                )
+
+            productos.value =
+                cat?.productos || []
+
+            return
+
         }
 
-    }, 400)
+        /* =========================================
+        🔥 FILTRO LOCAL
+        ========================================= */
+
+        productos.value =
+
+            productosOriginales.value.filter(p => {
+
+                const nombre =
+
+                    normalizeText(
+                        p.name || ''
+                    )
+
+                return nombre.includes(txt)
+
+            })
+
+    }, 250)
+
 }
 
 // 🔥 LIMPIAR
+// 🔥 LIMPIAR
 function onLimpiar() {
-    cargarProductos()
+
+    /* =========================================
+    🔥 TODOS
+    ========================================= */
+
+    if (!activeCat.value) {
+
+        productos.value =
+            productosOriginales.value
+
+        return
+
+    }
+
+    /* =========================================
+    🔥 CATEGORIA ACTIVA
+    ========================================= */
+
+    const cat =
+        categorias.value.find(
+
+            c =>
+
+                Number(c.category_id)
+
+                ===
+
+                Number(activeCat.value)
+
+        )
+
+    productos.value =
+        cat?.productos || []
+
+}
+
+/* =========================================
+🔥 NORMALIZAR
+========================================= */
+
+function normalizeText(txt = '') {
+
+    return String(txt)
+
+        .normalize('NFD')
+
+        .replace(/[\u0300-\u036f]/g, '')
+
+        .toLowerCase()
+
 }
 
 onMounted(() => {
@@ -232,4 +464,40 @@ onMounted(() => {
     cargarCategorias()
 })
 
+/* =========================================
+   👁️ VISIBLE UPDATED
+========================================= */
+
+function onVisibleUpdated(payload) {
+
+    console.log(
+        '👁️ actualizar visible',
+        payload
+    )
+
+    const item =
+        productos.value.find(
+
+            p =>
+
+                Number(
+                    p.product_id
+                )
+
+                ===
+
+                Number(
+                    payload.product_id
+                )
+
+        )
+
+    if (!item) {
+        return
+    }
+
+    item.is_visible =
+        payload.is_visible
+
+}
 </script>

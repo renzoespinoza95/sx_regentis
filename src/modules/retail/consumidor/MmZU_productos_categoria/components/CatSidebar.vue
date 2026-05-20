@@ -14,7 +14,7 @@
 
             <!-- TEXTO -->
             <div class="text-[10px] mt-1 text-center leading-tight"
-                :class="i === active ? 'text-orange-500 font-semibold' : 'text-gray-500'">
+                :class="i === active ? 'text-orange-500 font-semibold' : 'text-[#0F0F0F]'">
                 {{ cat.name }}
             </div>
 

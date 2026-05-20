@@ -1,26 +1,122 @@
 <template>
 
-    <div v-if="visible" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div v-if="visible" class="
+            fixed
+            inset-0
+            bg-black/40
+            backdrop-blur-sm
+            flex
+            items-center
+            justify-center
+            z-50
+            p-4
+        ">
 
-        <div ref="box" class="bg-white rounded-3xl p-5 w-80 shadow-2xl space-y-3">
+        <div ref="box" class="
+                relative
+                bg-white
+                rounded-3xl
+                p-5
+                w-80
+                shadow-2xl
+                space-y-3
+            ">
 
-            <button v-for="o in opciones" :key="o.estado"
-                class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-gray-50 hover:bg-gray-100 active:scale-[0.98] transition text-left"
-                @click="seleccionar(o.estado)">
+            <!-- ❌ CLOSE -->
+            <button class="
+                    absolute
+                    top-4
+                    right-4
+                    w-10
+                    h-10
+                    rounded-full
+                    bg-red-100
+                    text-red-500
+                    flex
+                    items-center
+                    justify-center
+                    active:scale-95
+                    transition
+                " @click="close">
+
+                <i class="fa fa-times"></i>
+
+            </button>
+
+            <!-- TITLE -->
+            <div class="
+                    text-xl
+                    font-black
+                    text-gray-800
+                    mb-2
+                ">
+
+                Estados 📦
+
+            </div>
+
+            <!-- OPCIONES -->
+            <button v-for="o in opciones" :key="o.estado" class="
+                    w-full
+                    flex
+                    items-center
+                    gap-3
+                    px-4
+                    py-3
+                    rounded-2xl
+                    bg-gray-50
+                    hover:bg-gray-100
+                    active:scale-[0.98]
+                    transition
+                    text-left
+                " @click="seleccionar(o.estado)">
 
                 <span class="text-2xl">
+
                     {{ o.emoji }}
+
                 </span>
 
-                <div class="font-semibold text-gray-800">
+                <div class="
+                        font-semibold
+                        text-gray-800
+                    ">
+
                     {{ o.estado }}
+
                 </div>
 
             </button>
 
-            <button class="w-full text-white py-3 rounded-2xl bg-red-500 font-semibold mt-2" @click="close">
+            <!-- TUTORIAL -->
+            <button class="
+                    w-full
+                    flex
+                    items-center
+                    gap-3
+                    px-4
+                    py-3
+                    rounded-2xl
+                    bg-[#fff4ee]
+                    text-[#FD7635]
+                    hover:bg-[#ffe9dd]
+                    active:scale-[0.98]
+                    transition
+                    text-left
+                    mt-2
+                ">
 
-                Cerrar
+                <span class="text-2xl">
+
+                    🎓
+
+                </span>
+
+                <div class="font-semibold">
+
+                    Tutorial
+
+                </div>
 
             </button>
 
@@ -38,15 +134,26 @@ import {
 }
     from 'vue'
 
-import gsap from 'gsap'
+import gsap
+    from 'gsap'
 
-const emit = defineEmits([
-    'select'
-])
+import {
+    bus
+}
+    from '../../../../../services/eventBus.js'
 
-const visible = ref(false)
+const emit =
+    defineEmits([
 
-const box = ref(null)
+        'select'
+
+    ])
+
+const visible =
+    ref(false)
+
+const box =
+    ref(null)
 
 const opciones = [
 
@@ -84,6 +191,11 @@ const opciones = [
 
 function open() {
 
+    bus.emit(
+        'bottomnav:toggle',
+        true
+    )
+
     visible.value = true
 
     nextTick(() => {
@@ -111,6 +223,11 @@ function open() {
 }
 
 function close() {
+
+    bus.emit(
+        'bottomnav:toggle',
+        false
+    )
 
     gsap.to(
 
@@ -150,7 +267,9 @@ function seleccionar(
 }
 
 defineExpose({
+
     open
+
 })
 
 </script>

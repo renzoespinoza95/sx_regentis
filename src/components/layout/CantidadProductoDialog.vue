@@ -50,7 +50,7 @@
                     '#39d06b'
             }" @click.stop="confirmar">
 
-                PEDIR
+                {{ props.botonTexto }}
 
             </button>
 
@@ -68,9 +68,10 @@ import {
 } from 'vue'
 
 import gsap from 'gsap'
+
 import {
     useMercado
-} from '../../../../../services/useMercado.js'
+} from '../../services/useMercado.js'
 
 const {
     mercado
@@ -168,4 +169,16 @@ defineExpose({
     open
 })
 
+const props =
+    defineProps({
+
+        botonTexto: {
+
+            type: String,
+
+            default: 'PEDIR'
+
+        }
+
+    })
 </script>

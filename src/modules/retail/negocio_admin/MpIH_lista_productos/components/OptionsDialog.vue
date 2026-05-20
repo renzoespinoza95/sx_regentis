@@ -5,13 +5,33 @@
         <div ref="box" class="bg-white rounded-xl p-5 w-72 space-y-3">
 
             <!-- NUEVO -->
-            <button class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100 transition flex items-center gap-2">
+            <!-- =========================================
+🔥 NUEVA CATEGORIA
+========================================= -->
 
-                <i class="fa fa-plus text-green-500"></i>
+            <button class="
+        w-full
+        text-left
+        px-3
+        py-2
+        rounded-lg
+        hover:bg-gray-100
+        transition
+        flex
+        items-center
+        gap-2
+    " @click="abrirNuevaCategoria">
+
+                <i class="
+            fa
+            fa-folder-open
+            text-orange-500
+        ">
+                </i>
 
                 <span>
 
-                    Nuevo producto
+                    Nueva categoría
 
                 </span>
 
@@ -44,6 +64,17 @@ const visible = ref(false)
 const box = ref(null)
 
 /* ======================================
+🔥 EMITS
+====================================== */
+
+const emit =
+    defineEmits([
+
+        'categoria-created'
+
+    ])
+
+/* ======================================
    🔥 OPEN
 ====================================== */
 
@@ -68,6 +99,20 @@ function open() {
         )
 
     })
+
+}
+
+/* ======================================
+🔥 NUEVA CATEGORIA
+====================================== */
+
+function abrirNuevaCategoria() {
+
+    close()
+
+    emit(
+        'categoria-created'
+    )
 
 }
 

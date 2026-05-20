@@ -2,7 +2,18 @@
 
     <div class="min-h-screen flex flex-col" :style="fondoStyle">
 
-        <HeaderBar @openOptions="openDialog" />
+        <!-- =========================================
+🔥 HEADER FIJO
+========================================= -->
+
+        <div class="fixed top-0 left-0 right-0 z-40">
+
+            <HeaderBar @openOptions="openDialog" />
+
+        </div>
+
+        <!-- ESPACIADOR -->
+        <div class="h-[76px]"></div>
 
         <div class="flex-1 flex justify-center p-4">
 
@@ -42,38 +53,105 @@
 
                 <FieldText label="Estado" :value="pedido.estado" />
 
-                <!-- FECHA ENTREGA -->
+                <!-- =========================================
+📅 FECHA ENTREGA PREMIUM
+========================================= -->
+
                 <div>
 
-                    <div class="text-sm text-gray-500 mb-1">
+                    <div class="text-sm text-gray-500 mb-2">
+
                         Fecha entrega
+
                     </div>
 
-                    <input v-model="fechaEntrega" type="date"
-                        class="w-full border rounded-xl px-3 py-3 outline-none focus:ring-2 focus:ring-orange-300" />
+                    <button @click="calendarRef?.open(fechaEntrega)"
+                        class="w-full h-14 rounded-2xl border border-gray-200 bg-white px-4 flex items-center justify-between active:scale-[0.99] transition">
+
+                        <!-- LEFT -->
+                        <div class="flex items-center gap-3">
+
+                            <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
+
+                                <i class="fa fa-calendar text-[#FD7635]"></i>
+
+                            </div>
+
+                            <div class="text-left">
+
+                                <div class="text-xs text-gray-400">
+                                    Fecha de entrega
+                                </div>
+
+                                <div class="text-sm font-semibold text-gray-800">
+
+                                    {{
+                                        fechaEntregaTexto
+                                    }}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- RIGHT -->
+                        <i class="fa fa-chevron-right text-gray-300"></i>
+
+                    </button>
 
                 </div>
 
-                <!-- TRABAJADOR -->
+                <DialogCalendario ref="calendarRef" @selected="onFechaSeleccionada" />
+
+                <!-- =========================================
+👷 TRABAJADOR PREMIUM
+========================================= -->
+
                 <div>
 
-                    <div class="text-sm text-gray-500 mb-1">
+                    <div class="text-sm text-gray-500 mb-2">
+
                         Trabajador asignado
-                    </div>
-
-                    <div class="flex gap-2">
-
-                        <input :value="trabajadorNombre" readonly placeholder="Seleccionar trabajador"
-                            class="flex-1 border rounded-xl px-3 py-3 bg-gray-50 outline-none" />
-
-                        <button @click="abrirTrabajadores" class="px-4 rounded-xl text-white font-semibold"
-                            :style="{ background: mercado.topnavbar_color || '#FD7635' }">
-
-                            <i class="fa fa-search"></i>
-
-                        </button>
 
                     </div>
+
+                    <button @click="abrirTrabajadores"
+                        class="w-full h-16 rounded-2xl border border-gray-200 bg-white px-4 flex items-center justify-between active:scale-[0.99] transition">
+
+                        <!-- LEFT -->
+                        <div class="flex items-center gap-3">
+
+                            <!-- FOTO -->
+                            <img :src="trabajador?.img || 'https://picsum.photos/100'"
+                                class="w-11 h-11 rounded-full object-cover border" />
+
+                            <!-- INFO -->
+                            <div class="text-left">
+
+                                <div class="text-xs text-gray-400">
+
+                                    Trabajador
+
+                                </div>
+
+                                <div class="text-sm font-semibold text-gray-800">
+
+                                    {{
+                                        trabajador?.nombre
+                                        || 'Seleccionar trabajador'
+                                    }}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- RIGHT -->
+                        <i class="fa fa-chevron-right text-gray-300"></i>
+
+                    </button>
 
                 </div>
 
@@ -86,7 +164,8 @@
                         Productos
                     </h3>
 
-                    <ProductoRowView v-for="p in productos" :key="p.carrito_detalle_id" :item="p" />
+                    <ProductoRowView v-for="p in productos" :key="p.carrito_detalle_id" :item="p"
+                        @delete="eliminarProducto" @update="actualizarCantidad" />
 
                 </div>
 
@@ -117,6 +196,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
+import DialogCalendario
+    from '../../negocio_admin/PM1N_ag_pedido/components/CalendarDialog.vue'
 
 import { useMercado } from '../../../../services/useMercado.js'
 import { cssToObject } from '../../../../services/useCss.js'
@@ -164,6 +245,8 @@ const fondoStyle = computed(() => {
     )
 })
 
+
+
 const dialogRef = ref(null)
 const snackbarRef = ref(null)
 const toastRef = ref(null)
@@ -184,6 +267,32 @@ function abrirTrabajadores() {
 function onTrabajadorSelected(item) {
 
     trabajador.value = item
+}
+
+const calendarRef =
+    ref(null)
+
+const fechaEntregaTexto =
+    computed(() => {
+
+        if (!fechaEntrega.value) {
+
+            return 'Seleccionar fecha'
+
+        }
+
+        return fechaEntrega.value
+            .split('-')
+            .reverse()
+            .join('/')
+
+    })
+
+function onFechaSeleccionada(fecha) {
+
+    fechaEntrega.value =
+        fecha
+
 }
 
 function onVentaRealizada(data) {
@@ -311,6 +420,41 @@ function confirmarEliminar() {
         }
 
     )
+
+}
+
+function eliminarProducto(item) {
+
+    productos.value =
+        productos.value.filter(
+
+            x =>
+
+                x.carrito_detalle_id
+                !==
+                item.carrito_detalle_id
+
+        )
+
+}
+
+function actualizarCantidad(data) {
+
+    const item =
+        productos.value.find(
+
+            x =>
+
+                x.carrito_detalle_id
+                ===
+                data.item.carrito_detalle_id
+
+        )
+
+    if (!item) return
+
+    item.cantidad =
+        data.cantidad
 
 }
 

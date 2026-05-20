@@ -1,5 +1,10 @@
 <template>
-    <div class="rounded-2xl shadow-md p-3 flex items-center justify-between hover:scale-[1.02] transition"
+    <div @click="
+        emit(
+            'click',
+            item
+        )
+        " class="rounded-2xl shadow-md p-3 flex items-center justify-between hover:scale-[1.02] transition"
         :style="cardStyle">
 
         <!-- LEFT -->
@@ -12,8 +17,26 @@
                     {{ item.name }}
                 </div>
 
-                <div class="text-xs text-gray-500">
+                <div v-if="
+                    Number(item.stock) === 0
+                " class="
+        text-xs
+        font-bold
+        text-red-500
+        mt-1
+    ">
+
+                    🚫 SIN STOCK
+
+                </div>
+
+                <div v-else class="
+        text-xs
+        text-gray-500
+    ">
+
                     Stock: {{ item.stock }}
+
                 </div>
             </div>
 
@@ -22,14 +45,26 @@
         <!-- RIGHT -->
         <div class="text-right">
 
-            <div class="font-semibold text-sm">
-                S/{{ item.price }}
-            </div>
+            <div class="
+    text-sm
+    font-black
+    text-[#0EA5E9]
+">
 
-            <div class="text-xs text-gray-400">
-                Ref: S/{{ item.precio }}
-            </div>
+                S/{{ Number(item.price).toFixed(2) }}
 
+            </div>
+            <div v-if="
+                Number(item.is_visible) === 0
+            " class="
+        text-xs
+        font-bold
+        text-red-500
+    ">
+
+                🔒 OCULTO
+
+            </div>
         </div>
 
     </div>
@@ -38,21 +73,73 @@
 <script setup>
 import { computed } from 'vue'
 
+
 const props = defineProps({
     item: Object
 })
 
+const emit =
+    defineEmits([
+        'click'
+    ])
+
 // 🔥 COLOR DINÁMICO SEGÚN STOCK
 const cardStyle = computed(() => {
 
-    if (props.item.stock < 10) {
+    /* =========================================
+       🔴 OCULTO
+    ========================================= */
+
+    if (
+
+        Number(
+            props.item.is_visible
+        ) === 0
+
+    ) {
+
         return {
-            background: '#E1A2B7'
+
+            background:
+                '#d1d5db',
+
+            opacity:
+                0.85
+
         }
+
     }
 
+    /* =========================================
+       🟡 STOCK BAJO
+    ========================================= */
+
+    if (
+
+        Number(
+            props.item.stock
+        ) < 10
+
+    ) {
+
+        return {
+
+            background:
+                '#E1A2B7'
+
+        }
+
+    }
+
+    /* =========================================
+       ⚪ NORMAL
+    ========================================= */
+
     return {
-        background: 'white'
+
+        background:
+            'white'
+
     }
 
 })

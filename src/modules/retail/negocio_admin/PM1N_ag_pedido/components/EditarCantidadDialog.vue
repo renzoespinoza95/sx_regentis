@@ -24,11 +24,47 @@
             <!-- CONTADOR -->
             <div class="flex justify-center items-center gap-3">
 
-                <button class="w-8 h-8 bg-gray-200 rounded" @click="menos">-</button>
+                <button class="w-8 h-8 rounded text-white font-bold shadow-sm active:scale-95 transition" :style="{
+                    background: '#22c55e'
+                }" @click="menos">
+
+                    -
+
+                </button>
 
                 <input v-model="cantidad" type="number" class="w-12 text-center border rounded" />
 
-                <button class="w-8 h-8 bg-gray-200 rounded" @click="mas">+</button>
+                <button class="w-8 h-8 rounded text-white font-bold shadow-sm active:scale-95 transition" :style="{
+                    background: '#22c55e'
+                }" @click="mas">
+
+                    +
+
+                </button>
+
+            </div>
+
+            <!-- 🔥 TOTAL -->
+            <div class="text-base font-semibold text-gray-700">
+
+                S/
+                {{
+                    Number(
+                        producto?.precio || 0
+                    ).toFixed(2)
+                }}
+
+                ×
+
+                {{ cantidad }}
+
+                =
+
+                <span class="text-green-600">
+
+                    S/{{ total }}
+
+                </span>
 
             </div>
 
@@ -44,7 +80,12 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue'
+import {
+    ref,
+    nextTick,
+    computed
+}
+    from 'vue'
 import gsap from 'gsap'
 import { useMercado } from '../../../../../services/useMercado.js'
 
@@ -55,6 +96,22 @@ const box = ref(null)
 
 const producto = ref(null)
 const cantidad = ref(1)
+
+const total =
+    computed(() => {
+
+        const precio =
+            Number(
+                producto.value?.precio || 0
+            )
+
+        return (
+            precio
+            *
+            cantidad.value
+        ).toFixed(2)
+
+    })
 
 const emit = defineEmits(['update'])
 

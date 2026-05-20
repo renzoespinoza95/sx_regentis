@@ -11,7 +11,9 @@
             </div>
 
             <span class="text-white font-semibold">
-                Pedidos
+
+                {{ titulo }}
+
             </span>
 
         </div>
@@ -38,6 +40,18 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { useMercado } from '../../../../../services/useMercado.js'
+
+defineProps({
+
+    titulo: {
+
+        type: String,
+
+        default: 'Pedidos'
+
+    }
+
+})
 
 const router = useRouter()
 const { mercado } = useMercado()

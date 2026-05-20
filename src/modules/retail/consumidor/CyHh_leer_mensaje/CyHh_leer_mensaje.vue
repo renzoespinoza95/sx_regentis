@@ -3,7 +3,7 @@
     <div class="min-h-screen flex flex-col pt-20" :style="fondoStyle">
 
         <!-- 🔥 HEADER GLOBAL -->
-        <NegpresHeader />
+        <HeaderBack />
 
         <!-- MENSAJES -->
         <div class="flex-1 overflow-y-auto px-4 py-3">
@@ -23,7 +23,7 @@ import { computed } from 'vue'
 import { useMercado } from '../../../../services/useMercado.js'
 import { cssToObject } from '../../../../services/useCss.js'
 
-import NegpresHeader from '../../../../components/layout/NegpresHeaderBack.vue'
+import HeaderBack from '../../../../components/layout/HeaderBack.vue'
 import MessageList from './components/MessageList.vue'
 import MessageInput from './components/MessageInput.vue'
 

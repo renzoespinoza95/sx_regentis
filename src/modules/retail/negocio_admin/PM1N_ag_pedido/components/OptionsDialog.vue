@@ -15,7 +15,20 @@
 
                 <span>
 
-                    Nuevo
+                    Crear pedido
+
+                </span>
+
+            </button>
+
+            <button class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100 transition flex items-center gap-2"
+                @click="nuevoCliente">
+
+                <i class="fa fa-user-plus text-blue-500"></i>
+
+                <span>
+
+                    Crear cliente
 
                 </span>
 
@@ -51,7 +64,11 @@ const visible = ref(false)
 const box = ref(null)
 
 const emit = defineEmits([
-    'nuevo'
+
+    'nuevo',
+
+    'nuevo-cliente'
+
 ])
 
 /* ======================================
@@ -113,6 +130,16 @@ function close() {
 function nuevo() {
 
     emit('nuevo')
+
+    close()
+
+}
+
+function nuevoCliente() {
+
+    emit(
+        'nuevo-cliente'
+    )
 
     close()
 

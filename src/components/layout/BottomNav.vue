@@ -7,29 +7,63 @@
            z-50">
 
     <!-- INICIO -->
+    <!-- INICIO -->
     <button class="flex-1 h-full flex flex-col items-center justify-center relative" @click="goInicio">
-      <i class="fa fa-home text-xl" :class="isActiveInicio() ? 'text-orange-500' : 'text-gray-800'"></i>
 
-      <span class="text-xs mt-1" :class="isActiveInicio() ? 'text-orange-500 font-medium' : 'text-gray-800'">
+      <i class="fa fa-home text-xl transition" :class="isActiveInicio()
+        ? 'text-orange-500'
+        : 'text-white'
+        ">
+      </i>
+
+      <span class="text-xs mt-1 transition" :class="isActiveInicio()
+        ? 'text-orange-500 font-semibold'
+        : 'text-white'
+        ">
+
         Inicio
+
       </span>
+
     </button>
 
     <!-- CHATS -->
-    <button class="flex-1 h-full flex flex-col items-center justify-center relative" @click="go('/Wvn1_mis_mensajes')">
+    <button class="flex-1 h-full flex flex-col items-center justify-center relative"
+      @click="go('/Wvn1_mis_mensajes?titulo=Chats')">
 
-      <i class="fa fa-list-alt text-xl" :class="isActive('/chat') ? 'text-orange-500' : 'text-gray-800'"></i>
+      <i class="fa fa-list-alt text-xl transition" :class="isActive('/Wvn1_mis_mensajes')
+        ? 'text-orange-500'
+        : 'text-white'
+        ">
+      </i>
 
-      <!-- 🔥 BADGE MENSAJES -->
-      <span v-if="cantMensajes > 0" class="absolute top-3 right-8
-         bg-red-500 text-white text-xs
-         w-5 h-5 rounded-full
-         flex items-center justify-center">
+      <!-- BADGE -->
+      <span v-if="cantMensajes > 0" class="
+      absolute
+      top-3
+      right-8
+      bg-red-500
+      text-white
+      text-xs
+      w-5
+      h-5
+      rounded-full
+      flex
+      items-center
+      justify-center
+    ">
+
         {{ cantMensajes }}
+
       </span>
 
-      <span class="text-xs mt-1" :class="isActive('/mis-modelos') ? 'text-orange-500 font-medium' : 'text-gray-800'">
+      <span class="text-xs mt-1 transition" :class="isActive('/Wvn1_mis_mensajes')
+        ? 'text-orange-500 font-semibold'
+        : 'text-white'
+        ">
+
         Chats
+
       </span>
 
     </button>
@@ -37,19 +71,39 @@
     <!-- PEDIDOS -->
     <button class="flex-1 h-full flex flex-col items-center justify-center relative" @click="go('/mod_pedidos')">
 
-      <i class="fa fa-shopping-basket text-xl"
-        :class="isActive('/mod_pedidos') ? 'text-orange-500' : 'text-gray-800'"></i>
+      <i class="fa fa-shopping-basket text-xl transition" :class="isActive('/mod_pedidos')
+        ? 'text-orange-500'
+        : 'text-white'
+        ">
+      </i>
 
-      <!-- 🔥 BADGE PEDIDOS -->
-      <span v-if="cantPedidos > 0" class="absolute top-3 right-8
-         bg-red-500 text-white text-xs
-         w-5 h-5 rounded-full
-         flex items-center justify-center">
+      <!-- BADGE -->
+      <span v-if="cantPedidos > 0" class="
+      absolute
+      top-3
+      right-8
+      bg-red-500
+      text-white
+      text-xs
+      w-5
+      h-5
+      rounded-full
+      flex
+      items-center
+      justify-center
+    ">
+
         {{ cantPedidos }}
+
       </span>
 
-      <span class="text-xs mt-1" :class="isActive('/mod_pedidos') ? 'text-orange-500 font-medium' : 'text-gray-800'">
+      <span class="text-xs mt-1 transition" :class="isActive('/mod_pedidos')
+        ? 'text-orange-500 font-semibold'
+        : 'text-white'
+        ">
+
         Pedidos
+
       </span>
 
     </button>
@@ -57,12 +111,19 @@
     <!-- UBICACIONES -->
     <button class="flex-1 h-full flex flex-col items-center justify-center" @click="go('/PCJj_mapa_ubicacion')">
 
-      <i class="fa fa-map-marker text-xl"
-        :class="isActive('/PCJj_mapa_ubicacion') ? 'text-orange-500' : 'text-gray-800'"></i>
+      <i class="fa fa-map-marker text-xl transition" :class="isActive('/PCJj_mapa_ubicacion')
+        ? 'text-orange-500'
+        : 'text-white'
+        ">
+      </i>
 
-      <span class="text-xs mt-1"
-        :class="isActive('/PCJj_mapa_ubicacion') ? 'text-orange-500 font-medium' : 'text-gray-800'">
+      <span class="text-xs mt-1 transition" :class="isActive('/PCJj_mapa_ubicacion')
+        ? 'text-orange-500 font-semibold'
+        : 'text-white'
+        ">
+
         Ubicaciones
+
       </span>
 
     </button>
@@ -96,7 +157,12 @@ const {
 
 } = useTrackingQueue()
 
-const currentPath = computed(() => route?.path || '')
+const currentPath =
+  computed(() => {
+
+    return route.path || ''
+
+  })
 
 // 👤 usuario
 const { getUsuId } = useUsuario()
@@ -202,7 +268,11 @@ function go(path) {
 }
 
 function isActive(path) {
-  return currentPath.value === path
+
+  return currentPath.value.startsWith(
+    path
+  )
+
 }
 
 function goInicio() {
@@ -236,12 +306,12 @@ function isActiveInicio() {
   color: white;
 }
 
-.bottom-nav i {
-  color: white;
-}
-
+.bottom-nav i,
 .bottom-nav span {
-  color: white;
+
+  transition:
+    all 0.2s ease;
+
 }
 
 .bottom-nav button:hover i,

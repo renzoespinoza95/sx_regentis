@@ -41,7 +41,7 @@ const { mercado } = useMercado()
 // 🔥 estilo dinámico
 const pillStyle = computed(() => ({
     background: 'white',
-    color: mercado.value?.topnavbar_color || '#FD7635'
+    color: '#0F0F0F'
 }))
 
 const activeStyle = computed(() => ({

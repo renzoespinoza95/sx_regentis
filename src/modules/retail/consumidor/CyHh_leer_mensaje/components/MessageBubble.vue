@@ -20,6 +20,12 @@
             <ContextPedido v-if="message.contexto?.tipo === 'pedido'" :contexto="message.contexto" />
             <!-- 🔥 VISOR -->
             <ContextVisorImagenes v-if="message.contexto?.tipo === 'visor_imagenes'" :contexto="message.contexto" />
+            <!-- 🔥 BOTON ACCION -->
+            <ContextBotonAccion v-if="
+                message.contexto?.tipo
+                ===
+                'boton_accion'
+            " :contexto="message.contexto" />
 
         </div>
 
@@ -32,6 +38,8 @@
 import ContextProducto from './ContextProducto.vue'
 import ContextPedido from './ContextPedido.vue'
 import ContextVisorImagenes from './ContextVisorImagenes.vue'
+import ContextBotonAccion
+    from './ContextBotonAccion.vue'
 
 defineProps({
     message: Object

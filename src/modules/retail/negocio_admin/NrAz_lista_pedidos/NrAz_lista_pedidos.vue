@@ -2,7 +2,7 @@
 
     <div class="min-h-screen flex flex-col pt-20" :style="fondoStyle">
 
-        <HeaderBar :titulo="`Pedidos ${estadoActual}`" @openOptions="openDialog" />
+        <HeaderBar :titulo="tituloHeader" @openOptions="openDialog" />
 
         <!-- CONTENIDO -->
         <div class="flex-1 flex justify-center p-4">
@@ -28,36 +28,50 @@
 
                 </div>
 
+                <!-- 💳 TIPOS PAGO -->
+                <TipoPagoPills v-if="esVentas" v-model="tipoPagoSeleccionado" />
+
                 <!-- PEDIDOS -->
                 <template v-if="pedidosFiltrados.length">
 
-                    <PedidoItem v-for="p in pedidosFiltrados" :estado-actual="estadoActual" :key="p.carrito_id"
-                        :item="p" />
+                    <template v-for="p in pedidosFiltrados" :key="esVentas
+                        ? p.product_order_id
+                        : p.carrito_id
+                        ">
+
+                        <!-- DELIVERY -->
+                        <PedidoItem v-if="!esVentas" :estado-actual="estadoActual" :item="p" />
+
+                        <!-- VENTAS -->
+                        <VentaItem v-else :item="p" @detalle="openVentaDetalle" />
+
+                    </template>
 
                 </template>
 
                 <!-- EMPTY -->
                 <EmptyLetter v-if="!pedidosFiltrados.length" :titulo="search
-                        ? 'Sin resultados'
-                        : `
+                    ? 'Sin resultados'
+                    : `
 No hay pedidos
 ${estadoActual}
 `
                     " :texto="search
-            ? `No encontramos clientes con:
+                        ? `No encontramos clientes con:
 ${search} 🔎`
-            : `
+                        : `
 No existen pedidos
 en estado
 ${estadoActual} 📦
 `
-        " />
+                        " />
 
             </div>
 
         </div>
 
         <OptionsDialog ref="dialogRef" @select="onSelectEstado" />
+        <VentaDetalleDialog ref="ventaDetalleDialogRef" />
 
     </div>
 
@@ -67,28 +81,40 @@ ${estadoActual} 📦
 import {
     ref,
     computed,
-    watch
+    onMounted
 }
     from 'vue'
 import axios from 'axios'
+import VentaItem
+    from './components/VentaItem.vue'
 import {
     firma
 }
     from '../../../../services/security'
 import { useMercado } from '../../../../services/useMercado.js'
-import { useTienda } from '../../../../services/useTienda.js'
 import { cssToObject } from '../../../../services/useCss.js'
+
+import VentaDetalleDialog
+    from './components/VentaDetalleDialog.vue'
 
 import HeaderBar from './components/HeaderBar.vue'
 import PedidoItem from './components/PedidoItem.vue'
-import BtnAccion from './components/BtnAccion.vue'
+import {
+    useUsuario
+}
+    from '../../../../services/usuarioService.js'
 import OptionsDialog from './components/OptionsDialog.vue'
 import EmptyLetter
     from '../../../../components/layout/EmptyLetter.vue'
 
+import TipoPagoPills
+    from './components/TipoPagoPills.vue'
+
 const { mercado } = useMercado()
 
-const { data: tienda } = useTienda()
+const {
+    getNegId
+} = useUsuario()
 
 const pedidos = ref([])
 
@@ -96,6 +122,70 @@ const dialogRef = ref(null)
 const estadoActual = ref(
     'enviado'
 )
+
+const tituloHeader =
+    computed(() => {
+
+        const estado =
+
+            String(
+                estadoActual.value || ''
+            )
+
+                .toLowerCase()
+
+        if (
+            estado === 'enviado'
+        ) {
+
+            return '📦 Pedidos'
+
+        }
+
+        if (
+            estado === 'transito'
+        ) {
+
+            return '🚚 Tránsito'
+
+        }
+
+        if (
+            estado === 'comprado'
+        ) {
+
+            return '🛒 Ventas'
+
+        }
+
+        if (
+            estado === 'devolucion'
+        ) {
+
+            return '↩️ Devoluciones'
+
+        }
+
+        if (
+            estado === 'rechazado'
+        ) {
+
+            return '❌ Rechazados'
+
+        }
+
+        if (
+            estado === 'anulado'
+        ) {
+
+            return '🚫 Anulados'
+
+        }
+
+        return 'Pedidos'
+
+    })
+
 const fondoStyle = computed(() => {
 
     if (!mercado.value?.patron_fondo) return {}
@@ -104,45 +194,201 @@ const fondoStyle = computed(() => {
 
 })
 
+
+
+const ventaDetalleDialogRef =
+    ref(null)
 const search = ref('')
+const esVentas =
+    ref(false)
 
-const pedidosFiltrados = computed(() => {
+const tipoPagoSeleccionado =
+    ref(null)
 
-    if (!search.value)
-        return pedidos.value
+const pedidosFiltrados =
+    computed(() => {
 
-    return pedidos.value.filter(p => {
+        let rows =
+            [...pedidos.value]
 
-        return String(
-            p.cliente || ''
-        )
-            .toLowerCase()
-            .includes(
-                search.value.toLowerCase()
-            )
+        /* ======================================
+           🔎 SEARCH
+        ====================================== */
+
+        if (search.value) {
+
+            rows =
+                rows.filter(p => {
+
+                    return String(
+
+                        p.cliente
+                        ||
+                        p.cliente_nombre
+                        ||
+                        ''
+
+                    )
+
+                        .toLowerCase()
+
+                        .includes(
+
+                            search.value.toLowerCase()
+
+                        )
+
+                })
+
+        }
+
+        /* ======================================
+           💳 TIPO PAGO
+        ====================================== */
+
+        if (
+            esVentas.value
+            &&
+            tipoPagoSeleccionado.value
+        ) {
+
+            rows =
+                rows.filter(p => {
+
+                    return String(
+
+                        p.tipo_pago
+                        || ''
+
+                    )
+
+                        .trim()
+
+                        .toUpperCase()
+
+                        ===
+
+                        tipoPagoSeleccionado.value
+
+                })
+
+        }
+
+        return rows
 
     })
-
-})
 
 function openDialog() {
     dialogRef.value.open()
 }
+
+function openVentaDetalle(
+    venta
+) {
+
+    ventaDetalleDialogRef.value?.open(
+        venta
+    )
+
+}
+
+tipoPagoSeleccionado.value =
+    null
 
 function onSelectEstado(
     estado
 ) {
 
     const neg_id =
-        tienda.value?.negocio?.neg_id
+        getNegId()
 
-    if (!neg_id)
+    if (!neg_id) {
+
+        console.warn(
+            'No existe neg_id'
+        )
+
         return
 
+    }
+
+    /* ======================================
+       🛒 COMPRADOS = VENTAS
+    ====================================== */
+
+    if (
+        estado.toLowerCase()
+        ===
+        'comprado'
+    ) {
+
+        cargarVentas(
+            neg_id
+        )
+
+        return
+
+    }
+
+    esVentas.value =
+        false
+
     cargarPedidos(
+
         neg_id,
+
         estado
+
     )
+
+}
+
+/* ======================================
+   💰 VENTAS
+====================================== */
+
+async function cargarVentas(
+    neg_id
+) {
+
+    try {
+
+        esVentas.value =
+            true
+
+        estadoActual.value =
+            'comprado'
+
+        const seguridad =
+            firma()
+
+        const r =
+            await axios.post(
+
+                `${import.meta.env.VITE_PUBLIC_URL_BASE}/HOGO/listaVentas`,
+
+                {
+
+                    neg_id,
+
+                    xin:
+                        seguridad.xin,
+
+                    yuan:
+                        seguridad.yuan
+
+                }
+
+            )
+
+        pedidos.value =
+            r.data.ventas || []
+
+    } catch (e) {
+
+        console.error(e)
+
+    }
 
 }
 
@@ -210,33 +456,37 @@ async function cargarPedidos(
 
 }
 
-/* ======================================
-   🔥 ESPERAR TIENDA
-====================================== */
+onMounted(() => {
 
-/* ======================================
-   🔥 ESPERAR TIENDA
-====================================== */
+    /* ======================================
+       🏪 NEGOCIO
+    ====================================== */
 
-watch(
+    const neg_id =
+        getNegId()
 
-    () => tienda.value?.negocio?.neg_id,
+    if (!neg_id) {
 
-    (neg_id) => {
-
-        if (!neg_id)
-            return
-
-        cargarPedidos(
-            neg_id,
-            estadoActual.value
+        console.warn(
+            'No existe neg_id'
         )
 
-    },
+        return
 
-    {
-        immediate: true
     }
 
-)
+    /* ======================================
+       🚀 CARGAR
+    ====================================== */
+
+    cargarPedidos(
+
+        neg_id,
+
+        estadoActual.value
+
+    )
+
+})
+
 </script>

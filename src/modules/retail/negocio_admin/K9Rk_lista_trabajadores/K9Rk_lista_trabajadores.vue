@@ -2,7 +2,7 @@
 
     <div class="min-h-screen flex flex-col pt-20" :style="fondoStyle">
 
-        <HeaderBar />
+        <HeaderBar @openNuevoTrabajador="openNuevoTrabajadorDialog" @openOptions="openOptionsDialog" />
 
         <!-- CONTENIDO -->
         <div class="flex-1 flex justify-center p-4">
@@ -23,7 +23,8 @@
         </div>
 
     </div>
-
+    <NuevoTrabajadorDialog ref="nuevoTrabajadorDialogRef" @created="cargarTrabajadores" />
+    <OptionsDialog ref="dialogRef" />
 </template>
 <script setup>
 
@@ -32,6 +33,9 @@ import {
     computed,
     onMounted
 } from 'vue'
+
+import NuevoTrabajadorDialog
+    from './components/NuevoTrabajadorDialog.vue'
 
 import axios from 'axios'
 
@@ -55,6 +59,9 @@ import SearchBar
 
 import WorkerItem
     from './components/WorkerItem.vue'
+
+import OptionsDialog
+    from './components/OptionsDialog.vue'
 
 /* ======================================
    🔥 API
@@ -93,6 +100,24 @@ const fondoStyle = computed(() => {
     )
 
 })
+
+const nuevoTrabajadorDialogRef =
+    ref(null)
+
+function openNuevoTrabajadorDialog() {
+
+    nuevoTrabajadorDialogRef.value?.open()
+
+}
+
+const dialogRef =
+    ref(null)
+
+function openOptionsDialog() {
+
+    dialogRef.value?.open()
+
+}
 
 /* ======================================
    🔍 SEARCH
