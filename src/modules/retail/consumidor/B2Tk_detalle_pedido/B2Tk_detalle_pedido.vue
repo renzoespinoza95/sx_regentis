@@ -57,7 +57,7 @@
                 <YaplinGallery :yaplins="yaplins" />
 
                 <!-- YAPLIN -->
-                <!-- YAPLIN -->
+                <!-- 🔥 SOLO MOSTRAR SI NO HAY YAPLINS -->
                 <YaplinUploader v-if="
                     String(
                         pedido?.estado || ''
@@ -66,7 +66,9 @@
                         .toLowerCase()
                     ===
                     'enviado'
-                " titulo="Subir pantallas de pago Yaplin !" :carrito-id="pedido?.carrito_id
+                    &&
+                    !yaplins.length
+                " @uploaded="cargarPedido" titulo="Subir pantallas de pago Yaplin !" :carrito-id="pedido?.carrito_id
                     " />
 
             </div>
@@ -131,7 +133,7 @@ import {
     from '../../../../services/security.js'
 
 import YaplinGallery
-    from './components/YaplinGallery.vue'
+    from '../../../../components/YaplinGallery.vue'
 
 const API = import.meta.env.VITE_PUBLIC_URL_BASE
 
@@ -153,6 +155,7 @@ const fondoStyle = computed(() => {
 
 const dialogRef = ref(null)
 const yaplins = ref([])
+
 
 function openDialog() {
     dialogRef.value.open()

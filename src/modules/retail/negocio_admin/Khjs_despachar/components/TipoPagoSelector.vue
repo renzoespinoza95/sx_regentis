@@ -18,7 +18,7 @@
             <!-- EFECTIVO -->
             <button
                 class="shrink-0 px-4 h-10 rounded-full border text-xs font-semibold transition-all duration-200 active:scale-95"
-                :class="modelValue == 1
+                :class="modelValue === 'EFECTIVO'
                     ? 'bg-green-500 border-green-500 text-white shadow-md'
                     : 'bg-white border-gray-200 text-gray-700'" @click="$emit('update:modelValue', 'EFECTIVO')">
 
@@ -29,7 +29,7 @@
             <!-- YAPE -->
             <button
                 class="shrink-0 px-4 h-10 rounded-full border text-xs font-semibold transition-all duration-200 active:scale-95"
-                :class="modelValue == 2
+                :class="modelValue === 'YAPE'
                     ? 'bg-purple-500 border-purple-500 text-white shadow-md'
                     : 'bg-white border-gray-200 text-gray-700'" @click="$emit('update:modelValue', 'YAPE')">
 
@@ -40,7 +40,7 @@
             <!-- PLIN -->
             <button
                 class="shrink-0 px-4 h-10 rounded-full border text-xs font-semibold transition-all duration-200 active:scale-95"
-                :class="modelValue == 3
+                :class="modelValue === 'PLIN'
                     ? 'bg-fuchsia-500 border-fuchsia-500 text-white shadow-md'
                     : 'bg-white border-gray-200 text-gray-700'" @click="$emit('update:modelValue', 'PLIN')">
 
@@ -48,25 +48,15 @@
 
             </button>
 
-            <!-- TARJETA -->
-            <button
-                class="shrink-0 px-4 h-10 rounded-full border text-xs font-semibold transition-all duration-200 active:scale-95"
-                :class="modelValue == 4
-                    ? 'bg-blue-500 border-blue-500 text-white shadow-md'
-                    : 'bg-white border-gray-200 text-gray-700'" @click="$emit('update:modelValue', 'TARJETA')">
-
-                💳 TARJETA
-
-            </button>
 
             <!-- CREDITO -->
             <button
                 class="shrink-0 px-4 h-10 rounded-full border text-xs font-semibold transition-all duration-200 active:scale-95"
-                :class="modelValue == 5
+                :class="modelValue === 'POR_PAGAR'
                     ? 'bg-orange-500 border-orange-500 text-white shadow-md'
-                    : 'bg-white border-gray-200 text-gray-700'" @click="$emit('update:modelValue', 'CREDITO')">
+                    : 'bg-white border-gray-200 text-gray-700'" @click="$emit('update:modelValue', 'POR_PAGAR')">
 
-                🧾 CRÉDITO
+                🧾 POR PAGAR
 
             </button>
 
@@ -87,9 +77,9 @@ defineProps({
 
     modelValue: {
 
-        type: Number,
+        type: String,
 
-        default: "EFECTIVO"
+        default: 'EFECTIVO'
 
     }
 

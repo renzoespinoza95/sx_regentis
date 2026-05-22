@@ -1,41 +1,130 @@
 <template>
 
-    <div class="min-h-screen flex flex-col pt-20" :style="fondoStyle">
+    <div class="
+            min-h-screen
+            flex
+            flex-col
+            pt-20
+        " :style="fondoStyle
+            ">
 
-        <NegpresHeader />
+        <HeaderBack />
 
-        <div class="flex-1 flex justify-center p-4">
+        <div class="
+                flex-1
+                flex
+                justify-center
+                p-4
+            ">
 
-            <div class="w-full max-w-md md:max-w-4xl bg-white rounded-2xl shadow-md p-4 space-y-3">
+            <!-- =========================================
+               NEGOCIOS
+            ========================================== -->
 
-                <InputFecha v-model="form.fecha" />
+            <div v-if="
+                !carritoSeleccionado
+            " ref="acordeonRef" class="
+                    w-full
+                    max-w-md
+                    md:max-w-4xl
+                    space-y-4
+                ">
 
-                <TipoPedidoPills v-model="form.tipo_pedido" />
+                <div v-if="
+                    negocios.length
+                " class="
+                        space-y-4
+                    ">
 
-                <ProductosTable :items="productos" @edit="openEdit" @delete="confirmDelete" />
+                    <NegocioAccordion v-for="
+neg in negocios
+                        " :key="neg.neg_id
+                            " :negocio="neg
+                            " :carrito-id-activo="carritoSeleccionado?.carrito_id
+                            " @select-carrito="
+                            seleccionarCarrito
+                        " />
 
-                <ResumenPedido :items="productos" />
+                </div>
 
-                <BtnGuardar />
+                <!-- EMPTY -->
+                <EmptyLetter v-else titulo="
+                        Carrito vacío
+                    " texto="
+                        Aún no agregaste productos
+                        al carrito 🛒
+                    " />
+
+            </div>
+
+            <!-- =========================================
+               DETALLE
+            ========================================== -->
+
+            <div v-if="
+                carritoSeleccionado
+            " ref="detalleRef" class="
+                    w-full
+                    max-w-md
+                    md:max-w-4xl
+                    space-y-4
+                ">
+
+                <PedidoDetalleHeader :carrito-id="carritoSeleccionado?.carrito_id
+                    " @back="
+                        volverListado
+                    " />
+
+                <div class="
+                    bg-white
+                    rounded-2xl
+                    shadow-md
+                    p-4
+                    space-y-3
+                ">
+
+                    <InputFecha v-model="form.fecha
+                        " />
+
+                    <TipoPedidoPills v-model="form.tipo_pedido
+                        " />
+
+                    <ProductosTable :items="productos
+                        " @edit="
+                            openEdit
+                        " @delete="
+                            confirmDelete
+                        " />
+
+                    <ResumenPedido :items="productos
+                        " />
+
+                    <BtnGuardar />
+
+                </div>
 
             </div>
 
         </div>
 
-        <EditarCantidadDialog ref="editRef" @update="updateProducto" />
+        <EditarCantidadDialog ref="editRef" @update="
+            updateProducto
+        " />
+
         <AppSnackbar ref="snackbarRef" />
+
         <GsapConfetti ref="confettiRef" />
 
     </div>
 
 </template>
 <script setup>
-import { ref, computed, onMounted, provide } from 'vue'
 import { useMercado } from '../../../../services/useMercado.js'
 import { cssToObject } from '../../../../services/useCss.js'
 import { useUsuario } from '../../../../services/usuarioService.js'
-
-import NegpresHeader from '../../../../components/layout/NegpresHeaderBack.vue'
+import EmptyLetter
+    from '../../../../components/layout/EmptyLetter.vue'
+import HeaderBack from '../../../../components/layout/HeaderBack.vue'
 import InputFecha from './components/InputFecha.vue'
 import ProductosTable from './components/ProductosTable.vue'
 import BtnGuardar from './components/BtnGuardar.vue'
@@ -45,6 +134,26 @@ import AppSnackbar from '../../../../components/layout/AppSnackbar.vue'
 import { useRouter } from 'vue-router'
 import TipoPedidoPills
     from './components/TipoPedidoPills.vue'
+import NegocioAccordion
+    from './components/NegocioAccordion.vue'
+import {
+    firma
+}
+    from '../../../../services/security.js'
+import {
+    ref,
+    computed,
+    onMounted,
+    provide,
+    nextTick
+}
+    from 'vue'
+
+import gsap
+    from 'gsap'
+
+import PedidoDetalleHeader
+    from './components/PedidoDetalleHeader.vue'
 
 const { mercado } = useMercado()
 const { usuario } = useUsuario()
@@ -60,6 +169,18 @@ const confettiRef = ref(null)
 const productos = ref([])
 const editRef = ref(null)
 const snackbarRef = ref(null)
+
+const negocios =
+    ref([])
+
+const carritoSeleccionado =
+    ref(null)
+
+const acordeonRef =
+    ref(null)
+
+const detalleRef =
+    ref(null)
 
 provide('finalizarPedido', finalizarPedido)
 provide('pedidoEnviado', pedidoEnviado)
@@ -85,41 +206,193 @@ const form = ref({
         'DELIVERY'
 
 })
+
+function animarEntrada(
+    el
+) {
+
+    if (!el)
+        return
+
+    gsap.fromTo(
+
+        el,
+
+        {
+
+            x: -80,
+            opacity: 0
+
+        },
+
+        {
+
+            x: 0,
+            opacity: 1,
+            duration: 0.45,
+            ease: 'power3.out'
+
+        }
+
+    )
+
+}
+
+async function seleccionarCarrito(
+    carrito
+) {
+
+    carritoSeleccionado.value =
+        carrito
+
+    carritoId.value =
+        carrito.carrito_id
+
+    productos.value =
+
+        (
+            carrito.productos
+            ||
+            []
+        )
+            .map(p => ({
+
+                carrito_detalle_id:
+                    p.carrito_detalle_id,
+
+                product_id:
+                    p.product_id,
+
+                nombre:
+                    p.name,
+
+                cantidad:
+                    p.cantidad,
+
+                unidad:
+                    'und',
+
+                precio:
+                    p.precio_unitario,
+
+                img:
+                    p.img
+
+            }))
+
+    form.value.fecha =
+
+        carrito.fecha_entrega
+        ||
+
+        getFechaHoy()
+
+    form.value.tipo_pedido =
+
+        carrito.tipo_pedido
+        ||
+
+        'DELIVERY'
+
+    await nextTick()
+
+    animarEntrada(
+        detalleRef.value
+    )
+
+}
+
+async function volverListado() {
+
+    carritoSeleccionado.value =
+        null
+
+    productos.value = []
+
+    await nextTick()
+
+    animarEntrada(
+        acordeonRef.value
+    )
+
+}
+
 /* =========================
-   🔥 LISTAR CARRITO (NUEVO)
+   🔥 LISTAR CARRITOS
 ========================= */
 
 async function cargarCarrito() {
 
-    const usu_id = user.value?.usu_id
-    if (!usu_id) return
+    const usu_id =
+        user.value?.usu_id
 
-    const res = await fetch(`${import.meta.env.VITE_PUBLIC_URL_BASE}/M0Jk/productosCarritos`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ usu_id })
-    })
+    if (!usu_id)
+        return
 
-    const data = await res.json()
+    const seguridad =
+        firma()
 
-    if (data.status === 'ok') {
+    const res =
+        await fetch(
 
-        if (data.data.length > 0) {
-            carritoId.value = data.data[0].carrito_id
-        }
+            `${import.meta.env.VITE_PUBLIC_URL_BASE}/M0Jk/productosCarritos`,
 
-        productos.value = data.data.map(p => ({
-            carrito_detalle_id: p.carrito_detalle_id,
-            product_id: p.product_id,
-            nombre: p.name,
-            cantidad: p.cantidad,
-            unidad: 'und',
-            precio: p.precio_unitario
-        }))
+            {
+
+                method:
+                    'POST',
+
+                headers: {
+
+                    'Content-Type':
+                        'application/json'
+
+                },
+
+                body:
+                    JSON.stringify({
+
+                        usu_id,
+
+                        xin:
+                            seguridad.xin,
+
+                        yuan:
+                            seguridad.yuan
+
+                    })
+
+            }
+
+        )
+
+    const data =
+        await res.json()
+
+    if (
+
+        data.status === 'ok'
+
+    ) {
+
+        negocios.value =
+            data.data || []
+
     }
+
 }
 
-onMounted(cargarCarrito)
+onMounted(async () => {
+
+    await cargarCarrito()
+
+    await nextTick()
+
+    animarEntrada(
+        acordeonRef.value
+    )
+
+})
 
 /* =========================
    🔥 EDITAR (NUEVO)

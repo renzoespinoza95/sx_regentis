@@ -96,7 +96,7 @@
                     mb-2
                 ">
 
-                    Celular
+                    Celular Yape/Plin
 
                 </div>
 

@@ -21,10 +21,10 @@
                 transition
                 active:scale-95
             " :class="modelValue === null
-                    ?
-                    'bg-[#FD7635] text-white shadow-md'
-                    :
-                    'bg-white text-gray-700'
+                ?
+                'bg-[#FD7635] text-white shadow-md'
+                :
+                'bg-white text-gray-700'
                 ">
 
             ✨ Todos
@@ -45,10 +45,10 @@
                 items-center
                 gap-2
             " :class="modelValue === o.value
-                    ?
-                    'bg-[#FD7635] text-white shadow-md'
-                    :
-                    'bg-white text-gray-700'
+                ?
+                'bg-[#FD7635] text-white shadow-md'
+                :
+                'bg-white text-gray-700'
                 ">
 
             <span>
@@ -118,11 +118,6 @@ const opciones = [
     {
         value: 'TRANFERENCIA',
         emoji: '🏦'
-    },
-
-    {
-        value: 'CREDITO',
-        emoji: '💳'
     },
 
     {

@@ -48,8 +48,9 @@
         </div>
 
         <!-- PREVIEW -->
-        <!-- PREVIEW -->
-        <div v-if="previewPago" class="
+        <div v-if="
+            previewPago
+        " class="
         relative
         w-full
         rounded-3xl
@@ -221,7 +222,6 @@
     <AppLoader :show="loadingYaplin" text="Procesando voucher..." />
 
 </template>
-
 <script setup>
 
 import {
@@ -230,18 +230,20 @@ import {
     computed
 }
     from 'vue'
+
 import axios from 'axios'
 
 import {
-    useTienda
+    useUsuario
 }
-    from '../services/useTienda.js'
+    from '../services/usuarioService.js'
 
 import AppLoader
     from './layout/AppLoader.vue'
 
 import GsapToast
     from './layout/GsapToast.vue'
+
 import {
     firma
 }
@@ -250,6 +252,7 @@ import {
 /* =========================================
    PROPS
 ========================================= */
+
 const props = defineProps({
 
     titulo: {
@@ -278,15 +281,39 @@ const props = defineProps({
 const FLASK =
     import.meta.env.VITE_PUBLIC_URL_FLASK
 
-const { data } =
-    useTienda()
+/* =========================================
+   USUARIO
+========================================= */
+
+const {
+
+    getNegIdTienda
+
+} = useUsuario()
+
+/* =========================================
+   LISTA YAPE
+========================================= */
 
 const listaYape = computed(() => {
 
     try {
 
+        const cache =
+            JSON.parse(
+
+                localStorage.getItem(
+                    'regentis_tienda_cache_' + getNegIdTienda()
+                )
+
+                ||
+
+                '{}'
+
+            )
+
         const raw =
-            data.value?.negocio?.lista_yape
+            cache?.negocio?.lista_yape
 
         if (!raw) return []
 
@@ -321,6 +348,15 @@ const toastRef = ref(null)
 
 const imagenBlob =
     ref(null)
+
+/* =========================================
+   EMITS
+========================================= */
+
+const emit = defineEmits([
+    'uploaded'
+])
+
 
 /* =========================================
    PICKER
@@ -519,9 +555,10 @@ async function enviarImagen() {
 
                         }
 
+
                         /* =========================================
-                           SUCCESS
-                        ========================================= */
+   SUCCESS
+========================================= */
 
                         yaplinId.value =
 
@@ -529,6 +566,44 @@ async function enviarImagen() {
                             ||
 
                             null
+
+                        /* =========================================
+                           🔥 OCULTAR BOTON ENVIAR
+                        ========================================= */
+
+                        const estadoRegentis =
+                            String(
+
+                                rr.data?.result?.regentis?.estado
+                                ||
+
+                                ''
+
+                            )
+                                .trim()
+                                .toUpperCase()
+
+                        if (
+
+                            estadoRegentis === 'PENDIENTE'
+
+                        ) {
+
+                            previewPago.value = ''
+
+                            /* =========================================
+                               🔥 RECARGAR PADRE
+                            ========================================= */
+
+                            emit(
+                                'uploaded'
+                            )
+
+                        }
+
+                        /* =========================================
+                           TOAST
+                        ========================================= */
 
                         toastRef.value?.show({
 
@@ -543,6 +618,9 @@ async function enviarImagen() {
                                 'success'
 
                         })
+
+
+
 
                     } catch (err) {
 

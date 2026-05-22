@@ -1,5 +1,7 @@
 <template>
-  <div v-show="!hideBottomNav" class="bottom-nav fixed bottom-0 left-0 w-full h-20
+  <div v-if="
+    shouldShowBottomNav
+  " class="bottom-nav fixed bottom-0 left-0 w-full h-20
            flex items-center
            bg-white
            shadow-[0_-5px_20px_rgba(0,0,0,0.08)]
@@ -130,91 +132,335 @@
 
   </div>
 </template>
-
 <script setup>
-import { useRouter, useRoute } from 'vue-router'
-import { computed, ref, onMounted, onUnmounted } from 'vue'
-import axios from 'axios'
-import { useUsuario } from '../../services/usuarioService.js'
-import { bus } from '../../services/eventBus.js'
-import { useTrackingQueue } from '../../services/useTrackingQueue.js'
 
+import {
+  useRouter,
+  useRoute
+}
+  from 'vue-router'
 
-const API = import.meta.env.VITE_PUBLIC_URL_BASE
-const POLLING = Number(import.meta.env.VITE_PUBLIC_RQ_POLLING || 1)
+import {
+  computed,
+  ref,
+  onMounted,
+  onUnmounted
+}
+  from 'vue'
 
-const mercadoId = import.meta.env.VITE_PUBLIC_MERCADO_ID
-const negId = import.meta.env.VITE_PUBLIC_NEG_ID
+import axios
+  from 'axios'
 
-const router = useRouter()
-const route = useRoute()
-const hideBottomNav = ref(false)
+import {
+  useUsuario
+}
+  from '../../services/usuarioService.js'
+
+import {
+  bus
+}
+  from '../../services/eventBus.js'
+
+import {
+  useTrackingQueue
+}
+  from '../../services/useTrackingQueue.js'
+
+/* ======================================
+   ENV
+====================================== */
+
+const API =
+  import.meta.env.VITE_PUBLIC_URL_BASE
+
+const POLLING =
+  Number(
+    import.meta.env.VITE_PUBLIC_RQ_POLLING
+    || 1
+  )
+
+const mercadoId =
+  import.meta.env.VITE_PUBLIC_MERCADO_ID
+
+const negId =
+  import.meta.env.VITE_PUBLIC_NEG_ID
+
+/* ======================================
+   ROUTER
+====================================== */
+
+const router =
+  useRouter()
+
+const route =
+  useRoute()
+
+/* ======================================
+   BOTTOM NAV
+====================================== */
+
+const hideBottomNav =
+  ref(false)
+
+/* ======================================
+   TRACKING
+====================================== */
 
 const {
 
   getTracking,
   clearTracking
 
-} = useTrackingQueue()
+} =
+  useTrackingQueue()
+
+/* ======================================
+   PATH ACTUAL
+====================================== */
 
 const currentPath =
   computed(() => {
 
-    return route.path || ''
+    return (
+      route.path
+      ||
+      ''
+    )
 
   })
 
-// 👤 usuario
-const { getUsuId } = useUsuario()
-const usu_id = getUsuId()
+/* ======================================
+   🔥 HIDE POR RUTA
+====================================== */
 
-// 🔴 badges
-const cantMensajes = ref(0)
-const cantPedidos = ref(0)
+const shouldHideByRoute =
+  computed(() => {
 
-// ⏱️ interval
-let interval = null
+    return !!route.meta?.hideNav
 
-// 🔥 función principal
+  })
+
+/* ======================================
+   USUARIO
+====================================== */
+
+const {
+
+  getUsuId,
+  isLogged,
+  usuario
+
+} =
+  useUsuario()
+
+const usu_id =
+  computed(() => {
+
+    return (
+
+      usuario.value?.user?.usu_id
+
+      ||
+
+      null
+
+    )
+
+  })
+
+/* ======================================
+   🔥 MOSTRAR NAV
+====================================== */
+
+const shouldShowBottomNav =
+  computed(() => {
+
+    return (
+
+      isLogged.value
+
+      &&
+
+      !hideBottomNav.value
+
+      &&
+
+      !shouldHideByRoute.value
+
+    )
+
+  })
+
+/* ======================================
+   BADGES
+====================================== */
+
+const cantMensajes =
+  ref(0)
+
+const cantPedidos =
+  ref(0)
+
+/* ======================================
+   INTERVAL
+====================================== */
+
+let interval =
+  null
+
+/* ======================================
+   🔥 CARGAR BADGES
+====================================== */
+
 async function cargarCantidadMensajes() {
 
-  if (!usu_id) return
+  if (!usu_id.value)
+    return
 
   try {
 
-    const res = await axios.post(`${API}/reg/tk_cant_msg`, {
+    const res =
+      await axios.post(
 
-      usu_id,
+        `${API}/reg/tk_cant_msg`,
 
-      tracking: getTracking()
+        {
 
-    })
+          usu_id:
+            usu_id.value,
 
-    console.log('📨 tk_cant_msg:', res.data)
+          tracking:
+            getTracking()
 
-    // 🔥 badge chats
-    cantMensajes.value = res.data.mensajes_nuevos || 0
+        }
 
-    // 🔥 badge pedidos
-    cantPedidos.value = res.data.carritos_enviados || 0
+      )
 
-    // 🔥 guardar cache
-    localStorage.setItem('regentis_chats_cache', JSON.stringify({
-      ts: Date.now(),
-      data: res.data.data || []
-    }))
+    console.log(
+      '📨 tk_cant_msg:',
+      res.data
+    )
 
-    // 🔥 eventos
-    bus.emit('chat:update', res.data.data || [])
 
-    bus.emit('header:updateCounts', {
-      mensajes: res.data.mensajes_nuevos || 0,
-      carrito: res.data.carrito_count || 0,
-      favoritos: res.data.favoritos_count || 0,
-      pedidos: res.data.carritos_enviados || 0
-    })
+    /* ======================================
+       🔥 LISTA MESAS
+    ====================================== */
 
-    if (res.data.estado === 'ok') {
+    if (
+
+      Array.isArray(
+        res.data.lista_mesas
+      )
+
+    ) {
+
+      bus.emit(
+
+        'mesas:update',
+
+        res.data.lista_mesas
+
+      )
+
+    }
+
+    /* ======================================
+       🔥 BADGE CHATS
+    ====================================== */
+
+    cantMensajes.value =
+
+      res.data.mensajes_nuevos
+      ||
+      0
+
+    /* ======================================
+       🔥 BADGE PEDIDOS
+    ====================================== */
+
+    cantPedidos.value =
+
+      res.data.carritos_enviados
+      ||
+      0
+
+    /* ======================================
+       🔥 CACHE
+    ====================================== */
+
+    localStorage.setItem(
+
+      'regentis_chats_cache',
+
+      JSON.stringify({
+
+        ts:
+          Date.now(),
+
+        data:
+          res.data.data
+          ||
+          []
+
+      })
+
+    )
+
+    /* ======================================
+       🔥 EVENTOS
+    ====================================== */
+
+    bus.emit(
+
+      'chat:update',
+
+      res.data.data
+      ||
+      []
+
+    )
+
+    bus.emit(
+
+      'header:updateCounts',
+
+      {
+
+        mensajes:
+          res.data.mensajes_nuevos
+          ||
+          0,
+
+        carrito:
+          res.data.carrito_count
+          ||
+          0,
+
+        favoritos:
+          res.data.favoritos_count
+          ||
+          0,
+
+        pedidos:
+          res.data.carritos_enviados
+          ||
+          0
+
+      }
+
+    )
+
+    /* ======================================
+       🔥 CLEAR TRACKING
+    ====================================== */
+
+    if (
+
+      res.data.estado
+      ===
+      'ok'
+
+    ) {
 
       clearTracking()
 
@@ -222,25 +468,49 @@ async function cargarCantidadMensajes() {
 
   } catch (e) {
 
-    console.error('❌ error badge:', e)
+    console.error(
+      '❌ error badge:',
+      e
+    )
 
   }
 
 }
 
-// 🚀 iniciar
+/* ======================================
+   🔥 INIT
+====================================== */
+
 onMounted(() => {
+
+  /* ======================================
+     🔥 BADGES
+  ====================================== */
 
   cargarCantidadMensajes()
 
-  // 🔁 polling
-  interval = setInterval(() => {
-    cargarCantidadMensajes()
-  }, POLLING * 60 * 1000)
+  /* ======================================
+     🔥 POLLING
+  ====================================== */
+
+  interval =
+    setInterval(() => {
+
+      cargarCantidadMensajes()
+
+    },
+
+      POLLING
+      *
+      60
+      *
+      1000
+
+    )
 
   /* ======================================
-   🔥 TOGGLE GLOBAL
-====================================== */
+     🔥 TOGGLE GLOBAL
+  ====================================== */
 
   bus.on(
 
@@ -257,44 +527,99 @@ onMounted(() => {
 
 })
 
-// 🧹 limpiar
+/* ======================================
+   🔥 DESTROY
+====================================== */
+
 onUnmounted(() => {
-  if (interval) clearInterval(interval)
+
+  if (interval) {
+
+    clearInterval(interval)
+
+  }
+
 })
 
-// 🔀 navegación
+/* ======================================
+   🔥 NAVIGATE
+====================================== */
+
 function go(path) {
+
   router.push(path)
+
 }
+
+/* ======================================
+   🔥 ACTIVE
+====================================== */
 
 function isActive(path) {
 
-  return currentPath.value.startsWith(
-    path
+  return currentPath.value
+    .startsWith(path)
+
+}
+
+/* ======================================
+   🔥 GO INICIO
+====================================== */
+
+function goInicio() {
+
+  if (
+
+    String(mercadoId)
+    ===
+    '0'
+
+  ) {
+
+    router.push(
+      `/CV2K_negocio/${negId}`
+    )
+
+  }
+
+  else {
+
+    router.push(
+      '/principal'
+    )
+
+  }
+
+}
+
+/* ======================================
+   🔥 ACTIVE INICIO
+====================================== */
+
+function isActiveInicio() {
+
+  if (
+
+    String(mercadoId)
+    ===
+    '0'
+
+  ) {
+
+    return currentPath.value
+      .startsWith('/CV2K_negocio')
+
+  }
+
+  return (
+    currentPath.value
+    ===
+    '/principal'
   )
 
 }
 
-function goInicio() {
-
-  if (String(mercadoId) === '0') {
-    router.push(`/CV2K_negocio/${negId}`)
-  } else {
-    router.push('/principal')
-  }
-
-}
-
-function isActiveInicio() {
-
-  if (String(mercadoId) === '0') {
-    return currentPath.value.startsWith('/CV2K_negocio')
-  }
-
-  return currentPath.value === '/principal'
-}
 </script>
-
 <style scoped>
 .bottom-nav {
   background-image:

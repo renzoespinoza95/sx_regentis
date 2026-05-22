@@ -5,8 +5,28 @@
         <div ref="box" class="bg-white rounded-2xl p-5 w-72 space-y-3 shadow-2xl">
 
             <!-- 🔥 ATENDER -->
-            <button
-                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-green-50 text-green-700 font-semibold active:scale-95 transition"
+            <!-- 🔥 ATENDER -->
+            <button v-if="
+
+                props.estado
+                !== 'comprado'
+
+                &&
+
+                props.estado
+                !== 'devolucion'
+
+                &&
+
+                props.estado
+                !== 'rechazado'
+
+                &&
+
+                props.estado
+                !== 'anulado'
+
+            " class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-green-50 text-green-700 font-semibold active:scale-95 transition"
                 @click="atenderAhora">
 
                 <i class="fa fa-headphones text-lg"></i>
@@ -17,18 +37,20 @@
 
             </button>
 
-            <!-- 🔥 ELIMINAR -->
+            <!-- 🔥 ADMINISTRADOR -->
             <button
-                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-red-50 text-red-600 font-semibold active:scale-95 transition"
-                @click="eliminar">
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-purple-50 text-purple-700 font-semibold active:scale-95 transition"
+                @click="irDash">
 
-                <i class="fa fa-trash text-lg"></i>
+                <i class="fa fa-shield text-lg"></i>
 
                 <span>
-                    Eliminar
+                    Inicio
                 </span>
 
             </button>
+
+
 
             <!-- 🔥 CERRAR -->
             <button class="w-full text-white py-3 rounded-xl bg-gray-800 mt-2 active:scale-95 transition"
@@ -48,6 +70,21 @@
 
 import { ref, nextTick } from 'vue'
 import gsap from 'gsap'
+
+const props =
+    defineProps({
+
+        estado: {
+
+            type:
+                String,
+
+            default:
+                ''
+
+        }
+
+    })
 
 const emit = defineEmits([
     'atender',

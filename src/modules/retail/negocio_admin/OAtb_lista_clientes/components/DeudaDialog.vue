@@ -97,12 +97,12 @@
                 active:scale-[0.98]
                 transition
             " :class="deudaSeleccionada?.por_pagar_id
-                    ===
-                    d.por_pagar_id
-                    ?
-                    'bg-green-500 border-green-500 text-white'
-                    :
-                    'bg-white'
+                ===
+                d.por_pagar_id
+                ?
+                'bg-green-500 border-green-500 text-white'
+                :
+                'bg-white'
                 ">
 
                         <!-- TOP -->
@@ -126,12 +126,12 @@
                         text-[10px]
                         font-bold
                     " :class="deudaSeleccionada?.por_pagar_id
-                            ===
-                            d.por_pagar_id
-                            ?
-                            'text-white'
-                            :
-                            'text-red-500'
+                        ===
+                        d.por_pagar_id
+                        ?
+                        'text-white'
+                        :
+                        'text-red-500'
                         ">
 
                                 {{ d.tipo_pago }}
@@ -185,7 +185,7 @@
                             opacity-70
                         ">
 
-                                    Pagado
+                                    Ult. pago
 
                                 </div>
 
@@ -213,7 +213,7 @@
                             opacity-70
                         ">
 
-                                    Resta
+                                    Pendiente
 
                                 </div>
 
@@ -269,7 +269,12 @@
             " />
 
                     <!-- BTN -->
-                    <button :disabled="!deudaSeleccionada" class="
+                    <button :disabled="!deudaSeleccionada
+                        ||
+                        loading
+                        " @click="
+                            pagar
+                        " class="
                 w-full
                 h-[56px]
                 rounded-2xl
@@ -281,10 +286,10 @@
                 disabled:opacity-40
                 disabled:cursor-not-allowed
             " :class="deudaSeleccionada
-                    ?
-                    'bg-green-500'
-                    :
-                    'bg-gray-400'
+                ?
+                'bg-green-500'
+                :
+                'bg-gray-400'
                 ">
 
                         💵 Pagar
@@ -298,6 +303,7 @@
         </div>
 
     </div>
+    <GsapToast ref="toastRef" />
 
 </template>
 
@@ -309,6 +315,17 @@ import {
     computed
 }
     from 'vue'
+
+import axios
+    from 'axios'
+
+import GsapToast
+    from '../../../../../components/layout/GsapToast.vue'
+
+import {
+    firma
+}
+    from '../../../../../services/security'
 
 import gsap
     from 'gsap'
@@ -342,6 +359,15 @@ const deudas =
         )
 
     })
+
+const toastRef =
+    ref(null)
+
+const loading =
+    ref(false)
+
+const API =
+    import.meta.env.VITE_PUBLIC_URL_BASE
 
 async function open(
     c
@@ -387,10 +413,7 @@ function selectDeuda(
     deudaSeleccionada.value =
         deuda
 
-    monto.value =
-        Number(
-            deuda.monto_restante || 0
-        ).toFixed(2)
+    monto.value = ''
 
 }
 
@@ -422,6 +445,145 @@ function close() {
         }
 
     )
+
+}
+
+/* ======================================
+   💰 PAGAR
+====================================== */
+
+async function pagar() {
+
+    if (!deudaSeleccionada.value)
+        return
+
+    const montoFloat =
+        Number(monto.value || 0)
+
+    if (montoFloat <= 0) {
+
+        toastRef.value?.show({
+
+            text:
+                'Monto inválido ❌',
+
+            type:
+                'error'
+
+        })
+
+        return
+
+    }
+
+    try {
+
+        loading.value =
+            true
+
+        /* ======================================
+           🔐 FIRMA
+        ====================================== */
+
+        const seguridad =
+            firma()
+
+        /* ======================================
+           🚀 REQUEST
+        ====================================== */
+
+        const r =
+            await axios.post(
+
+                `${API}/UHUD/realizarPago`,
+
+                {
+
+                    product_order_id:
+
+                        deudaSeleccionada.value
+                            ?.product_order_id,
+
+                    monto_pagado:
+                        montoFloat,
+
+                    xin:
+                        seguridad.xin,
+
+                    yuan:
+                        seguridad.yuan
+
+                }
+
+            )
+
+        /* ======================================
+           ✅ OK
+        ====================================== */
+
+        if (r.data?.ok) {
+
+            toastRef.value?.show({
+
+                text:
+                    r.data?.msg
+                    ||
+                    'Pago realizado 💸',
+
+                type:
+                    'success'
+
+            })
+
+            monto.value = ''
+
+            close()
+
+        }
+
+        else {
+
+            toastRef.value?.show({
+
+                text:
+                    r.data?.msg
+                    ||
+                    'Error registrando pago ❌',
+
+                type:
+                    'error'
+
+            })
+
+        }
+
+    } catch (e) {
+
+        console.error(e)
+
+        toastRef.value?.show({
+
+            text:
+
+                e?.response?.data?.msg
+
+                ||
+
+                'Error registrando pago ❌',
+
+            type:
+                'error'
+
+        })
+
+    }
+
+    finally {
+
+        loading.value =
+            false
+
+    }
 
 }
 

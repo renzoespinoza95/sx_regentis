@@ -21,7 +21,7 @@ const router = useRouter()
   position: relative;
   overflow: hidden;
 
-  background-image: url('/fondo_login.avif');
+  background-image: url('/fondo_login.jpg');
   background-repeat: no-repeat;
   background-size: cover;
   /* 🔥 Esto hace que cubra todo */

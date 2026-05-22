@@ -166,6 +166,14 @@ import {
     firma
 }
     from '../../../../services/security.js'
+import {
+    useUsuario
+}
+    from '../../../../services/usuarioService.js'
+import {
+    useRouter
+}
+    from 'vue-router'
 
 const API =
     import.meta.env
@@ -175,9 +183,16 @@ const {
     mercado
 } = useMercado()
 
+const {
+    getUsuId
+} = useUsuario()
+
 
 const tipoPagoId =
     ref('EFECTIVO')
+
+const router =
+    useRouter()
 
 const filePago =
     ref(null)
@@ -323,6 +338,18 @@ function rechazar() {
 
                 })
 
+                /* =========================================
+   🔥 REDIRECT
+========================================= */
+
+                setTimeout(() => {
+
+                    router.push(
+                        '/u8ex_lista_pedidos'
+                    )
+
+                }, 3000)
+
             } catch (e) {
 
                 console.error(e)
@@ -379,6 +406,8 @@ async function entregar() {
 
                 tipo_pago:
                     tipoPagoId.value,
+                usu_id_vendedor:
+                    getUsuId(),
 
                 yaplin_id:
                     yaplinId.value,
@@ -406,6 +435,18 @@ async function entregar() {
                 'success'
 
         })
+
+        /* =========================================
+   🔥 REDIRECT
+========================================= */
+
+        setTimeout(() => {
+
+            router.push(
+                '/u8ex_lista_pedidos'
+            )
+
+        }, 3000)
 
     } catch (e) {
 

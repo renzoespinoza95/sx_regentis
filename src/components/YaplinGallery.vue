@@ -63,7 +63,7 @@ import {
     from 'vue'
 
 import StoryViewer
-    from '../../../../../components/StoryViewer.vue'
+    from './StoryViewer.vue'
 
 const props = defineProps({
 

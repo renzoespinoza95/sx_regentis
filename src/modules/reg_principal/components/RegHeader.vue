@@ -110,6 +110,8 @@ import ModalMenuUsuario from '../../../components/ModalMenuUsuario.vue'
 import {
   signInWithPopup
 } from "firebase/auth"
+import axios
+  from 'axios'
 
 import {
   auth,
@@ -117,6 +119,15 @@ import {
 } from '../../../services/firebase.js'
 
 const router = useRouter()
+
+const api = axios.create({
+
+  baseURL:
+    import.meta.env.VITE_PUBLIC_URL_BASE
+
+})
+
+
 const {
   isLogged,
   usuario,
@@ -224,7 +235,7 @@ async function irLogin() {
 
       // 🚀 REDIRECT
       router.replace(
-        `/registroBasico/${usu_id}`
+        `/mod_registro/${usu_id}`
       )
 
     } else {

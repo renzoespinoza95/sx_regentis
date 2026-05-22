@@ -140,10 +140,12 @@
 
 import {
     ref,
+    inject,
     nextTick,
     computed,
     watch
-} from 'vue'
+}
+    from 'vue'
 import {
     bus
 }
@@ -173,9 +175,17 @@ const box = ref(null)
 
 const texto = ref('')
 
-const productos = ref([])
+const productos =
+    inject(
+        'productosGlobal',
+        ref([])
+    )
 
-const categorias = ref([])
+const categorias =
+    inject(
+        'categoriasGlobal',
+        ref([])
+    )
 
 const activeCat = ref(null)
 
@@ -330,182 +340,7 @@ function limpiarBusqueda() {
 
 }
 
-/* ======================================
-   🔥 CARGAR PRODUCTOS
-====================================== */
 
-async function cargarProductos() {
-
-    try {
-
-        const neg_id =
-            getNegId()
-
-        console.log(
-            'NEG_ID >>>',
-            neg_id
-        )
-
-        if (!neg_id) {
-
-            console.warn(
-                'NEG_ID VACIO'
-            )
-
-            return
-
-        }
-
-        /* ======================================
-           🔥 FIRMA
-        ====================================== */
-
-        const seguridad =
-            firma()
-
-        console.log(
-            'FIRMA PRODUCTOS >>>',
-            seguridad
-        )
-
-        /* ======================================
-           🔥 REQUEST
-        ====================================== */
-
-        const res = await axios.post(
-
-            `${API}/MpIH/product/listar`,
-
-            {
-
-                neg_id:
-                    neg_id,
-
-                xin:
-                    seguridad.xin,
-
-                yuan:
-                    seguridad.yuan
-
-            }
-
-        )
-
-        console.log(
-            'PRODUCTOS >>>',
-            res.data
-        )
-
-        /* ======================================
-           🔥 OK
-        ====================================== */
-
-        if (res.data.status === 'ok') {
-
-            productos.value =
-                res.data.data || []
-
-        }
-
-    } catch (e) {
-
-        console.error(
-            'ERROR PRODUCTOS >>>',
-            e
-        )
-
-    }
-
-}
-
-/* ======================================
-   🔥 CARGAR CATEGORIAS
-====================================== */
-
-async function cargarCategorias() {
-
-    try {
-
-        const neg_id =
-            getNegId()
-
-        console.log(
-            'NEG_ID CATEGORIAS >>>',
-            neg_id
-        )
-
-        if (!neg_id) {
-
-            console.warn(
-                'NEG_ID VACIO CATEGORIAS'
-            )
-
-            return
-
-        }
-
-        /* ======================================
-           🔥 FIRMA
-        ====================================== */
-
-        const seguridad =
-            firma()
-
-        console.log(
-            'FIRMA CATEGORIAS >>>',
-            seguridad
-        )
-
-        /* ======================================
-           🔥 REQUEST
-        ====================================== */
-
-        const res = await axios.get(
-
-            `${API}/MylW/listar_categorias/${neg_id}`,
-
-            {
-
-                params: {
-
-                    xin:
-                        seguridad.xin,
-
-                    yuan:
-                        seguridad.yuan
-
-                }
-
-            }
-
-        )
-
-        console.log(
-            'CATEGORIAS >>>',
-            res.data
-        )
-
-        /* ======================================
-           🔥 OK
-        ====================================== */
-
-        if (res.data.status === 'ok') {
-
-            categorias.value =
-                res.data.data || []
-
-        }
-
-    } catch (e) {
-
-        console.error(
-            'ERROR CATEGORIAS >>>',
-            e
-        )
-
-    }
-
-}
 
 /* ======================================
    🖱️ DRAG SCROLL
@@ -657,26 +492,7 @@ function agregarProducto(p) {
 
 }
 
-/* ======================================
-   🔥 INIT
-====================================== */
 
-/* ======================================
-   🔥 INIT
-====================================== */
-
-setTimeout(() => {
-
-    console.log(
-        'NEG_ID INIT >>>',
-        getNegId()
-    )
-
-    cargarProductos()
-
-    cargarCategorias()
-
-}, 500)
 
 defineExpose({
     open

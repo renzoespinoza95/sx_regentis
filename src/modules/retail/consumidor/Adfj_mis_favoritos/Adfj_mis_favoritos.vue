@@ -95,6 +95,9 @@ async function cargarFavoritos() {
 
             favoritos.value = data.data.map(p => ({
 
+                neg_nombre:
+                    p.neg_nombre,
+
                 fav_id:
                     p.fav_id,
 

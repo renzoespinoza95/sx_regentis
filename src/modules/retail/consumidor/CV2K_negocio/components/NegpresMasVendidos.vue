@@ -11,7 +11,8 @@
             @mousemove="onDrag" @mouseup="stopDrag" @mouseleave="stopDrag" @touchstart="startDrag" @touchmove="onDrag"
             @touchend="stopDrag">
 
-            <div v-for="p in productos" :key="p.product_id" class="w-[180px] flex-shrink-0">
+            <div v-for="(p, index) in productos" :key="p.product_id" :ref="el => itemsRef[index] = el"
+                class="w-[180px] flex-shrink-0">
                 <NegpresProductoCard :product_id="p.product_id" :title="p.name" :price="p.price" :rating="5"
                     :img="p.img" badge="🔥" />
             </div>
@@ -23,8 +24,16 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import NegpresProductoCard from './NegpresProductoCard.vue'
+import {
+    ref,
+    watch,
+    nextTick
+}
+    from 'vue'
+
+import gsap
+    from 'gsap'
 
 const props = defineProps({
     productos: Array
@@ -35,6 +44,9 @@ const container = ref(null)
 let isDown = false
 let startX
 let scrollLeft
+
+const itemsRef =
+    ref([])
 
 function startDrag(e) {
     isDown = true
@@ -52,6 +64,62 @@ function onDrag(e) {
     const walk = (x - startX) * 1.2
     container.value.scrollLeft = scrollLeft - walk
 }
+
+async function animarItems() {
+
+    await nextTick()
+
+    if (!itemsRef.value?.length)
+        return
+
+    gsap.fromTo(
+
+        itemsRef.value,
+
+        {
+
+            x: -80,
+            opacity: 0
+
+        },
+
+        {
+
+            x: 0,
+            opacity: 1,
+
+            duration: 0.6,
+
+            stagger: 0.08,
+
+            ease: 'power3.out'
+
+        }
+
+    )
+
+}
+
+watch(
+
+    () => props.productos,
+
+    async (v) => {
+
+        if (!v?.length)
+            return
+
+        await animarItems()
+
+    },
+
+    {
+
+        immediate: true
+
+    }
+
+)
 
 function stopDrag() {
     isDown = false

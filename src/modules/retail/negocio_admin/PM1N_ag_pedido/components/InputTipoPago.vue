@@ -55,11 +55,15 @@
             </div>
 
             <!-- POR PAGAR -->
-            <div @click="model = 'POR PAGAR'"
-                class="px-3 py-2 rounded-full text-xs font-semibold cursor-pointer transition active:scale-95" :class="model === 'POR PAGAR'
-                    ? 'bg-gray-700 text-white'
-                    : 'bg-gray-200 text-gray-700'
-                    ">
+            <!-- POR PAGAR -->
+            <div v-if="
+                showPorPagar
+            " @click="
+        model = 'POR PAGAR'
+        " class="px-3 py-2 rounded-full text-xs font-semibold cursor-pointer transition active:scale-95" :class="model === 'POR PAGAR'
+        ? 'bg-gray-700 text-white'
+        : 'bg-gray-200 text-gray-700'
+        ">
 
                 ⏳ POR PAGAR
 
@@ -72,6 +76,20 @@
 </template>
 
 <script setup>
+
+defineProps({
+
+    showPorPagar: {
+
+        type:
+            Boolean,
+
+        default:
+            true
+
+    }
+
+})
 
 const model =
     defineModel()

@@ -1,6 +1,19 @@
 <template>
 
-    <div class="product-card bg-white rounded-2xl shadow-md overflow-hidden flex flex-col">
+    <div class="
+        product-card
+        bg-white
+        rounded-2xl
+        shadow-md
+        overflow-hidden
+        flex
+        flex-col
+        cursor-pointer
+        active:scale-[0.98]
+        transition
+    " @click="
+        irDetalle
+    ">
 
         <!-- IMG -->
         <div class="relative">
@@ -27,11 +40,29 @@
                 {{ producto.name }}
             </div>
 
-            <div class="flex items-center text-xs text-yellow-400 mt-1">
-                ★ 5
-                <span class="text-gray-400 ml-1">
-                    | {{ producto.stock || 0 }}
+            <div class="
+    flex
+    items-center
+    gap-1
+    text-xs
+    text-gray-500
+    mt-1
+">
+
+                <span class="text-orange-500">
+                    🏪
                 </span>
+
+                <span class="truncate">
+
+                    {{
+                        producto.neg_nombre
+                        ||
+                        'Tienda'
+                    }}
+
+                </span>
+
             </div>
 
             <div class="text-xs text-gray-400 mt-1">
@@ -103,6 +134,10 @@
 
 <script setup>
 import { ref } from 'vue'
+import {
+    useRouter
+}
+    from 'vue-router'
 import AppSnackbar from '../../../../../components/layout/AppSnackbar.vue'
 import CantidadProductoDialog
     from '../../../../../components/layout/CantidadProductoDialog.vue'
@@ -118,6 +153,9 @@ import { gsap }
 const props = defineProps({
     producto: Object
 })
+
+const router =
+    useRouter()
 
 const emit = defineEmits(['eliminar'])
 
@@ -139,6 +177,26 @@ function eliminar() {
         () => {
             emit('eliminar', props.producto.fav_id)
         }
+    )
+
+}
+
+/* =========================================
+   🔥 IR DETALLE
+========================================= */
+
+function irDetalle() {
+
+    router.push(
+
+        `/CV2K_negocio/${props.producto.neg_id}?titulo=${encodeURIComponent(
+
+            props.producto.neg_nombre
+            ||
+            'Tienda'
+
+        )}`
+
     )
 
 }

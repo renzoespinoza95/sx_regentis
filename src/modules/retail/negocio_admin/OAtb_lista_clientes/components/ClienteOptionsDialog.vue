@@ -55,18 +55,25 @@
             </div>
 
             <!-- EDITAR -->
-            <button class="
-                    w-full
-                    flex
-                    items-center
-                    gap-3
-                    px-4
-                    py-3
-                    rounded-2xl
-                    bg-orange-50
-                    text-orange-600
-                    font-semibold
-                " @click="editar">
+            <!-- EDITAR -->
+            <button v-if="
+                cliente?.nombre
+                !==
+                'PUBLICO_GENERAL'
+            " class="
+        w-full
+        flex
+        items-center
+        gap-3
+        px-4
+        py-3
+        rounded-2xl
+        bg-orange-50
+        text-orange-600
+        font-semibold
+    " @click="
+        editar
+    ">
 
                 ✏️ Editar
 

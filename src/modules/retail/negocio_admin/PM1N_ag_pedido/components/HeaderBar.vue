@@ -11,7 +11,7 @@
             </div>
 
             <span class="text-white font-semibold">
-                Agregar pedido
+                Venta directa
             </span>
 
         </div>

@@ -78,62 +78,110 @@
             </div>
 
             <!-- ======================================
-    💳 TIPO PAGO
+💳 TIPO PAGO
 ====================================== -->
 
-            <div class="p-4 pt-0 space-y-2">
+            <div class="p-4 pt-0">
 
-                <!-- FILA 1 -->
-                <div class="grid grid-cols-2 gap-2">
+                <div class="space-y-4">
 
-                    <!-- EFECTIVO -->
-                    <button
-                        class="h-11 rounded-2xl border text-xs font-semibold transition-all duration-200 active:scale-95"
-                        :class="tipoPagoId == 1
-                            ? 'bg-green-500 border-green-500 text-white shadow-md'
-                            : 'bg-white border-gray-200 text-gray-700'" @click="tipoPagoId = 1">
+                    <!-- LABEL -->
+                    <div class="text-sm font-semibold text-gray-700">
 
-                        💵 EFECTIVO
+                        Tipo de pago
 
-                    </button>
+                    </div>
 
-                    <!-- CRÉDITO -->
-                    <button
-                        class="h-11 rounded-2xl border text-xs font-semibold transition-all duration-200 active:scale-95"
-                        :class="tipoPagoId == 5
-                            ? 'bg-orange-500 border-orange-500 text-white shadow-md'
-                            : 'bg-white border-gray-200 text-gray-700'" @click="tipoPagoId = 5">
+                    <!-- SCROLL -->
+                    <div class="
+            flex
+            gap-2
+            overflow-x-auto
+            pb-1
+            no-scrollbar
+        ">
 
-                        🧾 CRÉDITO
+                        <!-- EFECTIVO -->
+                        <button class="
+                    shrink-0
+                    px-4
+                    h-10
+                    rounded-full
+                    border
+                    text-xs
+                    font-semibold
+                    transition-all
+                    duration-200
+                    active:scale-95
+                " :class="tipoPagoId === 'EFECTIVO'
+                    ? 'bg-green-500 border-green-500 text-white shadow-md'
+                    : 'bg-white border-gray-200 text-gray-700'" @click="tipoPagoId = 'EFECTIVO'">
 
-                    </button>
+                            💵 EFECTIVO
 
-                </div>
+                        </button>
 
-                <!-- FILA 2 -->
-                <div class="grid grid-cols-2 gap-2">
+                        <!-- YAPE -->
+                        <button class="
+                    shrink-0
+                    px-4
+                    h-10
+                    rounded-full
+                    border
+                    text-xs
+                    font-semibold
+                    transition-all
+                    duration-200
+                    active:scale-95
+                " :class="tipoPagoId === 'YAPE'
+                    ? 'bg-purple-500 border-purple-500 text-white shadow-md'
+                    : 'bg-white border-gray-200 text-gray-700'" @click="tipoPagoId = 'YAPE'">
 
-                    <!-- YAPE -->
-                    <button
-                        class="h-11 rounded-2xl border text-xs font-semibold transition-all duration-200 active:scale-95"
-                        :class="tipoPagoId == 2
-                            ? 'bg-purple-500 border-purple-500 text-white shadow-md'
-                            : 'bg-white border-gray-200 text-gray-700'" @click="tipoPagoId = 2">
+                            📱 YAPE
 
-                        📱 YAPE
+                        </button>
 
-                    </button>
+                        <!-- PLIN -->
+                        <button class="
+                    shrink-0
+                    px-4
+                    h-10
+                    rounded-full
+                    border
+                    text-xs
+                    font-semibold
+                    transition-all
+                    duration-200
+                    active:scale-95
+                " :class="tipoPagoId === 'PLIN'
+                    ? 'bg-fuchsia-500 border-fuchsia-500 text-white shadow-md'
+                    : 'bg-white border-gray-200 text-gray-700'" @click="tipoPagoId = 'PLIN'">
 
-                    <!-- PLIN -->
-                    <button
-                        class="h-11 rounded-2xl border text-xs font-semibold transition-all duration-200 active:scale-95"
-                        :class="tipoPagoId == 3
-                            ? 'bg-fuchsia-500 border-fuchsia-500 text-white shadow-md'
-                            : 'bg-white border-gray-200 text-gray-700'" @click="tipoPagoId = 3">
+                            🟣 PLIN
 
-                        🟣 PLIN
+                        </button>
 
-                    </button>
+                        <!-- POR PAGAR -->
+                        <button class="
+                    shrink-0
+                    px-4
+                    h-10
+                    rounded-full
+                    border
+                    text-xs
+                    font-semibold
+                    transition-all
+                    duration-200
+                    active:scale-95
+                " :class="tipoPagoId === 'POR_PAGAR'
+                    ? 'bg-orange-500 border-orange-500 text-white shadow-md'
+                    : 'bg-white border-gray-200 text-gray-700'" @click="tipoPagoId = 'POR_PAGAR'">
+
+                            🧾 POR PAGAR
+
+                        </button>
+
+                    </div>
 
                 </div>
 
@@ -191,6 +239,16 @@ import GsapToast
 
 import AppSnackbar
     from '../components/layout/AppSnackbar.vue'
+import {
+    firma
+}
+    from '../services/security.js'
+
+import {
+    useUsuario
+}
+    from '../services/usuarioService.js'
+
 
 const emit = defineEmits([
     'rechazar',
@@ -204,13 +262,18 @@ const FLASK =
     import.meta.env.VITE_PUBLIC_URL_FLASK
 
 const tipoPagoId =
-    ref(1)
+    ref('EFECTIVO')
 
 const loadingYaplin =
     ref(false)
 
 const visible =
     ref(false)
+
+const {
+    getUsuId
+} =
+    useUsuario()
 
 const pedido =
     ref(null)
@@ -547,7 +610,8 @@ function open(item) {
 
     loadingYaplin.value = false
 
-    tipoPagoId.value = 1
+    tipoPagoId.value =
+        'EFECTIVO'
 
     if (inputPago.value) {
 
@@ -635,15 +699,28 @@ function rechazar() {
 
                 loading.value = true
 
+                /* =========================================
+   🔐 FIRMA
+========================================= */
+
+                const seguridad =
+                    firma()
+
                 const r =
                     await axios.post(
 
-                        `${API}/ULx3/rechazarPedido`,
+                        `${API}/YCOr/rechazarPedidoDirecto`,
 
                         {
 
                             carrito_id:
-                                pedido.value.carrito_id
+                                pedido.value.carrito_id,
+
+                            xin:
+                                seguridad.xin,
+
+                            yuan:
+                                seguridad.yuan
 
                         }
 
@@ -702,6 +779,13 @@ function rechazar() {
 
 async function entregar() {
 
+    /* =========================================
+   🔐 FIRMA
+========================================= */
+
+    const seguridad =
+        firma()
+
     try {
 
         loading.value = true
@@ -716,8 +800,20 @@ async function entregar() {
                     carrito_id:
                         pedido.value.carrito_id,
 
-                    tipo_pago_id:
-                        tipoPagoId.value
+                    usu_id_vendedor:
+                        getUsuId(),
+
+                    tipo_pago:
+                        tipoPagoId.value,
+
+                    yaplin_id:
+                        yaplinId.value,
+
+                    xin:
+                        seguridad.xin,
+
+                    yuan:
+                        seguridad.yuan
 
                 }
 
@@ -766,7 +862,8 @@ async function volverProductos() {
 
     mostrarProductos.value = true
 
-    tipoPagoId.value = 1
+    tipoPagoId.value =
+        'EFECTIVO'
 
 }
 

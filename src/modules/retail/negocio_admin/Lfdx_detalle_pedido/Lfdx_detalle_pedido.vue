@@ -155,6 +155,17 @@
 
                 </div>
 
+                <!-- =========================================
+💸 YAPLINS
+========================================= -->
+
+                <YaplinGallery v-if="
+                    yaplins.length
+                " :yaplins="yaplins
+                    " />
+
+
+
                 <FieldText label="Productos" :value="String(pedido.total_productos)" />
 
                 <!-- PRODUCTOS -->
@@ -172,16 +183,37 @@
                 <!-- RESUMEN -->
                 <ResumenPedido :items="productos" />
 
-                <BtnDespachar v-if="!eliminado" :carrito-id="pedido.carrito_id" :neg-id="pedido.neg_id"
-                    :usu-id="trabajador?.usu_id || 0" :direccion="pedido.direccion" :fecha-entrega="fechaEntrega"
-                    :trabajador-seleccionado="!!trabajador" @success="onDespachado" />
+                <BtnDespachar v-if="
+
+                    pedido?.estado
+                    !== 'comprado'
+
+                    &&
+
+                    pedido?.estado
+                    !== 'devolucion'
+
+                    &&
+
+                    pedido?.estado
+                    !== 'rechazado'
+
+                    &&
+
+                    pedido?.estado
+                    !== 'anulado'
+
+                " :carrito-id="pedido.carrito_id" :neg-id="pedido.neg_id" :usu-id="trabajador?.usu_id || 0"
+                    :direccion="pedido.direccion" :fecha-entrega="fechaEntrega" :trabajador-seleccionado="!!trabajador"
+                    @success="onDespachado" />
 
             </div>
 
         </div>
 
         <!-- DIALOGS -->
-        <OptionsDialog ref="dialogRef" @eliminar="confirmarEliminar" @atender="abrirVentaDialog" />
+        <OptionsDialog ref="dialogRef" :estado="pedido?.estado
+            " @eliminar="confirmarEliminar" @atender="abrirVentaDialog" />
 
         <TrabajadorDialog ref="trabajadorDialogRef" :neg-id="pedido?.neg_id" @selected="onTrabajadorSelected" />
         <AppSnackbar ref="snackbarRef" />
@@ -214,6 +246,13 @@ import AppSnackbar from '../../../../components/layout/AppSnackbar.vue'
 import GsapToast from '../../../../components/layout/GsapToast.vue'
 import VentaDialog
     from '../../../../components/VentaDialog.vue'
+import YaplinGallery
+    from '../../../../components/YaplinGallery.vue'
+
+import {
+    firma
+}
+    from '../../../../services/security.js'
 
 const API =
     import.meta.env.VITE_PUBLIC_URL_BASE
@@ -228,6 +267,8 @@ const productos = ref([])
 const fechaEntrega = ref('')
 const detalleRef = ref(null)
 const trabajador = ref(null)
+const yaplins =
+    ref([])
 
 const trabajadorNombre = computed(() => {
 
@@ -347,6 +388,13 @@ async function cargarPedido() {
 
         pedido.value =
             r.data.pedido || null
+
+        /* =========================================
+        🔥 YAPLINS
+        ========================================= */
+
+        yaplins.value =
+            r.data?.yaplins || []
 
         if (pedido.value?.fecha_entrega) {
 

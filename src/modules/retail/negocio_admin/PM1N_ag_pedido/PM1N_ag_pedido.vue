@@ -12,7 +12,9 @@
 
                 <InputFecha v-model="form.fecha" />
                 <InputCliente v-model="form.cliente" @select="onSelectCliente" />
-                <InputTipoPago v-model="form.tipo_pago" />
+                <InputTipoPago v-model="form.tipo_pago
+                    " :showPorPagar="!isPublicoGeneral
+                        " />
 
                 <ProductosTable :items="productos" @edit="openEdit" @delete="confirmDelete" />
 
@@ -35,7 +37,12 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import {
+    ref,
+    computed,
+    provide
+}
+    from 'vue'
 import { useMercado } from '../../../../services/useMercado.js'
 import { cssToObject } from '../../../../services/useCss.js'
 import axios from 'axios'
@@ -74,6 +81,12 @@ const {
 
 const loadingGuardar = ref(false)
 
+const categoriasGlobal =
+    ref([])
+
+const productosGlobal =
+    ref([])
+
 const fondoStyle = computed(() => {
     if (!mercado.value?.patron_fondo) return {}
     return cssToObject(mercado.value.patron_fondo)
@@ -86,6 +99,9 @@ const editRef = ref(null)
 
 const crearClienteRef =
     ref(null)
+
+const publicoGeneralId =
+    ref(1)
 
 function openEdit(p) {
     editRef.value.open(p)
@@ -161,7 +177,7 @@ function nuevoPedido() {
             getFechaHoy(),
 
         cliente_id:
-            1,
+            publicoGeneralId.value,
 
         cliente:
             'PUBLICO GENERAL',
@@ -213,7 +229,7 @@ async function guardarVenta() {
             neg_id:
                 getNegId(),
 
-            usu_id:
+            usu_id_vendedor:
                 getUsuId(),
 
             cliente_id:
@@ -281,7 +297,7 @@ async function guardarVenta() {
                     getFechaHoy(),
 
                 cliente_id:
-                    1,
+                    publicoGeneralId.value,
 
                 cliente:
                     'PUBLICO GENERAL',
@@ -315,6 +331,34 @@ async function guardarVenta() {
 
 }
 
+/* ======================================
+   🔥 PROVIDE
+====================================== */
+
+provide(
+
+    'categoriasGlobal',
+
+    categoriasGlobal
+
+)
+
+provide(
+
+    'productosGlobal',
+
+    productosGlobal
+
+)
+
+provide(
+
+    'publicoGeneralId',
+
+    publicoGeneralId
+
+)
+
 function abrirCrearCliente() {
 
     crearClienteRef.value?.open()
@@ -345,14 +389,196 @@ const form = ref({
         getFechaHoy(),
 
     cliente_id:
-        1,
+        null,
 
     cliente:
-        'PUBLICO GENERAL'
+        'PUBLICO GENERAL',
+
+    tipo_pago:
+        'EFECTIVO'
 
 })
 
+/* ======================================
+   🔥 PUBLICO GENERAL
+====================================== */
+
+const isPublicoGeneral =
+    computed(() => {
+
+        return Number(
+            form.value?.cliente_id
+        )
+
+            ===
+
+            Number(
+                publicoGeneralId.value
+            )
+
+    })
+
 const snackbarRef = ref(null)
+
+/* ======================================
+   🔥 CARGAR CATEGORIAS
+====================================== */
+
+async function cargarCategoriasInfo() {
+
+    try {
+
+        const seguridad =
+            firma()
+
+        const r =
+            await axios.post(
+
+                `${API}/MylW/listar_categorias`,
+
+                {
+
+                    neg_id:
+                        getNegId(),
+
+                    xin:
+                        seguridad.xin,
+
+                    yuan:
+                        seguridad.yuan
+
+                }
+
+            )
+
+        if (
+            r.data.status === 'ok'
+        ) {
+
+            /* ======================================
+               🔥 IDS
+            ====================================== */
+
+            publicoGeneralId.value =
+
+                Number(
+
+                    r.data
+                        ?.publico_general_id
+
+                    ||
+
+                    1
+
+                )
+
+            /* ======================================
+               🔥 DEFAULT CLIENTE
+            ====================================== */
+
+            if (
+                !form.value.cliente_id
+            ) {
+
+                form.value.cliente_id =
+
+                    publicoGeneralId.value
+
+            }
+
+            /* ======================================
+               🔥 CATEGORIAS
+            ====================================== */
+
+            categoriasGlobal.value =
+                r.data.data || []
+
+            /* ======================================
+               🔥 PRODUCTOS
+            ====================================== */
+
+            const productosMap =
+                new Map()
+
+                ; (
+                    r.data.data || []
+                ).forEach(cat => {
+
+                    ; (
+                        cat.productos || []
+                    ).forEach(p => {
+
+                        if (
+
+                            !productosMap.has(
+                                p.product_id
+                            )
+
+                        ) {
+
+                            productosMap.set(
+
+                                p.product_id,
+
+                                {
+
+                                    ...p,
+
+                                    categories_ids: [
+
+                                        Number(
+                                            cat.category_id
+                                        )
+
+                                    ]
+
+                                }
+
+                            )
+
+                        }
+
+                        else {
+
+                            productosMap
+                                .get(
+                                    p.product_id
+                                )
+                                .categories_ids
+                                .push(
+
+                                    Number(
+                                        cat.category_id
+                                    )
+
+                                )
+
+                        }
+
+                    })
+
+                })
+
+            productosGlobal.value =
+
+                Array.from(
+                    productosMap.values()
+                )
+
+        }
+
+    } catch (e) {
+
+        console.error(
+            'ERROR CATEGORIAS INFO',
+            e
+        )
+
+    }
+
+}
+
+
 
 function confirmDelete(p) {
     console.log('SNACKBAR OPEN', p)
@@ -367,4 +593,9 @@ function eliminarProducto(p) {
 }
 
 const productos = ref([])
+/* ======================================
+   🔥 INIT
+====================================== */
+
+cargarCategoriasInfo()
 </script>
