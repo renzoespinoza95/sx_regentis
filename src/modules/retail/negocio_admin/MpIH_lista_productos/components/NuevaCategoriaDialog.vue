@@ -3,7 +3,7 @@
     <div v-if="visible" class="
             fixed
             inset-0
-            z-[999]
+            z-[1999]
             bg-black/40
             flex
             items-center
@@ -25,7 +25,17 @@
                     text-gray-800
                 ">
 
-                Nueva categoría
+                {{
+                    editando
+
+                        ?
+
+                        'Editar categoría'
+
+                        :
+
+                'Nueva categoría'
+                }}
 
             </div>
 
@@ -83,7 +93,11 @@ import {
 
 import axios
     from 'axios'
-
+import {
+    hideBottomNav,
+    showBottomNav
+}
+    from '../../../../../services/eventBus.js'
 import gsap
     from 'gsap'
 
@@ -117,13 +131,51 @@ const box =
 const name =
     ref('')
 
+const categoriaEditando =
+    ref(null)
+
+const editando =
+    ref(false)
+
 /* =========================================
 🔥 OPEN
 ========================================= */
 
-function open() {
+function open(categoria = null) {
 
-    name.value = ''
+    hideBottomNav()
+
+    /* =========================================
+       🔥 RESET
+    ========================================= */
+
+    categoriaEditando.value =
+        null
+
+    editando.value =
+        false
+
+    name.value =
+        ''
+
+    /* =========================================
+       🔥 EDITAR
+    ========================================= */
+
+    if (categoria) {
+
+        categoriaEditando.value =
+            categoria
+
+        editando.value =
+            true
+
+        name.value =
+
+            categoria.descripcion
+            || ''
+
+    }
 
     visible.value = true
 
@@ -175,6 +227,8 @@ function close() {
 
                 visible.value = false
 
+                showBottomNav()
+
             }
 
         }
@@ -182,6 +236,10 @@ function close() {
     )
 
 }
+
+/* =========================================
+🔥 GUARDAR
+========================================= */
 
 /* =========================================
 🔥 GUARDAR
@@ -200,6 +258,26 @@ async function guardar() {
 
             {
 
+                /* =========================================
+                   🔥 EDIT MODE
+                ========================================= */
+
+                editando:
+                    editando.value,
+
+                category_id:
+
+                    categoriaEditando.value
+                        ?.category_id
+
+                    ||
+
+                    null,
+
+                /* =========================================
+                   🔥 DATA
+                ========================================= */
+
                 neg_id:
                     getNegId(),
 
@@ -207,7 +285,8 @@ async function guardar() {
                     name.value,
 
                 icon:
-                    '📦',
+                    categoriaEditando.value?.icon
+                    || '📦',
 
                 brief:
                     name.value,
@@ -226,7 +305,8 @@ async function guardar() {
                         .toLowerCase(),
 
                 img:
-                    'https://barsi-img.b-cdn.net/recursos/ffc1.png',
+                    categoriaEditando.value?.img
+                    || 'https://barsi-img.b-cdn.net/recursos/ffc1.png',
 
                 xin:
                     seguridad.xin,

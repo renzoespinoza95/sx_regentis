@@ -122,6 +122,24 @@ function getNegIdTienda() {
   }
 
   /* =========================
+   GET TIPO USUARIO
+========================= */
+
+function getTipoxusuId() {
+
+  return Number(
+
+    usuarioState.usuario?.user?.tipoxusu_id
+
+    ||
+
+    0
+
+  )
+
+}
+
+  /* =========================
      SET DINÁMICO
   ========================= */
 
@@ -171,6 +189,7 @@ function getNegIdTienda() {
     getNegId,
     getScreens,
     getUser,
+    getTipoxusuId,
     setNegIdTienda,
     getNegIdTienda,
     setCampo

@@ -142,6 +142,11 @@ import {
 }
     from '../../../../../services/eventBus.js'
 
+import {
+    useUsuario
+}
+    from '../../../../../services/usuarioService.js'
+
 const emit =
     defineEmits([
 
@@ -155,36 +160,71 @@ const visible =
 const box =
     ref(null)
 
+const {
+    getTipoxusuId
+} = useUsuario()
+
+const esDelivery =
+
+    Number(
+        getTipoxusuId()
+    ) === 4
+
 const opciones = [
 
-    {
-        estado: 'enviado',
-        emoji: '📦'
-    },
+    ...(
+
+        esDelivery
+
+            ? []
+
+            : [
+
+                {
+
+                    estado: 'enviado',
+
+                    emoji: '📦'
+
+                }
+
+            ]
+
+    ),
 
     {
+
         estado: 'transito',
         emoji: '🚚'
+
     },
 
     {
+
         estado: 'comprado',
         emoji: '🛒'
+
     },
 
     {
+
         estado: 'devolucion',
         emoji: '↩️'
+
     },
 
     {
+
         estado: 'rechazado',
         emoji: '❌'
+
     },
 
     {
+
         estado: 'anulado',
         emoji: '🚫'
+
     }
 
 ]

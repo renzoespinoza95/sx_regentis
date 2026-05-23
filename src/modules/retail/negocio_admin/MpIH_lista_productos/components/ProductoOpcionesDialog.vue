@@ -52,8 +52,7 @@
             </button>
 
             <!-- EDITAR -->
-            <!-- EDITAR -->
-            <button class="item-btn" @click="noDisponible">
+            <button class="item-btn" @click="editarProducto">
 
                 ✏️ Editar
 
@@ -68,10 +67,11 @@
             </button>
 
             <!-- ELIMINAR -->
+            <!-- ELIMINAR -->
             <button class="
-        item-btn
-        text-red-500
-    " @click="noDisponible">
+    item-btn
+    text-red-500
+" @click="confirmarEliminar">
 
                 🗑️ Eliminar
 
@@ -150,10 +150,13 @@ const emit =
 
         'stock-updated',
 
-        'visible-updated'
+        'visible-updated',
+
+        'deleted',
+
+        'edit'
 
     ])
-
 const toastRef =
     ref(null)
 const snackbarRef =
@@ -224,6 +227,24 @@ function open(item) {
         )
 
     })
+
+}
+
+/* =========================================
+   ✏️ EDITAR
+========================================= */
+
+function editarProducto() {
+
+    emit(
+
+        'edit',
+
+        producto.value
+
+    )
+
+    close()
 
 }
 
@@ -424,6 +445,118 @@ function confirmarOcultar() {
         }
 
     )
+
+}
+
+
+/* =========================================
+   🗑️ CONFIRMAR ELIMINAR
+========================================= */
+
+function confirmarEliminar() {
+
+    snackbarRef.value?.open(
+
+        '¿Eliminar producto? 🗑️',
+
+        () => {
+
+            eliminarProducto()
+
+        }
+
+    )
+
+}
+
+/* =========================================
+   🗑️ ELIMINAR PRODUCTO
+========================================= */
+
+async function eliminarProducto() {
+
+    try {
+
+        const seguridad =
+            firma()
+
+        const res =
+            await axios.post(
+
+                '/ZnO3/eliminarProducto',
+
+                {
+
+                    product_id:
+                        producto.value.product_id,
+
+                    xin:
+                        seguridad.xin,
+
+                    yuan:
+                        seguridad.yuan
+
+                }
+
+            )
+
+        console.log(
+            '🗑️ producto eliminado',
+            res.data
+        )
+
+        if (
+
+            res.data?.status === 'ok'
+
+        ) {
+
+            toastRef.value?.show({
+
+                text:
+                    'Producto eliminado ✨',
+
+                type:
+                    'success'
+
+            })
+
+            /* =========================================
+               🔥 EMIT
+            ========================================= */
+
+            emit(
+
+                'deleted',
+
+                {
+
+                    product_id:
+                        producto.value.product_id
+
+                }
+
+            )
+
+            close()
+
+        }
+
+    } catch (e) {
+
+        console.error(e)
+
+        toastRef.value?.show({
+
+            text:
+                'Error eliminando producto 😢',
+
+            type:
+                'error'
+
+        })
+
+    }
 
 }
 

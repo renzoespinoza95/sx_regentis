@@ -199,8 +199,8 @@ const route =
    BOTTOM NAV
 ====================================== */
 
-const hideBottomNav =
-  ref(false)
+const hideCount =
+  ref(0)
 
 /* ======================================
    TRACKING
@@ -281,7 +281,7 @@ const shouldShowBottomNav =
 
       &&
 
-      !hideBottomNav.value
+      hideCount.value <= 0
 
       &&
 
@@ -518,8 +518,33 @@ onMounted(() => {
 
     (estado) => {
 
-      hideBottomNav.value =
-        !!estado
+      /* ======================================
+         🔥 HIDE
+      ====================================== */
+
+      if (estado) {
+
+        hideCount.value++
+
+        return
+
+      }
+
+      /* ======================================
+         🔥 SHOW
+      ====================================== */
+
+      hideCount.value--
+
+      if (
+
+        hideCount.value < 0
+
+      ) {
+
+        hideCount.value = 0
+
+      }
 
     }
 

@@ -20,12 +20,6 @@
 
         <!-- RIGHT -->
         <div class="flex gap-2">
-
-            <div class="w-9 h-9 bg-white rounded-full flex items-center justify-center cursor-pointer"
-                @click="irAgregarPedido">
-                <i class="fa fa-plus text-sm" :style="{ color: mercado.topnavbar_color }"></i>
-            </div>
-
             <div class="w-9 h-9 bg-white rounded-full flex items-center justify-center cursor-pointer"
                 @click="$emit('openOptions')">
                 <i class="fa fa-ellipsis-v text-sm" :style="{ color: mercado.topnavbar_color }"></i>

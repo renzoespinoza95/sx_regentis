@@ -37,6 +37,38 @@
 
             </button>
 
+            <!-- =========================================
+🔥 MIS CATEGORIAS
+========================================= -->
+
+            <button class="
+    w-full
+    text-left
+    px-3
+    py-2
+    rounded-lg
+    hover:bg-gray-100
+    transition
+    flex
+    items-center
+    gap-2
+" @click="abrirMisCategorias">
+
+                <i class="
+        fa
+        fa-tags
+        text-green-500
+    ">
+                </i>
+
+                <span>
+
+                    Mis categorías
+
+                </span>
+
+            </button>
+
             <!-- CERRAR -->
             <button class="w-full text-white py-2 rounded-md bg-red-500 mt-2" @click="close">
 
@@ -70,7 +102,9 @@ const box = ref(null)
 const emit =
     defineEmits([
 
-        'categoria-created'
+        'categoria-created',
+
+        'mis-categorias'
 
     ])
 
@@ -112,6 +146,20 @@ function abrirNuevaCategoria() {
 
     emit(
         'categoria-created'
+    )
+
+}
+
+/* ======================================
+🔥 MIS CATEGORIAS
+====================================== */
+
+function abrirMisCategorias() {
+
+    close()
+
+    emit(
+        'mis-categorias'
     )
 
 }

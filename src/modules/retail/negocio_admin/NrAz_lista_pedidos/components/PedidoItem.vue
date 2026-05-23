@@ -150,6 +150,15 @@
 
                     </span>
 
+                    <span
+                        class="inline-block text-[11px] px-2 py-1 rounded-full bg-orange-100 text-orange-600 font-semibold">
+
+                        {{
+                            item.tipo_pedido
+                        }}
+
+                    </span>
+
                 </div>
 
             </div>
@@ -181,9 +190,16 @@ import {
     useRouter
 }
     from 'vue-router'
+import {
+    useUsuario
+}
+    from '../../../../../services/usuarioService.js'
 
 const router =
     useRouter()
+const {
+    getTipoxusuId
+} = useUsuario()
 
 const props =
     defineProps({
@@ -223,7 +239,36 @@ const fechaFormateada =
 
     })
 
+
 function irDetalle() {
+
+    const tipoxusu_id =
+
+        Number(
+            getTipoxusuId()
+        )
+
+    /* ======================================
+       🚚 DELIVERY
+    ====================================== */
+
+    if (
+        tipoxusu_id === 4
+    ) {
+
+        router.push(
+
+            `/Khjs_despachar/${props.item.carrito_id}`
+
+        )
+
+        return
+
+    }
+
+    /* ======================================
+       🏪 NEGOCIO
+    ====================================== */
 
     router.push(
 

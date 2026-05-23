@@ -42,6 +42,8 @@
         <BottomNav />
         <OptionsDialog ref="dialogRef" @categoria-created="
             openNuevaCategoria
+        " @mis-categorias="
+            openMisCategorias
         " />
 
         <NuevaCategoriaDialog ref="nuevaCategoriaRef" @created="
@@ -51,12 +53,20 @@
             onStockUpdated
         " @visible-updated="
             onVisibleUpdated
+        " @deleted="
+            onProductoDeleted
+        " @edit="
+            onEditarProducto
         " />
         <GsapToast ref="toastRef" />
         <NuevoProductoDialog ref="nuevoProductoRef" @created="
             onProductoCreated
         " />
-
+        <MisCategoriasDialog ref="misCategoriasRef" @deleted="
+            onCategoriaDeleted
+        " @edit="
+            onEditarCategoria
+        " />
 
     </div>
 </template>
@@ -69,8 +79,6 @@ import ProductoItem from './components/ProductoItem.vue'
 import { useUsuario } from '../../../../services/usuarioService'
 import { computed, onMounted, ref } from 'vue'
 import {
-    enc_barsi,
-    des_barsi,
     firma
 }
     from '../../../../services/security'
@@ -88,6 +96,8 @@ import GsapToast
     from '../../../../components/layout/GsapToast.vue'
 import NuevoProductoDialog
     from './components/NuevoProductoDialog.vue'
+import MisCategoriasDialog
+    from './components/MisCategoriasDialog.vue'
 
 let timeout = null
 
@@ -121,6 +131,12 @@ const { getNegId, getUsuId } = useUsuario()
 const dialogRef = ref(null)
 const productosOriginales =
     ref([])
+
+const listaBaseBusqueda =
+    ref([])
+
+const misCategoriasRef =
+    ref(null)
 
 function openDialog() {
 
@@ -179,16 +195,26 @@ function onStockUpdated(payload) {
 
 }
 
+/* =========================================
+   🔥 PRODUCTO CREATED
+========================================= */
+
 async function onProductoCreated() {
 
-    await cargarProductos()
+    loading.value = true
+
+    /* =========================================
+       🔥 RECARGAR TODO
+    ========================================= */
 
     await cargarCategorias()
+
+    loading.value = false
 
     toastRef.value?.show({
 
         text:
-            'Producto creado ✨',
+            'Producto guardado ✨',
 
         type:
             'success'
@@ -213,12 +239,16 @@ function openNuevaCategoria() {
 
 async function onCategoriaCreated() {
 
+    loading.value = true
+
     await cargarCategorias()
+
+    loading.value = false
 
     toastRef.value?.show({
 
         text:
-            'Categoría creada ✨',
+            'Categoría guardada ✨',
 
         type:
             'success'
@@ -227,10 +257,8 @@ async function onCategoriaCreated() {
 
 }
 
-// 🔥 LISTAR
-async function cargarProductos() {
 
-    loading.value = true
+async function cargarCategorias() {
 
     try {
 
@@ -238,13 +266,11 @@ async function cargarProductos() {
 
         const res = await axios.post(
 
-            '/MpIH/product/listar',
+            '/MylW/listar_categorias',
 
             {
 
                 neg_id: getNegId(),
-
-                usu_id: getUsuId(),
 
                 xin: seguridad.xin,
 
@@ -256,76 +282,100 @@ async function cargarProductos() {
 
         if (res.data.status === 'ok') {
 
-            productos.value =
-                res.data.data
+            categorias.value = res.data.data
 
-            productosOriginales.value =
-                res.data.data
+            /* =========================================
+            🔥 TODOS LOS PRODUCTOS
+            ========================================= */
+
+            const todos = categorias.value.flatMap(
+
+                c => c.productos || []
+
+            )
+
+            productos.value = [
+                ...todos
+            ]
+
+            productosOriginales.value = [
+                ...todos
+            ]
+
+            listaBaseBusqueda.value = [
+                ...todos
+            ]
 
         }
 
     } catch (e) {
 
+        console.error(e)
+
         toastRef.value?.show({
 
             text:
-                'Ocurrió un error 😢',
+                'Error cargando categorías 😢',
 
             type:
                 'error'
 
         })
 
-        console.error(e)
-
-    } finally {
-
-        loading.value = false
-
-    }
-
-}
-
-async function cargarCategorias() {
-
-    try {
-
-        const res = await axios.get(`/MylW/listar_categorias/${getNegId()}`)
-
-        if (res.data.status === 'ok') {
-
-            categorias.value = res.data.data
-
-            // 🔥 👉 AQUÍ VA (INICIALIZACIÓN)
-            productos.value = categorias.value.flatMap(c => c.productos || [])
-
-            activeCat.value = null
-
-        }
-
-    } catch (e) {
-        console.error(e)
     }
 
 }
 
 function onSelectCategoria(cat) {
 
-    // 🔥 TODOS
+    /* =========================================
+       🔥 TODOS
+    ========================================= */
+
     if (!cat.category_id) {
+
         activeCat.value = null
-        productos.value = categorias.value.flatMap(c => c.productos || [])
+
+        const todos =
+
+            categorias.value.flatMap(
+
+                c => c.productos || []
+
+            )
+
+        productos.value = [
+            ...todos
+        ]
+
+        listaBaseBusqueda.value = [
+            ...todos
+        ]
+
         return
+
     }
 
-    // 🔥 FILTRADO
-    activeCat.value = cat.category_id
-    productos.value = cat.productos || []
+    /* =========================================
+       🔥 CATEGORIA
+    ========================================= */
+
+    activeCat.value =
+        cat.category_id
+
+    const lista =
+        cat.productos || []
+
+    productos.value = [
+        ...lista
+    ]
+
+    listaBaseBusqueda.value = [
+        ...lista
+    ]
 
 }
 
-
-// 🔥 INPUT
 // 🔥 INPUT
 function onBuscar(texto) {
 
@@ -340,63 +390,54 @@ function onBuscar(texto) {
             )
 
         /* =========================================
-        🔥 VACIO
+           🔥 VACIO
         ========================================= */
 
         if (!txt) {
 
-            /* =========================================
-            🔥 TODOS
-            ========================================= */
+            productos.value = [
 
-            if (!activeCat.value) {
+                ...listaBaseBusqueda.value
 
-                productos.value =
-                    productosOriginales.value
-
-                return
-
-            }
-
-            /* =========================================
-            🔥 CATEGORIA ACTIVA
-            ========================================= */
-
-            const cat =
-                categorias.value.find(
-
-                    c =>
-
-                        Number(c.category_id)
-
-                        ===
-
-                        Number(activeCat.value)
-
-                )
-
-            productos.value =
-                cat?.productos || []
+            ]
 
             return
 
         }
 
         /* =========================================
-        🔥 FILTRO LOCAL
+           🔥 FILTRO
         ========================================= */
 
         productos.value =
 
-            productosOriginales.value.filter(p => {
+            listaBaseBusqueda.value.filter(p => {
 
-                const nombre =
+                return (
 
                     normalizeText(
                         p.name || ''
                     )
 
-                return nombre.includes(txt)
+                        .includes(txt)
+
+                    ||
+
+                    normalizeText(
+                        p.description || ''
+                    )
+
+                        .includes(txt)
+
+                    ||
+
+                    normalizeText(
+                        p.cod_producto || ''
+                    )
+
+                        .includes(txt)
+
+                )
 
             })
 
@@ -405,41 +446,13 @@ function onBuscar(texto) {
 }
 
 // 🔥 LIMPIAR
-// 🔥 LIMPIAR
 function onLimpiar() {
 
-    /* =========================================
-    🔥 TODOS
-    ========================================= */
+    productos.value = [
 
-    if (!activeCat.value) {
+        ...listaBaseBusqueda.value
 
-        productos.value =
-            productosOriginales.value
-
-        return
-
-    }
-
-    /* =========================================
-    🔥 CATEGORIA ACTIVA
-    ========================================= */
-
-    const cat =
-        categorias.value.find(
-
-            c =>
-
-                Number(c.category_id)
-
-                ===
-
-                Number(activeCat.value)
-
-        )
-
-    productos.value =
-        cat?.productos || []
+    ]
 
 }
 
@@ -459,9 +472,14 @@ function normalizeText(txt = '') {
 
 }
 
-onMounted(() => {
-    cargarProductos()
-    cargarCategorias()
+onMounted(async () => {
+
+    loading.value = true
+
+    await cargarCategorias()
+
+    loading.value = false
+
 })
 
 /* =========================================
@@ -498,6 +516,101 @@ function onVisibleUpdated(payload) {
 
     item.is_visible =
         payload.is_visible
+
+}
+
+/* =========================================
+🔥 MIS CATEGORIAS
+========================================= */
+
+function openMisCategorias() {
+
+    misCategoriasRef.value?.open(
+
+        categorias.value
+
+    )
+
+}
+
+/* =========================================
+🔥 ELIMINADA
+========================================= */
+
+async function onCategoriaDeleted() {
+
+    await cargarCategorias()
+
+}
+
+/* =========================================
+🔥 EDITAR CATEGORIA
+========================================= */
+
+function onEditarCategoria(categoria) {
+
+    nuevaCategoriaRef.value?.open(
+        categoria
+    )
+
+}
+
+
+/* =========================================
+   🗑️ PRODUCTO ELIMINADO
+========================================= */
+
+function onProductoDeleted(payload) {
+
+    productos.value =
+
+        productos.value.filter(
+
+            p =>
+
+                Number(
+                    p.product_id
+                )
+
+                !==
+
+                Number(
+                    payload.product_id
+                )
+
+        )
+
+    productosOriginales.value =
+
+        productosOriginales.value.filter(
+
+            p =>
+
+                Number(
+                    p.product_id
+                )
+
+                !==
+
+                Number(
+                    payload.product_id
+                )
+
+        )
+
+}
+
+/* =========================================
+   ✏️ EDITAR PRODUCTO
+========================================= */
+
+function onEditarProducto(item) {
+
+    nuevoProductoRef.value?.open(
+
+        item
+
+    )
 
 }
 </script>

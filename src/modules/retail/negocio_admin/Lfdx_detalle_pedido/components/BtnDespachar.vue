@@ -3,41 +3,98 @@
     <!-- SUCCESS ICON -->
     <transition name="fade-success">
 
-        <div v-if="showSuccess" class="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
+        <div v-if="showSuccess" class="
+                absolute
+                inset-0
+                z-50
+                flex
+                items-center
+                justify-center
+                pointer-events-none
+            ">
 
-            <i class="fa fa-check-circle-o success-icon">
-            </i>
+            <i class="
+                    fa
+                    fa-check-circle-o
+                    success-icon
+                "></i>
 
         </div>
 
     </transition>
 
     <!-- BOTON -->
-    <button v-if="visible" @click="despachar" :disabled="loading || !trabajadorSeleccionado"
-        class="w-full h-14 rounded-2xl text-white font-bold shadow-lg transition active:scale-95 flex items-center justify-center gap-2"
-        :style="{
-            background: '#16a34a',
+    <button v-if="
+
+        visible
+
+        &&
+
+        (
+            tipoPedido === 'DELIVERY'
+            ||
+            tipoPedido === 'RECOGER_TIENDA'
+            ||
+            tipoPedido === 'RESERVA_MENU'
+        )
+
+    " @click="despachar" :disabled="loading
+            ||
+            !trabajadorSeleccionado
+            " class="
+            w-full
+            h-14
+            rounded-2xl
+            text-white
+            font-bold
+            shadow-lg
+            transition
+            active:scale-95
+            flex
+            items-center
+            justify-center
+            gap-2
+        " :style="{
+
+            background:
+                '#16a34a',
+
             cursor:
+
                 (!trabajadorSeleccionado)
                     ? 'not-allowed'
                     : 'pointer',
+
             opacity:
-                (loading || !trabajadorSeleccionado)
+
+                (
+                    loading
+                    ||
+                    !trabajadorSeleccionado
+                )
+
                     ? 0.5
                     : 1
+
         }">
 
         <!-- LOADING -->
         <template v-if="loading">
 
-            <div class="regentis-loader scale-50"></div>
+            <div class="
+                    regentis-loader
+                    scale-50
+                "></div>
 
         </template>
 
         <!-- NORMAL -->
         <template v-else>
 
-            <i class="fa fa-motorcycle"></i>
+            <i class="
+                    fa
+                    fa-motorcycle
+                "></i>
 
             Despachar
 
@@ -51,10 +108,24 @@
 </template>
 
 <script setup>
-import axios from 'axios'
-import { ref } from 'vue'
 
-import { useMercado } from '../../../../../services/useMercado.js'
+import axios
+    from 'axios'
+
+import {
+    ref
+}
+    from 'vue'
+
+import {
+    useMercado
+}
+    from '../../../../../services/useMercado.js'
+
+import {
+    firma
+}
+    from '../../../../../services/security.js'
 
 import GsapToast
     from '../../../../../components/layout/GsapToast.vue'
@@ -62,92 +133,151 @@ import GsapToast
 const API =
     import.meta.env.VITE_PUBLIC_URL_BASE
 
-trabajadorSeleccionado: Boolean
-
-const { mercado } =
+const {
+    mercado
+} =
     useMercado()
 
-const props = defineProps({
+const props =
+    defineProps({
 
-    carritoId: Number,
+        carritoId:
+            Number,
 
-    negId: Number,
+        negId:
+            Number,
 
-    usuId: Number,
+        usuId:
+            Number,
 
-    direccion: String,
+        direccion:
+            String,
 
-    fechaEntrega: String,
+        fechaEntrega:
+            String,
 
-    trabajadorSeleccionado: Boolean
-})
+        trabajadorSeleccionado:
+            Boolean,
 
-const emit = defineEmits([
-    'success'
-])
+        tipoPedido:
+            String
 
-const loading = ref(false)
+    })
 
-const visible = ref(true)
+const emit =
+    defineEmits([
 
-const showSuccess = ref(false)
+        'success'
 
-const toastRef = ref(null)
+    ])
+
+const loading =
+    ref(false)
+
+const visible =
+    ref(true)
+
+const showSuccess =
+    ref(false)
+
+const toastRef =
+    ref(null)
+
+/* =========================================
+   🚚 DESPACHAR
+========================================= */
 
 async function despachar() {
 
     try {
 
-        loading.value = true
-
-        const r = await axios.post(
-            `${API}/YWRF/despachar`,
-            {
-                carrito_id:
-                    props.carritoId,
-
-                neg_id:
-                    props.negId,
-
-                usu_id:
-                    props.usuId,
-
-                direccion:
-                    props.direccion,
-
-                fecha_entrega:
-                    props.fechaEntrega
-            }
-        )
+        loading.value =
+            true
 
         /* =========================================
-           ICONO GRANDE
+           🔐 FIRMA
         ========================================= */
-        showSuccess.value = true
+
+        const seguridad =
+            firma()
 
         /* =========================================
-           TOAST
+           🚀 REQUEST
         ========================================= */
-        toastRef.value.show({
+
+        const r =
+            await axios.post(
+
+                `${API}/YWRF/despachar`,
+
+                {
+
+                    carrito_id:
+                        props.carritoId,
+
+                    neg_id:
+                        props.negId,
+
+                    usu_id:
+                        props.usuId,
+
+                    direccion:
+                        props.direccion,
+
+                    fecha_entrega:
+                        props.fechaEntrega,
+
+                    xin:
+                        seguridad.xin,
+
+                    yuan:
+                        seguridad.yuan
+
+                }
+
+            )
+
+        /* =========================================
+           ✅ ICONO GRANDE
+        ========================================= */
+
+        showSuccess.value =
+            true
+
+        /* =========================================
+           🔥 TOAST
+        ========================================= */
+
+        toastRef.value?.show({
 
             text:
                 'Pedido despachado correctamente',
 
             type:
                 'success'
+
         })
 
+        /* =========================================
+           📡 EMIT
+        ========================================= */
+
         emit(
+
             'success',
+
             r.data
+
         )
 
         /* =========================================
-           OCULTAR BOTON
+           👻 OCULTAR BOTON
         ========================================= */
+
         setTimeout(() => {
 
-            visible.value = false
+            visible.value =
+                false
 
         }, 400)
 
@@ -155,44 +285,60 @@ async function despachar() {
 
         console.error(e)
 
-        toastRef.value.show({
+        toastRef.value?.show({
 
             text:
+
+                e?.response?.data?.msg
+                ||
+
                 'Error al despachar',
 
             type:
                 'error'
+
         })
 
     } finally {
 
-        loading.value = false
+        loading.value =
+            false
+
     }
+
 }
+
 </script>
 
 <style scoped>
 .success-icon {
 
-    font-size: 50vw;
+    font-size:
+        50vw;
 
-    color: #86efac;
+    color:
+        #86efac;
 
-    opacity: 0.92;
+    opacity:
+        0.92;
 
     filter:
         drop-shadow(0 10px 35px rgba(0, 0, 0, 0.18));
 
     animation:
         successPop 0.45s ease;
+
 }
 
 @media (min-width: 768px) {
 
     .success-icon {
 
-        font-size: 280px;
+        font-size:
+            280px;
+
     }
+
 }
 
 @keyframes successPop {
@@ -202,7 +348,9 @@ async function despachar() {
         transform:
             scale(0.4);
 
-        opacity: 0;
+        opacity:
+            0;
+
     }
 
     100% {
@@ -210,8 +358,11 @@ async function despachar() {
         transform:
             scale(1);
 
-        opacity: 0.92;
+        opacity:
+            0.92;
+
     }
+
 }
 
 .fade-success-enter-active,
@@ -219,11 +370,14 @@ async function despachar() {
 
     transition:
         opacity 0.35s;
+
 }
 
 .fade-success-enter-from,
 .fade-success-leave-to {
 
-    opacity: 0;
+    opacity:
+        0;
+
 }
 </style>

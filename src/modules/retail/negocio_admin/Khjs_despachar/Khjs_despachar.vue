@@ -103,8 +103,8 @@
     </div>
 
 </template>
-
 <script setup>
+
 import AppLoader
     from '../../../../components/layout/AppLoader.vue'
 
@@ -113,6 +113,7 @@ import GsapToast
 
 import AppSnackbar
     from '../../../../components/layout/AppSnackbar.vue'
+
 import {
     ref,
     computed,
@@ -124,6 +125,12 @@ import axios
     from 'axios'
 
 import {
+    useRoute,
+    useRouter
+}
+    from 'vue-router'
+
+import {
     useMercado
 }
     from '../../../../services/useMercado.js'
@@ -133,14 +140,26 @@ import {
 }
     from '../../../../services/useCss.js'
 
+import {
+    firma
+}
+    from '../../../../services/security.js'
+
+import {
+    useUsuario
+}
+    from '../../../../services/usuarioService.js'
+
 /* =========================================
    COMPONENTES
 ========================================= */
+
 import TipoPagoSelector
     from './components/TipoPagoSelector.vue'
 
 import FooterAcciones
     from './components/FooterAcciones.vue'
+
 import HeaderBar
     from './components/HeaderBar.vue'
 
@@ -162,40 +181,49 @@ import YaplinUploader
 import YaplinGallery
     from './components/YaplinGallery.vue'
 
-import {
-    firma
-}
-    from '../../../../services/security.js'
-import {
-    useUsuario
-}
-    from '../../../../services/usuarioService.js'
-import {
-    useRouter
-}
-    from 'vue-router'
+/* =========================================
+   API
+========================================= */
 
 const API =
     import.meta.env
         .VITE_PUBLIC_URL_BASE
 
-const {
-    mercado
-} = useMercado()
+/* =========================================
+   ROUTER
+========================================= */
 
-const {
-    getUsuId
-} = useUsuario()
-
-
-const tipoPagoId =
-    ref('EFECTIVO')
+const route =
+    useRoute()
 
 const router =
     useRouter()
 
-const filePago =
-    ref(null)
+const carrito_id =
+    Number(
+        route.params.carrito_id
+    )
+
+/* =========================================
+   SERVICIOS
+========================================= */
+
+const {
+    mercado
+} =
+    useMercado()
+
+const {
+    getUsuId
+} =
+    useUsuario()
+
+/* =========================================
+   STATE
+========================================= */
+
+const tipoPagoId =
+    ref('EFECTIVO')
 
 const snackbarRef =
     ref(null)
@@ -212,10 +240,6 @@ const loadingYaplin =
 const yaplinId =
     ref(null)
 
-/* =========================================
-   STATE
-========================================= */
-
 const pedido =
     ref(null)
 
@@ -228,6 +252,9 @@ const yaplins =
 const dialogRef =
     ref(null)
 
+const filePago =
+    ref(null)
+
 /* =========================================
    FONDO
 ========================================= */
@@ -236,8 +263,10 @@ const fondoStyle =
     computed(() => {
 
         if (
+
             !mercado.value
                 ?.patron_fondo
+
         ) {
 
             return {}
@@ -245,8 +274,10 @@ const fondoStyle =
         }
 
         return cssToObject(
+
             mercado.value
                 .patron_fondo
+
         )
 
     })
@@ -295,11 +326,19 @@ function formatFecha(fecha) {
 
 }
 
+/* =========================================
+   FILE PAGO
+========================================= */
+
 function onFilePago(file) {
 
     filePago.value = file
 
 }
+
+/* =========================================
+   RECHAZAR
+========================================= */
 
 function rechazar() {
 
@@ -311,20 +350,56 @@ function rechazar() {
 
             try {
 
-                loading.value = true
+                loading.value =
+                    true
 
-                const r = await axios.post(
+                /* =========================================
+                   FIRMA
+                ========================================= */
 
-                    `${API}/ULx3/rechazarPedido`,
+                const seguridad =
+                    firma()
 
-                    {
+                /* =========================================
+                   REQUEST
+                ========================================= */
 
-                        carrito_id:
-                            pedido.value.carrito_id
+                const r =
+                    await axios.post(
 
-                    }
+                        `${API}/ULx3/rechazarPedido`,
 
-                )
+                        {
+
+                            carrito_id:
+                                pedido.value.carrito_id,
+
+                            xin:
+                                seguridad.xin,
+
+                            yuan:
+                                seguridad.yuan
+
+                        }
+
+                    )
+
+                /* =========================================
+                   ESTADO LOCAL
+                ========================================= */
+
+                if (
+                    pedido.value
+                ) {
+
+                    pedido.value.estado =
+                        'rechazado'
+
+                }
+
+                /* =========================================
+                   TOAST
+                ========================================= */
 
                 toastRef.value?.show({
 
@@ -339,13 +414,13 @@ function rechazar() {
                 })
 
                 /* =========================================
-   🔥 REDIRECT
-========================================= */
+                   REDIRECT
+                ========================================= */
 
                 setTimeout(() => {
 
                     router.push(
-                        '/u8ex_lista_pedidos'
+                        '/nraz_lista_pedidos'
                     )
 
                 }, 3000)
@@ -368,7 +443,8 @@ function rechazar() {
 
             } finally {
 
-                loading.value = false
+                loading.value =
+                    false
 
             }
 
@@ -378,57 +454,79 @@ function rechazar() {
 
 }
 
+/* =========================================
+   ENTREGAR
+========================================= */
+
 async function entregar() {
 
     try {
 
-        loading.value = true
+        loading.value =
+            true
 
         /* =========================================
-           🔐 FIRMA
+           FIRMA
         ========================================= */
 
         const seguridad =
             firma()
 
         /* =========================================
-           🚀 REQUEST
+           REQUEST
         ========================================= */
 
-        const r = await axios.post(
+        const r =
+            await axios.post(
 
-            `${API}/YCTK/registrarVenta`,
+                `${API}/YCTK/registrarVenta`,
 
-            {
+                {
 
-                carrito_id:
-                    pedido.value.carrito_id,
+                    carrito_id:
+                        pedido.value.carrito_id,
 
-                tipo_pago:
-                    tipoPagoId.value,
-                usu_id_vendedor:
-                    getUsuId(),
+                    tipo_pago:
+                        tipoPagoId.value,
 
-                yaplin_id:
-                    yaplinId.value,
+                    usu_id_vendedor:
+                        getUsuId(),
 
-                xin:
-                    seguridad.xin,
+                    yaplin_id:
+                        yaplinId.value,
 
-                yuan:
-                    seguridad.yuan
+                    xin:
+                        seguridad.xin,
 
-            }
+                    yuan:
+                        seguridad.yuan
 
-        )
+                }
+
+            )
 
         /* =========================================
-           ✅ TOAST
+           ESTADO LOCAL
+        ========================================= */
+
+        if (
+            pedido.value
+        ) {
+
+            pedido.value.estado =
+                'comprado'
+
+        }
+
+        /* =========================================
+           TOAST
         ========================================= */
 
         toastRef.value?.show({
 
             text:
+                r.data?.msg
+                ||
                 'Venta realizada correctamente',
 
             type:
@@ -437,8 +535,8 @@ async function entregar() {
         })
 
         /* =========================================
-   🔥 REDIRECT
-========================================= */
+           REDIRECT
+        ========================================= */
 
         setTimeout(() => {
 
@@ -466,149 +564,43 @@ async function entregar() {
 
     } finally {
 
-        loading.value = false
+        loading.value =
+            false
 
     }
 
 }
 
 /* =========================================
-   CARGAR DESDE STATE
+   CARGAR PEDIDO
 ========================================= */
-function cargarDesdeState() {
 
-    const raw =
-        sessionStorage.getItem(
-            'pedido_actual'
-        )
-
-    if (!raw) {
-
-        console.warn(
-            'No existe pedido_actual'
-        )
-
-        return false
-
-    }
+async function cargarPedido() {
 
     try {
 
-        const parsed =
-            JSON.parse(raw)
+        loading.value =
+            true
 
-        pedido.value = {
-
-            carrito_id:
-                parsed.carrito_id,
-
-            nombres_apellidos:
-                parsed.nombres_apellidos,
-
-            sobrenombre:
-                parsed.sobrenombre,
-
-            estado:
-                parsed.entrega_estado
-                ||
-                parsed.carrito_estado
-                ||
-                'transito',
-
-            fecha_entrega:
-                parsed.fecha_entrega,
-
-            total_productos:
-                parsed.total_productos,
-
-            neg_id:
-                parsed.neg_id,
-
-            neg_nombre:
-                parsed.neg_nombre,
-
-            neg_logo:
-                parsed.neg_logo,
-
-            neg_puesto:
-                parsed.neg_puesto
-
-        }
-
-        productos.value =
-            (
-                parsed.productos || []
-            ).map(p => ({
-
-                carrito_detalle_id:
-                    p.carrito_detalle_id,
-
-                nombre:
-                    p.name,
-
-                cantidad:
-                    Number(
-                        p.cantidad || 0
-                    ),
-
-                unidad:
-                    'und',
-
-                precio:
-                    Number(
-                        p.precio_unitario || 0
-                    ),
-
-                img:
-                    p.img,
-
-                subtotal:
-                    p.subtotal
-
-            }))
-
-        return true
-
-    } catch (e) {
-
-        console.error(
-            'Error parseando pedido',
-            e
-        )
-
-        return false
-
-    }
-
-}
-
-
-/* =========================================
-   YAPLINS
-========================================= */
-
-async function cargarYaplins() {
-
-    try {
-
-        if (!pedido.value?.neg_id) {
-
-            return
-
-        }
+        /* =========================================
+           FIRMA
+        ========================================= */
 
         const seguridad =
             firma()
 
-        const ry =
+        /* =========================================
+           REQUEST
+        ========================================= */
+
+        const r =
             await axios.post(
 
-                `${API}/nraz/lista_pedidos`,
+                `${API}/N5BR/detalle_pedido`,
 
                 {
 
-                    neg_id:
-                        pedido.value.neg_id,
+                    carrito_id,
 
                     xin:
                         seguridad.xin,
@@ -620,33 +612,80 @@ async function cargarYaplins() {
 
             )
 
-        const pedidos =
-            ry.data?.data || []
+        /* =========================================
+           PEDIDO
+        ========================================= */
 
-        const actual =
-            pedidos.find(
+        pedido.value =
+            r.data?.pedido || null
 
-                x =>
-                    Number(
-                        x.carrito_id
-                    )
-                    ===
-                    Number(
-                        pedido.value
-                            ?.carrito_id
-                    )
-
-            )
+        /* =========================================
+           YAPLINS
+        ========================================= */
 
         yaplins.value =
-            actual?.yaplins || []
+            r.data?.yaplins || []
+
+        /* =========================================
+           PRODUCTOS
+        ========================================= */
+
+        productos.value =
+
+            (
+                r.data?.productos || []
+            )
+
+                .map(p => ({
+
+                    carrito_detalle_id:
+                        p.carrito_detalle_id,
+
+                    nombre:
+                        p.name,
+
+                    cantidad:
+                        Number(
+                            p.cantidad || 0
+                        ),
+
+                    unidad:
+                        'und',
+
+                    precio:
+                        Number(
+                            p.precio_unitario || 0
+                        ),
+
+                    img:
+                        p.img,
+
+                    subtotal:
+                        p.subtotal
+
+                }))
 
     } catch (e) {
 
         console.error(
-            'Error cargando yaplins',
+            'Error cargando pedido',
             e
         )
+
+        toastRef.value?.show({
+
+            text:
+                'Error cargando pedido',
+
+            type:
+                'error'
+
+        })
+
+    } finally {
+
+        loading.value =
+            false
 
     }
 
@@ -658,20 +697,7 @@ async function cargarYaplins() {
 
 onMounted(async () => {
 
-    const ok =
-        cargarDesdeState()
-
-    if (!ok) {
-
-        console.warn(
-            'No se pudo cargar pedido'
-        )
-
-        return
-
-    }
-
-    await cargarYaplins()
+    await cargarPedido()
 
 })
 

@@ -111,14 +111,14 @@ const cardStyle = computed(() => {
     }
 
     /* =========================================
-       🟡 STOCK BAJO
+       🔴 SIN STOCK
     ========================================= */
 
     if (
 
         Number(
             props.item.stock
-        ) < 10
+        ) <= 0
 
     ) {
 

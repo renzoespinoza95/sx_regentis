@@ -184,28 +184,17 @@
                 <ResumenPedido :items="productos" />
 
                 <BtnDespachar v-if="
-
-                    pedido?.estado
-                    !== 'comprado'
-
-                    &&
-
-                    pedido?.estado
-                    !== 'devolucion'
-
-                    &&
-
-                    pedido?.estado
-                    !== 'rechazado'
-
-                    &&
-
-                    pedido?.estado
-                    !== 'anulado'
-
-                " :carrito-id="pedido.carrito_id" :neg-id="pedido.neg_id" :usu-id="trabajador?.usu_id || 0"
-                    :direccion="pedido.direccion" :fecha-entrega="fechaEntrega" :trabajador-seleccionado="!!trabajador"
-                    @success="onDespachado" />
+                    mostrarBtnDespachar
+                " :carrito-id="pedido.carrito_id
+                    " :neg-id="pedido.neg_id
+                        " :usu-id="trabajador?.usu_id || 0
+                            " :direccion="pedido.direccion
+                                " :fecha-entrega="fechaEntrega
+                        " :trabajador-seleccionado="!!trabajador
+                        " :tipo-pedido="pedido.tipo_pedido
+                        " @success="
+                        onDespachado
+                    " />
 
             </div>
 
@@ -223,29 +212,71 @@
     </div>
 
 </template>
-
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import axios from 'axios'
+
+import {
+
+    ref,
+    computed,
+    onMounted
+
+}
+    from 'vue'
+
+import {
+    useRoute
+}
+    from 'vue-router'
+
+import axios
+    from 'axios'
+
 import DialogCalendario
     from '../../negocio_admin/PM1N_ag_pedido/components/CalendarDialog.vue'
 
-import { useMercado } from '../../../../services/useMercado.js'
-import { cssToObject } from '../../../../services/useCss.js'
+import {
+    useMercado
+}
+    from '../../../../services/useMercado.js'
 
-import HeaderBar from './components/HeaderBar.vue'
-import FieldText from './components/FieldText.vue'
-import ProductoRowView from './components/ProductoRowView.vue'
-import ResumenPedido from './components/ResumenPedido.vue'
-import OptionsDialog from './components/OptionsDialog.vue'
-import ImagenUploader from './components/ImagenUploader.vue'
-import TrabajadorDialog from './components/TrabajadorDialog.vue'
-import BtnDespachar from './components/BtnDespachar.vue'
-import AppSnackbar from '../../../../components/layout/AppSnackbar.vue'
-import GsapToast from '../../../../components/layout/GsapToast.vue'
+import {
+    cssToObject
+}
+    from '../../../../services/useCss.js'
+
+import HeaderBar
+    from './components/HeaderBar.vue'
+
+import FieldText
+    from './components/FieldText.vue'
+
+import ProductoRowView
+    from './components/ProductoRowView.vue'
+
+import ResumenPedido
+    from './components/ResumenPedido.vue'
+
+import OptionsDialog
+    from './components/OptionsDialog.vue'
+
+import ImagenUploader
+    from './components/ImagenUploader.vue'
+
+import TrabajadorDialog
+    from './components/TrabajadorDialog.vue'
+
+import BtnDespachar
+    from './components/BtnDespachar.vue'
+
+import AppSnackbar
+    from '../../../../components/layout/AppSnackbar.vue'
+
+import GsapToast
+    from '../../../../components/layout/GsapToast.vue'
+
 import VentaDialog
     from '../../../../components/VentaDialog.vue'
+
 import YaplinGallery
     from '../../../../components/YaplinGallery.vue'
 
@@ -257,66 +288,95 @@ import {
 const API =
     import.meta.env.VITE_PUBLIC_URL_BASE
 
-const route = useRoute()
+const route =
+    useRoute()
 
-const { mercado } = useMercado()
+const carrito_id =
+    Number(
+        route.params.carrito_id
+    )
 
-const pedido = ref(null)
-const productos = ref([])
+const {
+    mercado
+} =
+    useMercado()
 
-const fechaEntrega = ref('')
-const detalleRef = ref(null)
-const trabajador = ref(null)
+const pedido =
+    ref(null)
+
+const productos =
+    ref([])
+
+const fechaEntrega =
+    ref('')
+
+const detalleRef =
+    ref(null)
+
+const trabajador =
+    ref(null)
+
 const yaplins =
     ref([])
 
-const trabajadorNombre = computed(() => {
+const trabajadorNombre =
+    computed(() => {
 
-    if (!trabajador.value) return ''
+        if (
+            !trabajador.value
+        ) {
+            return ''
+        }
 
-    return trabajador.value.nombre
-})
+        return trabajador.value.nombre
 
-const fondoStyle = computed(() => {
+    })
 
-    if (!mercado.value?.patron_fondo) return {}
+const fondoStyle =
+    computed(() => {
 
-    return cssToObject(
-        mercado.value.patron_fondo
-    )
-})
+        if (
+            !mercado.value?.patron_fondo
+        ) {
+            return {}
+        }
 
+        return cssToObject(
 
+            mercado.value.patron_fondo
 
-const dialogRef = ref(null)
-const snackbarRef = ref(null)
-const toastRef = ref(null)
+        )
 
-const eliminado = ref(false)
+    })
 
-function openDialog() {
-    dialogRef.value.open()
-}
+const dialogRef =
+    ref(null)
 
-const trabajadorDialogRef = ref(null)
+const snackbarRef =
+    ref(null)
 
-function abrirTrabajadores() {
+const toastRef =
+    ref(null)
 
-    trabajadorDialogRef.value.open()
-}
+const eliminado =
+    ref(false)
 
-function onTrabajadorSelected(item) {
-
-    trabajador.value = item
-}
+const trabajadorDialogRef =
+    ref(null)
 
 const calendarRef =
     ref(null)
 
+/* =========================================
+   📅 FECHA TEXTO
+========================================= */
+
 const fechaEntregaTexto =
     computed(() => {
 
-        if (!fechaEntrega.value) {
+        if (
+            !fechaEntrega.value
+        ) {
 
             return 'Seleccionar fecha'
 
@@ -329,12 +389,51 @@ const fechaEntregaTexto =
 
     })
 
+/* =========================================
+   🔥 OPEN OPTIONS
+========================================= */
+
+function openDialog() {
+
+    dialogRef.value?.open()
+
+}
+
+/* =========================================
+   👷 ABRIR TRABAJADORES
+========================================= */
+
+function abrirTrabajadores() {
+
+    trabajadorDialogRef.value?.open()
+
+}
+
+/* =========================================
+   👷 SELECT TRABAJADOR
+========================================= */
+
+function onTrabajadorSelected(item) {
+
+    trabajador.value =
+        item
+
+}
+
+/* =========================================
+   📅 FECHA
+========================================= */
+
 function onFechaSeleccionada(fecha) {
 
     fechaEntrega.value =
         fecha
 
 }
+
+/* =========================================
+   ✅ VENTA REALIZADA
+========================================= */
 
 function onVentaRealizada(data) {
 
@@ -350,9 +449,14 @@ function onVentaRealizada(data) {
 
         type:
             'success'
+
     })
 
 }
+
+/* =========================================
+   ❌ RECHAZO
+========================================= */
 
 function confirmarRechazo(data) {
 
@@ -368,81 +472,144 @@ function confirmarRechazo(data) {
 
         type:
             'error'
+
     })
 
 }
 
 /* =========================================
-   CARGAR PEDIDO
+   📦 CARGAR PEDIDO
 ========================================= */
+
 async function cargarPedido() {
 
     try {
 
-        const carrito_id_encriptado =
-            route.params.id
+        /* =========================================
+           🔐 FIRMA
+        ========================================= */
 
-        const r = await axios.get(
-            `${API}/N5BR/detalle_pedido/${encodeURIComponent(carrito_id_encriptado)}`
-        )
+        const seguridad =
+            firma()
+
+        /* =========================================
+           🚀 REQUEST
+        ========================================= */
+
+        const r =
+            await axios.post(
+
+                `${API}/N5BR/detalle_pedido`,
+
+                {
+
+                    carrito_id,
+
+                    xin:
+                        seguridad.xin,
+
+                    yuan:
+                        seguridad.yuan
+
+                }
+
+            )
+
+        /* =========================================
+           📦 PEDIDO
+        ========================================= */
 
         pedido.value =
             r.data.pedido || null
 
         /* =========================================
-        🔥 YAPLINS
+           💸 YAPLINS
         ========================================= */
 
         yaplins.value =
             r.data?.yaplins || []
 
-        if (pedido.value?.fecha_entrega) {
+        /* =========================================
+           📅 FECHA
+        ========================================= */
+
+        if (
+            pedido.value?.fecha_entrega
+        ) {
 
             fechaEntrega.value =
-                pedido.value.fecha_entrega.substring(0, 10)
 
-        } else {
+                pedido.value
+                    .fecha_entrega
+                    .substring(0, 10)
 
-            fechaEntrega.value = ''
         }
 
+        else {
+
+            fechaEntrega.value = ''
+
+        }
+
+        /* =========================================
+           🛒 PRODUCTOS
+        ========================================= */
+
         productos.value =
-            (r.data.productos || []).map(p => ({
 
-                carrito_detalle_id:
-                    p.carrito_detalle_id,
+            (
+                r.data.productos || []
+            )
 
-                name:
-                    p.name,
+                .map(p => ({
 
-                cantidad:
-                    Number(p.cantidad || 0),
+                    carrito_detalle_id:
+                        p.carrito_detalle_id,
 
-                unidad:
-                    'und',
+                    product_id:
+                        p.product_id,
 
-                precio_unitario:
-                    Number(p.precio_unitario || 0),
+                    name:
+                        p.name,
 
-                img:
-                    p.img,
+                    cantidad:
+                        Number(
+                            p.cantidad || 0
+                        ),
 
-                subtotal:
-                    p.subtotal
-            }))
+                    unidad:
+                        'und',
+
+                    precio_unitario:
+                        Number(
+                            p.precio_unitario || 0
+                        ),
+
+                    img:
+                        p.img,
+
+                    subtotal:
+                        p.subtotal
+
+                }))
 
     } catch (e) {
 
         console.error(
+
             'Error cargando detalle pedido',
+
             e
+
         )
+
     }
+
 }
 
-onMounted(() => {
-    cargarPedido()
-})
+/* =========================================
+   🚚 DESPACHADO
+========================================= */
 
 function onDespachado(r) {
 
@@ -451,9 +618,34 @@ function onDespachado(r) {
         r
     )
 
-    pedido.value.estado =
-        'transito'
+    /* =========================================
+       🔥 CAMBIAR ESTADO
+    ========================================= */
+
+    if (
+        pedido.value
+    ) {
+
+        pedido.value.estado =
+            'transito'
+
+    }
+
+    /* =========================================
+       🍞 SNACKBAR
+    ========================================= */
+
+    snackbarRef.value?.open(
+
+        '🚚 Pedido despachado al delivery'
+
+    )
+
 }
+
+/* =========================================
+   🗑️ CONFIRMAR ELIMINAR
+========================================= */
 
 function confirmarEliminar() {
 
@@ -471,9 +663,14 @@ function confirmarEliminar() {
 
 }
 
+/* =========================================
+   🗑️ ELIMINAR PRODUCTO
+========================================= */
+
 function eliminarProducto(item) {
 
     productos.value =
+
         productos.value.filter(
 
             x =>
@@ -486,9 +683,14 @@ function eliminarProducto(item) {
 
 }
 
+/* =========================================
+   ✏️ ACTUALIZAR CANTIDAD
+========================================= */
+
 function actualizarCantidad(data) {
 
     const item =
+
         productos.value.find(
 
             x =>
@@ -499,31 +701,62 @@ function actualizarCantidad(data) {
 
         )
 
-    if (!item) return
+    if (!item)
+        return
 
     item.cantidad =
         data.cantidad
 
 }
 
+/* =========================================
+   🗑️ ELIMINAR PEDIDO
+========================================= */
+
 async function eliminarPedido() {
 
     try {
 
+        /* =========================================
+           🔐 FIRMA
+        ========================================= */
+
+        const seguridad =
+            firma()
+
+        /* =========================================
+           🚀 REQUEST
+        ========================================= */
+
         await axios.post(
+
             `${API}/FVhB/eliminarPedido`,
+
             {
-                carrito_id: pedido.value.carrito_id
+
+                carrito_id:
+                    pedido.value.carrito_id,
+
+                xin:
+                    seguridad.xin,
+
+                yuan:
+                    seguridad.yuan
+
             }
+
         )
 
-        eliminado.value = true
+        eliminado.value =
+            true
 
         toastRef.value?.show({
 
-            text: 'Pedido eliminado correctamente',
+            text:
+                'Pedido eliminado correctamente',
 
-            type: 'success'
+            type:
+                'success'
 
         })
 
@@ -533,15 +766,21 @@ async function eliminarPedido() {
 
         toastRef.value?.show({
 
-            text: 'Error eliminando pedido',
+            text:
+                'Error eliminando pedido',
 
-            type: 'error'
+            type:
+                'error'
 
         })
 
     }
 
 }
+
+/* =========================================
+   💳 ABRIR VENTA
+========================================= */
 
 function abrirVentaDialog() {
 
@@ -563,16 +802,120 @@ function abrirVentaDialog() {
             productos.value,
 
         total:
-            productos.value.reduce((a, b) => {
 
-                return a + (
-                    b.precio * b.cantidad
-                )
+            productos.value.reduce(
 
-            }, 0)
+                (a, b) => {
+
+                    return a +
+
+                        (
+
+                            Number(
+                                b.precio_unitario || 0
+                            )
+
+                            *
+
+                            Number(
+                                b.cantidad || 0
+                            )
+
+                        )
+
+                },
+
+                0
+
+            )
 
     })
 
 }
+
+/* =========================================
+   🚀 MOUNT
+========================================= */
+
+onMounted(() => {
+
+    cargarPedido()
+
+})
+
+/* =========================================
+   👁️ VISIBILIDAD BOTON DESPACHAR
+========================================= */
+
+const mostrarBtnDespachar =
+    computed(() => {
+
+        /* =========================================
+           ❌ SIN PEDIDO
+        ========================================= */
+
+        if (
+            !pedido.value
+        ) {
+            return false
+        }
+
+        /* =========================================
+           ❌ ESTADOS BLOQUEADOS
+        ========================================= */
+
+        const estadosBloqueados = [
+
+            'comprado',
+            'devolucion',
+            'rechazado',
+            'anulado',
+            'transito'
+
+        ]
+
+        if (
+
+            estadosBloqueados.includes(
+
+                pedido.value.estado
+
+            )
+
+        ) {
+            return false
+        }
+
+        /* =========================================
+           ❌ TIPOS NO VALIDOS
+        ========================================= */
+
+        const tiposValidos = [
+
+            'DELIVERY',
+            'RECOGER_TIENDA',
+            'RESERVA_MENU'
+
+        ]
+
+        if (
+
+            !tiposValidos.includes(
+
+                pedido.value.tipo_pedido
+
+            )
+
+        ) {
+            return false
+        }
+
+        /* =========================================
+           ✅ OK
+        ========================================= */
+
+        return true
+
+    })
 
 </script>

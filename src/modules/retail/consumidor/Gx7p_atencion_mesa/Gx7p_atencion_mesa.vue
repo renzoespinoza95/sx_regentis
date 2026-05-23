@@ -3,7 +3,9 @@
     <div class="min-h-screen flex flex-col pt-20" :style="fondoStyle">
 
         <!-- HEADER -->
-        <HeaderBar :isDetalle="isDetalle" :mesa="mesaSeleccionada" @back="volverMesas" @openAdd="openAddDialog" />
+
+        <HeaderBar :isDetalle="isDetalle" :mesa="mesaSeleccionada" @back="volverMesas" @openAdd="openAddDialog"
+            @checkout="openVentaDialog" />
 
         <!-- ADD PRODUCT -->
         <AddProductoDialog ref="addRef" @add="onAgregarProducto" />
@@ -59,6 +61,9 @@
         <EditarCantidadDialog ref="editRef" @update="updateProducto" />
 
         <AppSnackbar ref="snackbarRef" />
+
+
+        <VentaDialog ref="ventaRef" />
 
     </div>
 
@@ -129,6 +134,9 @@ import {
 }
     from '../../../../services/eventBus.js'
 
+import VentaDialog
+    from '../../../../components/VentaDialog.vue'
+
 const API =
     import.meta.env.VITE_PUBLIC_URL_BASE
 
@@ -197,6 +205,11 @@ const mesasWrap =
     ref(null)
 
 const detalleWrap =
+    ref(null)
+
+
+
+const ventaRef =
     ref(null)
 
 const form =
@@ -329,6 +342,101 @@ function animarDetalle() {
             }
 
         )
+
+    })
+
+}
+
+/* ======================================
+   🔥 OPEN VENTA
+====================================== */
+
+function openVentaDialog() {
+
+    const items = [
+
+        /* ======================================
+           🔥 HISTORIAL
+        ====================================== */
+
+        ...detallesMesita.value.map(x => ({
+
+            carrito_detalle_id:
+                x.carrito_detalle_id,
+
+            product_id:
+                x.product_id,
+
+            name:
+                x.name,
+
+            cantidad:
+                Number(
+                    x.cantidad
+                ),
+
+            precio_unitario:
+                Number(
+                    x.precio_unitario
+                ),
+
+            img:
+                x.img
+
+        })),
+
+        /* ======================================
+           🔥 NUEVOS PRODUCTOS
+        ====================================== */
+
+        ...productos.value.map(x => ({
+
+            product_id:
+                x.product_id,
+
+            name:
+                x.nombre,
+
+            cantidad:
+                Number(
+                    x.cantidad
+                ),
+
+            precio_unitario:
+                Number(
+                    x.precio
+                ),
+
+            img:
+                x.img
+
+        }))
+
+    ]
+
+    ventaRef.value?.open({
+
+        carrito_id:
+            carritoMesita.value?.carrito_id
+            || null,
+
+        neg_id:
+            getNegId(),
+
+        mesa_id:
+            mesaSeleccionada.value?.mesa_id,
+
+        tipo_pedido:
+            'MESA_PEDIDO',
+
+        cliente:
+            'PUBLICO GENERAL',
+
+        cliente_id:
+            1,
+
+        productos:
+            items
 
     })
 

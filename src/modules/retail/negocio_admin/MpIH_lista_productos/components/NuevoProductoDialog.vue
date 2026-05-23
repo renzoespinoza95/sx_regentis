@@ -61,15 +61,26 @@
                 </button>
 
                 <!-- TITULO -->
-                <!-- TITULO -->
                 <div>
 
                     <div class="
-            text-2xl
-            font-black
-        ">
+                        text-2xl
+                        font-black
+                    ">
 
-                        Nuevo producto
+                        {{
+
+                            form.editando
+
+                                ?
+
+                                'Editar producto'
+
+                                :
+
+                                'Nuevo producto'
+
+                        }}
 
                     </div>
 
@@ -118,8 +129,6 @@
                         " />
 
                 </div>
-
-
 
                 <!-- PRECIO + STOCK -->
                 <div class="
@@ -311,19 +320,19 @@
                 ">
 
                 <button :disabled="!canSave" class="
-        w-full
-        h-[56px]
-        rounded-2xl
-        text-white
-        font-bold
-        text-lg
-        shadow-[0_10px_25px_rgba(253,118,53,0.35)]
-        active:scale-[0.98]
-        transition
-        disabled:opacity-40
-        disabled:shadow-none
-        disabled:cursor-not-allowed
-    " style="
+                        w-full
+                        h-[56px]
+                        rounded-2xl
+                        text-white
+                        font-bold
+                        text-lg
+                        shadow-[0_10px_25px_rgba(253,118,53,0.35)]
+                        active:scale-[0.98]
+                        transition
+                        disabled:opacity-40
+                        disabled:shadow-none
+                        disabled:cursor-not-allowed
+                    " style="
                         background:
                         linear-gradient(
                             135deg,
@@ -370,7 +379,9 @@ import {
     from '../../../../../services/usuarioService'
 
 import {
-    bus
+    bus,
+    hideBottomNav,
+    showBottomNav
 }
     from '../../../../../services/eventBus.js'
 
@@ -400,6 +411,9 @@ const seleccionadas =
 const form =
     ref({
 
+        product_id:
+            null,
+
         name:
             '',
 
@@ -413,7 +427,10 @@ const form =
             '',
 
         description:
-            ''
+            '',
+
+        editando:
+            false
 
     })
 
@@ -458,26 +475,26 @@ const canSave =
 🔥 OPEN
 ========================================= */
 
-async function open() {
+async function open(producto = null) {
 
     /* =========================================
     🔥 HIDE BOTTOMNAV
     ========================================= */
 
-    bus.emit(
-        'bottomnav:toggle',
-        true
-    )
+    hideBottomNav()
 
     seleccionadas.value = []
 
     form.value = {
 
+        product_id:
+            null,
+
         name:
             '',
 
         marca_des:
-            '',
+            'Genérico',
 
         price:
             '',
@@ -486,15 +503,84 @@ async function open() {
             '',
 
         description:
-            ''
+            '',
+
+        editando:
+            false
 
     }
 
     /* =========================================
-    🔥 CARGAR ANTES DE MOSTRAR
+    🔥 CARGAR CATEGORIAS
     ========================================= */
 
     await cargarCategorias()
+
+    /* =========================================
+    🔥 MODO EDITAR
+    ========================================= */
+
+    if (producto) {
+
+        form.value = {
+
+            product_id:
+                producto.product_id,
+
+            name:
+                producto.name || '',
+
+            marca_des:
+                producto.marca_des || 'Genérico',
+
+            price:
+                producto.price || '',
+
+            stock:
+                producto.stock || '',
+
+            description:
+                producto.description || '',
+
+            editando:
+                true
+
+        }
+
+        seleccionadas.value =
+
+            categorias.value
+
+                .filter(c => {
+
+                    return (
+
+                        c.productos || []
+
+                    ).some(p =>
+
+                        Number(
+                            p.product_id
+                        )
+
+                        ===
+
+                        Number(
+                            producto.product_id
+                        )
+
+                    )
+
+                })
+
+                .map(c => ({
+
+                    category_id:
+                        c.category_id
+
+                }))
+
+    }
 
     /* =========================================
     🔥 SHOW
@@ -532,6 +618,10 @@ async function open() {
 🔥 CLOSE
 ========================================= */
 
+/* =========================================
+🔥 CLOSE
+========================================= */
+
 function close() {
 
     gsap.to(
@@ -554,10 +644,7 @@ function close() {
                 🔥 SHOW BOTTOMNAV
                 ========================================= */
 
-                bus.emit(
-                    'bottomnav:toggle',
-                    false
-                )
+                showBottomNav()
 
             }
 
@@ -575,10 +662,26 @@ async function cargarCategorias() {
 
     try {
 
-        const r =
-            await axios.get(
+        const seguridad =
+            firma()
 
-                `/MylW/listar_categorias/${getNegId()}`
+        const r =
+            await axios.post(
+
+                '/MylW/listar_categorias',
+
+                {
+
+                    neg_id:
+                        getNegId(),
+
+                    xin:
+                        seguridad.xin,
+
+                    yuan:
+                        seguridad.yuan
+
+                }
 
             )
 
@@ -679,6 +782,10 @@ function isSelected(c) {
 🔥 GUARDAR
 ========================================= */
 
+/* =========================================
+🔥 GUARDAR
+========================================= */
+
 async function guardar() {
 
     try {
@@ -686,50 +793,65 @@ async function guardar() {
         const seguridad =
             firma()
 
-        await axios.post(
+        const res =
+            await axios.post(
 
-            '/RvKx/nuevoProducto',
+                '/RvKx/nuevoProducto',
 
-            {
+                {
 
-                neg_id:
-                    getNegId(),
+                    product_id:
+                        form.value.product_id,
 
-                name:
-                    form.value.name,
+                    editando:
+                        form.value.editando,
 
-                marca_des:
-                    form.value.marca_des
-                    || 'Genérico',
+                    neg_id:
+                        getNegId(),
 
-                price:
-                    Number(
-                        form.value.price
-                    ),
+                    name:
+                        form.value.name,
 
-                stock:
-                    Number(
-                        form.value.stock
-                    ),
+                    marca_des:
+                        form.value.marca_des
+                        || 'Genérico',
 
-                description:
-                    form.value.description,
+                    price:
+                        Number(
+                            form.value.price
+                        ),
 
-                categorias:
-                    seleccionadas.value,
+                    stock:
+                        Number(
+                            form.value.stock
+                        ),
 
-                xin:
-                    seguridad.xin,
+                    description:
+                        form.value.description,
 
-                yuan:
-                    seguridad.yuan
+                    categorias:
+                        seleccionadas.value,
 
-            }
+                    xin:
+                        seguridad.xin,
 
-        )
+                    yuan:
+                        seguridad.yuan
+
+                }
+
+            )
+
+        /* =========================================
+           🔥 RESPONSE COMPLETO
+        ========================================= */
 
         emit(
-            'created'
+
+            'created',
+
+            res.data
+
         )
 
         close()
@@ -749,6 +871,7 @@ defineExpose({
 })
 
 </script>
+
 <style scoped>
 .custom-scroll::-webkit-scrollbar {
 

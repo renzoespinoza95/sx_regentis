@@ -112,16 +112,9 @@ import TipoPagoPills
 
 const { mercado } = useMercado()
 
-const {
-    getNegId
-} = useUsuario()
-
 const pedidos = ref([])
 
 const dialogRef = ref(null)
-const estadoActual = ref(
-    'enviado'
-)
 
 const tituloHeader =
     computed(() => {
@@ -194,6 +187,12 @@ const fondoStyle = computed(() => {
 
 })
 
+const {
+
+    getNegId,
+    getTipoxusuId
+
+} = useUsuario()
 
 
 const ventaDetalleDialogRef =
@@ -277,6 +276,26 @@ const pedidosFiltrados =
         return rows
 
     })
+
+const esDelivery =
+    computed(() => {
+
+        return Number(
+            getTipoxusuId()
+        ) === 4
+
+    })
+
+const estadoActual = ref(
+
+    esDelivery.value
+        ? 'transito'
+        : 'enviado'
+
+)
+
+
+
 
 function openDialog() {
     dialogRef.value.open()
