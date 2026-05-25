@@ -24,7 +24,7 @@
         <!-- LOGO -->
         <div class="logo-header">
 
-          <img src="https://barsi-img.b-cdn.net/recursos/sg3f.png" class="logo-img w-32 h-auto" alt="Logo" />
+          <img src="/logo-final02.png" class="logo-img w-48 h-auto" alt="Logo" />
 
         </div>
 
@@ -164,9 +164,6 @@ const showLoader = ref(false)
 const {
   setLoginData
 } = useUsuario()
-
-const API_FLASK =
-  import.meta.env.VITE_PUBLIC_URL_FLASK
 
 const usuarioExiste = ref(true)
 
@@ -467,6 +464,9 @@ onMounted(() => {
 /* ======================================
    🔥 LOGIN DEMO
 ====================================== */
+/* ======================================
+   🔥 LOGIN DEMO
+====================================== */
 
 async function login() {
 
@@ -497,11 +497,6 @@ async function login() {
     const seguridad =
       firma()
 
-    console.log(
-      'FIRMA >>>',
-      seguridad
-    )
-
     /* ======================================
        🔥 PAYLOAD
     ====================================== */
@@ -510,14 +505,12 @@ async function login() {
 
       usu_id:
         route.params.usu_id,
+
       xin:
         seguridad.xin,
 
       yuan:
         seguridad.yuan,
-
-      cod_usu:
-        codUsu.value,
 
       sobrenombre:
         sobrenombre.value,
@@ -526,49 +519,33 @@ async function login() {
         nombre.value,
 
       celular:
-        celular.value,
-
-      tipo:
-        tipo.value,
-
-      usu_id:
-        route.params.usu_id
+        celular.value
 
     }
 
-    console.log(
-      'PAYLOAD >>>',
-      payload
-    )
-
     /* ======================================
-       🔥 REQUEST
+       🔥 REQUEST DIRECTO
     ====================================== */
 
     const r = await axios.post(
 
-      `${API_FLASK}/tk_registrar_usu`,
+      `${API}/EUwe/registroBasico`,
 
       payload
 
     )
 
-    console.log(
-      'RESPUESTA JOB >>>',
-      r.data
-    )
+    /* ======================================
+       🔥 ERROR API
+    ====================================== */
 
-    const job_id =
-      r.data?.job_id
-
-    if (!job_id) {
-
-      showLoader.value = false
+    if (!r.data?.ok) {
 
       toastRef.value?.show({
 
         text:
-          'No se recibió job_id',
+          r.data?.msg
+          || 'Error registrando usuario',
 
         type:
           'error'
@@ -580,219 +557,129 @@ async function login() {
     }
 
     /* ======================================
-       🔥 POLLING
+       🔥 LOGIN REAL
     ====================================== */
 
-    let terminado = false
+    const loginRes = await axios.post(
 
-    while (!terminado) {
+      `${API}/coral/loginById`,
 
-      console.log(
-        'POLLING JOB >>>',
-        job_id
+      {
+        usu_id:
+          route.params.usu_id
+      }
+
+    )
+
+    /* ======================================
+       🔥 LOGIN OK
+    ====================================== */
+
+    if (
+
+      loginRes.data.status === 'ok'
+
+    ) {
+
+      // 🔥 SESION
+      setLoginData(
+        loginRes.data
       )
 
-      // 🔥 ESPERA
-      await new Promise(r =>
-        setTimeout(r, 2000)
+      const user =
+        loginRes.data.data
+
+      // 🔥 ENV
+      const MERCADO_ID = Number(
+        import.meta.env.VITE_PUBLIC_MERCADO_ID || 0
       )
 
-      // 🔥 CONSULTAR JOB
-      const poll =
-        await axios.get(
-
-          `${API_FLASK}/jobs/result`,
-
-          {
-            params: {
-              job_id
-            }
-          }
-
-        )
-
-      console.log(
-        'POLL RESULT >>>',
-        poll.data
+      const NEG_ID = Number(
+        import.meta.env.VITE_PUBLIC_NEG_ID || 0
       )
 
-      const status =
-        poll.data?.status
+      showLoader.value = false
+
+      toastRef.value?.show({
+
+        text:
+          'Usuario registrado correctamente',
+
+        type:
+          'success'
+
+      })
 
       /* ======================================
-         🔥 SUCCESS
+         🔥 REDIRECT
       ====================================== */
 
-      if (
-        status === 'finished'
-      ) {
+      setTimeout(() => {
 
-        terminado = true
-
-        showLoader.value = false
-
-        console.log(
-          'JOB TERMINADO OK'
-        )
-
-        /* ======================================
-   🔥 LOGIN REAL
-====================================== */
-
-        const loginRes = await axios.post(
-
-          `${API}/coral/loginById`,
-
-          {
-            usu_id:
-              route.params.usu_id
-          }
-
-        )
-
-        console.log(
-          'LOGIN BY ID >>>',
-          loginRes.data
-        )
-
-        /* ======================================
-           🔥 LOGIN OK
-        ====================================== */
-
+        // 🔥 CLIENTE
         if (
-          loginRes.data.status === 'ok'
+
+          Number(
+            user.tipoxusu_id
+          ) === 1
+
         ) {
 
-          // 🔥 SESION
-          setLoginData(
-            loginRes.data
-          )
+          // 🔥 NEGOCIO DIRECTO
+          if (
 
-          const user =
-            loginRes.data.data
+            MERCADO_ID === 0
+            &&
+            NEG_ID > 0
 
-          // 🔥 ENV
-          const MERCADO_ID = Number(
-            import.meta.env.VITE_PUBLIC_MERCADO_ID || 0
-          )
+          ) {
 
-          const NEG_ID = Number(
-            import.meta.env.VITE_PUBLIC_NEG_ID || 0
-          )
+            router.replace(
+              `/CV2K_negocio/${NEG_ID}`
+            )
 
-          toastRef.value?.show({
+          } else {
 
-            text:
-              'Usuario registrado correctamente',
+            router.replace(
+              '/principal'
+            )
 
-            type:
-              'success'
-
-          })
-
-          /* ======================================
-             🔥 REDIRECT
-          ====================================== */
-
-          setTimeout(() => {
-
-            // 🔥 CLIENTE
-            if (
-              Number(user.tipoxusu_id) === 1
-            ) {
-
-              // 🔥 NEGOCIO DIRECTO
-              if (
-                MERCADO_ID === 0
-                &&
-                NEG_ID > 0
-              ) {
-
-                router.replace(
-                  `/CV2K_negocio/${NEG_ID}`
-                )
-
-              } else {
-
-                router.replace('/principal')
-
-              }
-
-            }
-
-            // 🔥 ADMIN / NEGOCIANTE
-            else {
-
-              router.replace('/dash')
-
-            }
-
-          }, 1200)
+          }
 
         }
 
-        /* ======================================
-           🔥 LOGIN ERROR
-        ====================================== */
-
+        // 🔥 ADMIN / NEGOCIANTE
         else {
 
-          toastRef.value?.show({
-
-            text:
-              loginRes.data.msg
-              ||
-              'Error iniciando sesión',
-
-            type:
-              'error'
-
-          })
+          router.replace(
+            '/dash'
+          )
 
         }
 
-      }
+      }, 1200)
 
-      /* ======================================
-         🔥 ERROR
-      ====================================== */
+    }
 
-      else if (
-        status === 'failed'
-      ) {
+    /* ======================================
+       🔥 LOGIN ERROR
+    ====================================== */
 
-        terminado = true
+    else {
 
-        showLoader.value = false
+      showLoader.value = false
 
-        console.error(
-          'JOB ERROR >>>',
-          poll.data
-        )
+      toastRef.value?.show({
 
-        toastRef.value?.show({
+        text:
+          loginRes.data.msg
+          ||
+          'Error iniciando sesión',
 
-          text:
-            'Error registrando usuario',
+        type:
+          'error'
 
-          type:
-            'error'
-
-        })
-
-      }
-
-      /* ======================================
-         🔥 SIGUE PROCESANDO
-      ====================================== */
-
-      else {
-
-        console.log(
-          'JOB AUN PROCESANDO...'
-        )
-
-      }
+      })
 
     }
 
@@ -808,8 +695,11 @@ async function login() {
     toastRef.value?.show({
 
       text:
+
         e?.response?.data?.msg
+
         ||
+
         'Error registrando usuario',
 
       type:

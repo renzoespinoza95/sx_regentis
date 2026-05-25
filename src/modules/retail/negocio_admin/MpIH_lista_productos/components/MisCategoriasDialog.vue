@@ -77,31 +77,70 @@
                     ">
 
                     <!-- ACTIONS -->
+                    <!-- ACTIONS -->
                     <div class="
-                        absolute
-                        right-0
-                        top-0
-                        h-full
-                        flex
-                    ">
+    absolute
+    right-0
+    top-0
+    h-full
+    flex
+">
 
                         <!-- EDIT -->
                         <button class="
-                                w-16
-                                bg-green-500
-                                text-white
-                            " @click="editarCategoria(c)">
+            w-16
+            bg-green-500
+            text-white
+            flex
+            items-center
+            justify-center
+        " @click="editarCategoria(c)">
 
                             <i class="fa fa-pencil"></i>
 
                         </button>
 
+                        <!-- OJITO -->
+                        <button class="
+            w-16
+            text-white
+            flex
+            items-center
+            justify-center
+        " :class="Number(c.is_activo) === 1
+
+            ?
+
+            'bg-blue-500'
+
+            :
+
+            'bg-gray-500'
+            " @click="confirmarVisible(c)">
+
+                            <i class="fa" :class="Number(c.is_activo) === 1
+
+                                ?
+
+                                'fa-eye'
+
+                                :
+
+                                'fa-eye-slash'
+                                ">
+                            </i>
+
+                        </button>
+
                         <!-- DELETE -->
                         <button class="
-                                w-16
-                                bg-red-500
-                                text-white
-                            " @click="confirmarEliminar(c)">
+            w-16
+            bg-red-500
+            text-white
+            flex
+            items-center
+            justify-center
+        " @click="confirmarEliminar(c)">
 
                             <i class="fa fa-trash"></i>
 
@@ -129,12 +168,28 @@
                         @mouseleave="endTouch" :style="{
                             transform:
                                 c.open
-                                    ? 'translateX(-128px)'
+                                    ? 'translateX(-192px)'
                                     : 'translateX(0px)'
                         }">
 
                         <div class="text-2xl">
-                            {{ c.icon || '📦' }}
+
+                            {{
+
+                                Number(
+                                    c.is_activo
+                                ) === 0
+
+                                    ?
+
+                            '🚫'
+
+                            :
+
+                            (c.icon || '📦')
+
+                            }}
+
                         </div>
 
                         <div class="
@@ -356,6 +411,95 @@ function moveTouch(e, item) {
     if (diff < -40) {
 
         item.open = false
+
+    }
+
+}
+
+/* =========================================
+🔥 CONFIRMAR VISIBLE
+========================================= */
+
+function confirmarVisible(categoria) {
+
+    snackbarRef.value?.open(
+
+        Number(
+            categoria.is_activo
+        ) === 1
+
+            ?
+
+            '¿Ocultar esta categoría? 👁️'
+
+            :
+
+            '¿Mostrar esta categoría? 👁️',
+
+        () => {
+
+            toggleVisible(
+                categoria
+            )
+
+        }
+
+    )
+
+}
+
+/* =========================================
+🔥 TOGGLE VISIBLE
+========================================= */
+
+async function toggleVisible(categoria) {
+
+    try {
+
+        const seguridad =
+            firma()
+
+        const res =
+            await axios.post(
+
+                '/KgOS/ocultarCategoria',
+
+                {
+
+                    category_id:
+                        categoria.category_id,
+
+                    xin:
+                        seguridad.xin,
+
+                    yuan:
+                        seguridad.yuan
+
+                }
+
+            )
+
+        if (
+
+            res.data?.status === 'ok'
+
+        ) {
+
+            categoria.is_activo =
+
+                Number(
+                    res.data.is_activo
+                )
+
+            emit(
+                'deleted'
+            )
+
+        }
+
+    } catch (e) {
+
+        console.error(e)
 
     }
 

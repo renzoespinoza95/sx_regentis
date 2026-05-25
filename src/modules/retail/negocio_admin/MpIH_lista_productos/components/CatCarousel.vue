@@ -16,7 +16,25 @@
             <button v-for="c in categorias" :key="c.category_id" @click="$emit('select', c)"
                 class="flex items-center gap-2 px-3 py-1 rounded-full text-xs shadow-sm whitespace-nowrap transition"
                 :style="c.category_id === active ? activeStyle : pillStyle">
-                <span>{{ c.icon || '📦' }}</span>
+                <span>
+
+                    {{
+
+                        Number(
+                            c.is_activo
+                        ) === 0
+
+                            ?
+
+                            '🚫'
+
+                    :
+
+                    (c.icon || '📦')
+
+                    }}
+
+                </span>
                 <span>{{ c.descripcion }}</span>
             </button>
 
