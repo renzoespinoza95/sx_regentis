@@ -13,8 +13,25 @@
 
             <div v-for="(p, index) in productos" :key="p.product_id" :ref="el => itemsRef[index] = el"
                 class="w-[180px] flex-shrink-0">
-                <NegpresProductoCard :product_id="p.product_id" :title="p.name" :price="p.price" :rating="5"
-                    :img="p.img" badge="🔥" />
+                <NegpresProductoCard :product_id="p.product_id" :title="p.name" :price="p.price" :rating="5" :img="p.imagenes?.find(
+
+                    x =>
+
+                        Number(
+                            x.orden
+                        ) === 1
+
+                )?.img
+
+                    ||
+
+                    p.imagenes?.[0]?.img
+
+                    ||
+
+                    'https://barsi-img.b-cdn.net/recursos/6qz5.png'
+
+                    " badge="🔥" />
             </div>
 
         </div>

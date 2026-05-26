@@ -49,15 +49,24 @@
         <NuevaCategoriaDialog ref="nuevaCategoriaRef" @created="
             onCategoriaCreated
         " />
+
         <ProductoOpcionesDialog ref="productoDialogRef" @stock-updated="
             onStockUpdated
         " @visible-updated="
             onVisibleUpdated
         " @deleted="
-            onProductoDeleted
-        " @edit="
-            onEditarProducto
+        onProductoDeleted
+    " @edit="
+        onEditarProducto
+    " @foto="
+        onProductoFotos
+    " />
+
+        <ProductoFotosDialog ref="productoFotosRef" @uploaded="
+            onProductoImagenUploaded
         " />
+
+
         <GsapToast ref="toastRef" />
         <NuevoProductoDialog ref="nuevoProductoRef" @created="
             onProductoCreated
@@ -98,6 +107,8 @@ import NuevoProductoDialog
     from './components/NuevoProductoDialog.vue'
 import MisCategoriasDialog
     from './components/MisCategoriasDialog.vue'
+import ProductoFotosDialog
+    from './components/ProductoFotosDialog.vue'
 
 let timeout = null
 
@@ -125,6 +136,9 @@ const nuevaCategoriaRef =
 const nuevoProductoRef =
     ref(null)
 const toastRef =
+    ref(null)
+
+const productoFotosRef =
     ref(null)
 const { getNegId, getUsuId } = useUsuario()
 
@@ -483,6 +497,18 @@ onMounted(async () => {
 })
 
 /* =========================================
+🔥 FOTOS PRODUCTO
+========================================= */
+
+function onProductoFotos(item) {
+
+    productoFotosRef.value?.open(
+        item
+    )
+
+}
+
+/* =========================================
    👁️ VISIBLE UPDATED
 ========================================= */
 
@@ -530,6 +556,68 @@ function openMisCategorias() {
         categorias.value
 
     )
+
+}
+
+/* =========================================
+🔥 IMAGEN SUBIDA
+========================================= */
+
+function onProductoImagenUploaded({
+
+    product_id,
+    imagen
+
+}) {
+
+    for (
+
+        const categoria
+        of categorias.value
+
+    ) {
+
+        const producto =
+
+            categoria.productos.find(
+
+                x =>
+
+                    Number(
+                        x.product_id
+                    )
+
+                    ===
+
+                    Number(
+                        product_id
+                    )
+
+            )
+
+        if (producto) {
+
+            if (
+
+                !Array.isArray(
+                    producto.imagenes
+                )
+
+            ) {
+
+                producto.imagenes = []
+
+            }
+
+            producto.imagenes.unshift(
+                imagen
+            )
+
+            break
+
+        }
+
+    }
 
 }
 

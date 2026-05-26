@@ -2,7 +2,18 @@
   <div class="bg-white rounded-2xl shadow-md overflow-hidden" @click="irDetalle">
 
     <div class="relative">
-      <img :src="img" class="w-full h-32 object-cover" />
+      <img :src="img
+
+        ||
+
+        'https://barsi-img.b-cdn.net/recursos/6qz5.png'
+
+        " class="
+        w-full
+        h-32
+
+        object-cover
+    " />
 
       <span class="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
         {{ badge }}

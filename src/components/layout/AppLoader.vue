@@ -1,6 +1,25 @@
 <template>
 
-    <div v-if="show" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[99999]">
+    <div v-if="show" :class="local
+
+            ?
+
+            'absolute inset-0'
+
+            :
+
+            'fixed inset-0'
+
+        " class="
+        bg-black/40
+        backdrop-blur-sm
+
+        flex
+        items-center
+        justify-center
+
+        z-[99999]
+    ">
 
         <div class="bg-white rounded-3xl shadow-2xl px-8 py-7 flex flex-col items-center gap-5">
 
@@ -34,6 +53,14 @@ import {
 const props = defineProps({
 
     show: Boolean,
+
+    local: {
+
+        type: Boolean,
+
+        default: false
+
+    },
 
     text: {
 

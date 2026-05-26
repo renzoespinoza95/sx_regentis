@@ -10,7 +10,36 @@
         <!-- LEFT -->
         <div class="flex items-center gap-3">
 
-            <img src="https://picsum.photos/60?random=10" class="w-12 h-12 rounded-xl object-cover" />
+            <img :src="item.imagenes?.find(
+
+                x =>
+
+                    Number(
+                        x.orden
+                    ) === 1
+
+            )?.img
+
+                ||
+
+                item.imagenes?.[0]?.img
+
+                ||
+
+                'https://barsi-img.b-cdn.net/recursos/6qz5.png'
+
+                " class="
+        w-12
+        h-12
+
+        rounded-xl
+
+        object-cover
+
+        bg-gray-100
+
+        shrink-0
+    " />
 
             <div>
                 <div class="font-semibold text-sm">

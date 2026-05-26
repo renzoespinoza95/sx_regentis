@@ -11,7 +11,24 @@
         <!-- CONTENIDO -->
         <div class="content-container">
 
-            <DashScreenList :screens="screens" :titulo="tipoDescripcion" />
+            <!-- 🔒 MEMBRESIA EXPIRADA -->
+            <EmptyLetter v-if="
+                membresia
+                &&
+                Number(
+                    membresia.is_aprobado
+                ) === 0
+            " titulo="
+            Membresía expirada
+        " :texto="`
+
+            Tu membresía venció el
+            ${fechaPremium}
+
+        `" />
+
+            <!-- 🟢 MODULOS -->
+            <DashScreenList v-else :screens="screens" :titulo="tipoDescripcion" />
 
         </div>
 
@@ -31,6 +48,8 @@ import { useUsuario } from '../../services/usuarioService.js'
 // 🔥 IMPORTS CONSISTENTES
 import { useMercado } from '../../services/useMercado.js'
 import { cssToObject } from '../../services/useCss.js'
+import EmptyLetter
+    from '../../components/layout/EmptyLetter.vue'
 
 /* =========================================
    🔥 SECURITY
@@ -45,6 +64,9 @@ const router = useRouter()
 const { usuario } = useUsuario()
 
 const screens = ref([])
+
+const membresia =
+    ref(null)
 
 let intervalId = null
 
@@ -108,6 +130,13 @@ async function fetchScreens() {
             return
         }
 
+        /* =========================================
+   🔥 MEMBRESIA
+========================================= */
+
+        membresia.value =
+            res.data?.membresia || null
+
         const newScreens = res.data.screens || []
 
         /* =========================================
@@ -156,7 +185,43 @@ async function fetchScreens() {
 
 }
 
+/* =========================================
+   🔥 FECHA PREMIUM
+========================================= */
 
+const fechaPremium =
+    computed(() => {
+
+        if (
+            !membresia.value
+                ?.fecha_fin_premium
+        ) {
+            return ''
+        }
+
+        const fecha = new Date(
+
+            membresia.value
+                .fecha_fin_premium
+
+        )
+
+        const dia =
+            String(
+                fecha.getDate()
+            ).padStart(2, '0')
+
+        const mes =
+            String(
+                fecha.getMonth() + 1
+            ).padStart(2, '0')
+
+        const anio =
+            fecha.getFullYear()
+
+        return `${dia}/${mes}/${anio}`
+
+    })
 
 // =========================
 // INIT

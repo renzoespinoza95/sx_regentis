@@ -59,8 +59,7 @@
             </button>
 
             <!-- FOTO -->
-            <!-- FOTO -->
-            <button class="item-btn" @click="noDisponible">
+            <button class="item-btn" @click="abrirFotos">
 
                 🖼️ Foto
 
@@ -106,17 +105,16 @@
 </template>
 
 <script setup>
-import {
-    bus
-}
-    from '../../../../../services/eventBus.js'
+
 import {
     ref,
     nextTick
 }
     from 'vue'
+
 import GsapToast
     from '../../../../../components/layout/GsapToast.vue'
+
 import gsap
     from 'gsap'
 
@@ -128,8 +126,17 @@ import {
 }
     from '../../../../../services/security'
 
+import {
+
+    hideBottomNav,
+    showBottomNav
+
+}
+    from '../../../../../services/eventBus.js'
+
 import CantidadProductoDialog
     from '../../../../../components/layout/CantidadProductoDialog.vue'
+
 import AppSnackbar
     from '../../../../../components/layout/AppSnackbar.vue'
 
@@ -154,49 +161,35 @@ const emit =
 
         'deleted',
 
-        'edit'
+        'edit',
+
+        'foto'
 
     ])
+
 const toastRef =
     ref(null)
+
 const snackbarRef =
     ref(null)
 
 /* =========================================
-   🔥 OPEN
+🔥 OPEN
 ========================================= */
 
 function open(item) {
 
     /* =========================================
-🔥 HIDE BOTTOMNAV
-========================================= */
+    🔥 HIDE BOTTOMNAV
+    ========================================= */
 
-    bus.emit(
-        'bottomnav:toggle',
-        true
-    )
+    hideBottomNav()
 
     producto.value =
         item
 
     visible.value =
         true
-
-    /* =========================================
-       🔥 HIDE BOTTOMNAV
-    ========================================= */
-
-    window.dispatchEvent(
-
-        new CustomEvent(
-            'toggle-bottomnav',
-            {
-                detail: false
-            }
-        )
-
-    )
 
     nextTick(() => {
 
@@ -231,20 +224,58 @@ function open(item) {
 }
 
 /* =========================================
-   ✏️ EDITAR
+✏️ EDITAR
 ========================================= */
 
 function editarProducto() {
 
-    emit(
+    const item = {
+        ...producto.value
+    }
 
-        'edit',
+    /* =========================================
+    🔥 CERRAR PRIMERO
+    ========================================= */
 
-        producto.value
+    gsap.to(
+
+        box.value,
+
+        {
+
+            scale: 0.7,
+
+            opacity: 0,
+
+            duration: 0.2,
+
+            onComplete: () => {
+
+                visible.value = false
+
+                /* =========================================
+                🔥 SHOW BOTTOMNAV
+                ========================================= */
+
+                showBottomNav()
+
+                /* =========================================
+                🔥 ABRIR EDITAR
+                ========================================= */
+
+                emit(
+
+                    'edit',
+
+                    item
+
+                )
+
+            }
+
+        }
 
     )
-
-    close()
 
 }
 
@@ -267,19 +298,10 @@ function noDisponible() {
 }
 
 /* =========================================
-   🔥 CLOSE
+🔥 CLOSE
 ========================================= */
 
 function close() {
-
-    /* =========================================
-🔥 SHOW BOTTOMNAV
-========================================= */
-
-    bus.emit(
-        'bottomnav:toggle',
-        false
-    )
 
     gsap.to(
 
@@ -298,16 +320,11 @@ function close() {
                 visible.value =
                     false
 
-                window.dispatchEvent(
+                /* =========================================
+                🔥 SHOW BOTTOMNAV
+                ========================================= */
 
-                    new CustomEvent(
-                        'toggle-bottomnav',
-                        {
-                            detail: true
-                        }
-                    )
-
-                )
+                showBottomNav()
 
             }
 
@@ -318,7 +335,7 @@ function close() {
 }
 
 /* =========================================
-   📦 STOCK
+📦 STOCK
 ========================================= */
 
 function abrirStock() {
@@ -341,7 +358,7 @@ function abrirStock() {
 }
 
 /* =========================================
-   💾 GUARDAR STOCK
+💾 GUARDAR STOCK
 ========================================= */
 
 async function guardarStock(payload) {
@@ -380,7 +397,7 @@ async function guardarStock(payload) {
         )
 
         /* =========================================
-           🔥 UPDATE LOCAL
+        🔥 UPDATE LOCAL
         ========================================= */
 
         if (
@@ -429,7 +446,7 @@ async function guardarStock(payload) {
 }
 
 /* =========================================
-   👁️ CONFIRMAR OCULTAR
+👁️ CONFIRMAR OCULTAR
 ========================================= */
 
 function confirmarOcultar() {
@@ -448,9 +465,8 @@ function confirmarOcultar() {
 
 }
 
-
 /* =========================================
-   🗑️ CONFIRMAR ELIMINAR
+🗑️ CONFIRMAR ELIMINAR
 ========================================= */
 
 function confirmarEliminar() {
@@ -470,7 +486,25 @@ function confirmarEliminar() {
 }
 
 /* =========================================
-   🗑️ ELIMINAR PRODUCTO
+🔥 FOTOS
+========================================= */
+
+function abrirFotos() {
+
+    emit(
+
+        'foto',
+
+        producto.value
+
+    )
+
+    close()
+
+}
+
+/* =========================================
+🗑️ ELIMINAR PRODUCTO
 ========================================= */
 
 async function eliminarProducto() {
@@ -522,7 +556,7 @@ async function eliminarProducto() {
             })
 
             /* =========================================
-               🔥 EMIT
+            🔥 EMIT
             ========================================= */
 
             emit(
@@ -561,7 +595,7 @@ async function eliminarProducto() {
 }
 
 /* =========================================
-   🔥 TOGGLE VISIBLE
+🔥 TOGGLE VISIBLE
 ========================================= */
 
 async function toggleVisible() {

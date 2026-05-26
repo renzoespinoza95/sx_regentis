@@ -1,0 +1,4 @@
+#Tue May 26 10:28:12 COT 2026
+base.0=F\:\\ion8\\sx_regentis\\app\\build\\intermediates\\dex\\release\\minifyReleaseWithR8\\classes.dex
+renamed.0=classes.dex
+path.0=classes.dex

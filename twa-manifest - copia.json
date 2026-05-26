@@ -1,0 +1,65 @@
+﻿{
+    "packageId":  "com.regentis.mercado3",
+    "host":  "huamantanga.lat",
+    "name":  "Mercado Huamantanga",
+    "launcherName":  "Huamantanga",
+    "display":  "standalone",
+    "themeColor":  "#FD7635",
+    "themeColorDark":  "#000000",
+    "navigationColor":  "#000000",
+    "navigationColorDark":  "#000000",
+    "navigationDividerColor":  "#000000",
+    "navigationDividerColorDark":  "#000000",
+    "backgroundColor":  "#FD7635",
+    "enableNotifications":  true,
+    "startUrl":  "https://huamantanga.lat",
+    "iconUrl":  "https://huamantanga.lat/store_icon.png",
+    "monochromeIconUrl":  "https://huamantanga.lat/mercado3.png",
+    "splashScreenFadeOutDuration":  300,
+    "signingKey":  {
+                       "path":  "F:\\ion8\\play_keys\\",
+                       "alias":  "mibarsi"
+                   },
+    "appVersionName":  "1.2",
+    "appVersionCode":  2,
+    "shortcuts":  [
+
+                  ],
+    "generatorApp":  "bubblewrap-cli",
+    "webManifestUrl":  "https://huamantanga.lat/manifest.json",
+    "fallbackType":  "customtabs",
+    "features":  {
+                     "locationDelegation":  {
+                                                "enabled":  true
+                                            }
+                 },
+    "alphaDependencies":  {
+                              "enabled":  false
+                          },
+    "enableSiteSettingsShortcut":  true,
+    "isChromeOSOnly":  false,
+    "isMetaQuest":  false,
+    "fullScopeUrl":  "https://huamantanga.lat/",
+    "minSdkVersion":  21,
+    "orientation":  "default",
+    "fingerprints":  [
+
+                     ],
+    "additionalTrustedOrigins":  [
+
+                                 ],
+    "retainedBundles":  [
+
+                        ],
+    "protocolHandlers":  [
+
+                         ],
+    "fileHandlers":  [
+
+                     ],
+    "launchHandlerClientMode":  "",
+    "displayOverride":  [
+
+                        ],
+    "appVersion":  "1"
+}

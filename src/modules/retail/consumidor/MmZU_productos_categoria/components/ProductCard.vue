@@ -5,7 +5,30 @@
         <!-- IMAGEN -->
         <div class="relative">
 
-            <img :src="producto.img" class="w-full h-28 object-cover" />
+            <img :src="producto.imagenes?.find(
+
+                x =>
+
+                    Number(
+                        x.orden
+                    ) === 1
+
+            )?.img
+
+                ||
+
+                producto.imagenes?.[0]?.img
+
+                ||
+
+                'https://barsi-img.b-cdn.net/recursos/6qz5.png'
+
+                " class="
+        w-full
+        h-28
+
+        object-cover
+    " />
 
             <!-- DESCUENTO -->
             <span class="absolute top-2 left-2 bg-[#FD7635] text-white text-xs px-2 py-1 rounded-full">
