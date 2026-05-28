@@ -12,7 +12,7 @@
 
                 </button>
 
-                <button @click="verInformacion" class="menu-item-btn">
+                <button @click="irMiCuenta" class="menu-item-btn">
                     Mi cuenta
                 </button>
 

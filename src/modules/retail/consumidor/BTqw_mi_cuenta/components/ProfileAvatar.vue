@@ -10,9 +10,16 @@
         <!-- FOTO -->
         <div class="relative">
 
-            <img :src="usuario?.img_perfil
+            <img :src="previewImage
+
                 ||
+
+                usuario?.img_perfil
+
+                ||
+
                 'https://i.pravatar.cc/100'
+
                 " class="
                     w-24
                     h-24
@@ -24,7 +31,7 @@
                 " />
 
             <!-- EDIT -->
-            <div class="
+            <div v-if="!previewImage" class="
                     absolute
                     bottom-0
                     right-0
@@ -32,7 +39,8 @@
                     p-2
                     rounded-full
                     shadow
-                ">
+                    cursor-pointer
+                " @click="$emit('select-image')">
 
                 <i class="
                         fa
@@ -40,6 +48,78 @@
                         text-xs
                         text-gray-600
                     ">
+
+                </i>
+
+            </div>
+
+            <!-- OK -->
+            <div v-if="previewImage" class="
+                    absolute
+                    bottom-0
+                    left-0
+
+                    w-8
+                    h-8
+
+                    rounded-full
+
+                    bg-green-500
+
+                    flex
+                    items-center
+                    justify-center
+
+                    text-white
+
+                    shadow-lg
+
+                    cursor-pointer
+
+                    active:scale-95
+
+                    transition
+                " @click="$emit('upload-image')">
+
+                <i v-if="!isUploading" class="fa fa-check">
+
+                </i>
+
+                <i v-else class="fa fa-spinner fa-spin">
+
+                </i>
+
+            </div>
+
+            <!-- CANCEL -->
+            <div v-if="previewImage" class="
+                    absolute
+                    bottom-0
+                    right-0
+
+                    w-8
+                    h-8
+
+                    rounded-full
+
+                    bg-red-500
+
+                    flex
+                    items-center
+                    justify-center
+
+                    text-white
+
+                    shadow-lg
+
+                    cursor-pointer
+
+                    active:scale-95
+
+                    transition
+                " @click="$emit('cancel-image')">
+
+                <i class="fa fa-times">
 
                 </i>
 
@@ -86,8 +166,22 @@
 
 defineProps({
 
-    usuario: Object
+    usuario: Object,
+
+    previewImage: String,
+
+    isUploading: Boolean
 
 })
+
+defineEmits([
+
+    'select-image',
+
+    'cancel-image',
+
+    'upload-image'
+
+])
 
 </script>

@@ -24,6 +24,7 @@ import B2Tk_detalle_pedido from '../modules/retail/consumidor/B2Tk_detalle_pedid
 import CV2K_negocio from '../modules/retail/consumidor/CV2K_negocio/CV2K_negocio.vue'
 import TyB3CrearTienda from '../modules/retail/consumidor/TyB3_crear_tienda/TyB3_crear_tienda.vue'
 import Gx7p_atencion_mesa from '../modules/retail/consumidor/Gx7p_atencion_mesa/Gx7p_atencion_mesa.vue'
+import XXV1_origen from '../modules/retail/consumidor/XXV1_origen/XXV1_origen.vue'
 
 /* NEGOCIO_ADMIN */
 import ZpB1_ag_producto from '../modules/retail/negocio_admin/ZpB1_ag_producto/ZpB1_ag_producto.vue'
@@ -37,6 +38,7 @@ import OAtb_lista_clientes from '../modules/retail/negocio_admin/OAtb_lista_clie
 import Lfdx_detalle_pedido from '../modules/retail/negocio_admin/Lfdx_detalle_pedido/Lfdx_detalle_pedido.vue'
 import MpIH_lista_productos from '../modules/retail/negocio_admin/MpIH_lista_productos/MpIH_lista_productos.vue'
 import Khjs_despachar from '../modules/retail/negocio_admin/Khjs_despachar/Khjs_despachar.vue'
+import XYem_mi_negocio from '../modules/retail/negocio_admin/XYem_mi_negocio/XYem_mi_negocio.vue'
 
 
 
@@ -46,19 +48,14 @@ import WdtJ_atencion_mesa from '../modules/retail/negocio_staff/WdtJ_atencion_me
 import TdNV_lista_productos from '../modules/retail/negocio_staff/TdNV_lista_productos/TdNV_lista_productos.vue'
 import RPsB_lista_clientes from '../modules/retail/negocio_staff/RPsB_lista_clientes/RPsB_lista_clientes.vue'
 
-
-
-const mercadoId = import.meta.env.VITE_PUBLIC_MERCADO_ID
-const negId = import.meta.env.VITE_PUBLIC_NEG_ID
-
 const routes = [
   {
     path: '/',
     redirect: () => {
-      if (mercadoId === '0') {
-        return `/CV2K_negocio/${negId}`
-      }
-      return '/principal'
+ //     if (mercadoId === '0') {
+ //       return `/CV2K_negocio/${negId}`
+ //     }
+      return '/XXV1_origen'
     }
   },
   // =========================================
@@ -94,6 +91,15 @@ const routes = [
   { path: '/TyB3_crear_tienda', component: TyB3CrearTienda, meta: { hideNav: false } },
   { path: '/B2Tk_detalle_pedido/:id', component: B2Tk_detalle_pedido, meta: { hideNav: false } },
   { path: '/Gx7p_atencion_mesa', component: Gx7p_atencion_mesa, meta: { hideNav: false } },  
+  { path: '/XXV1_origen', component: XXV1_origen, meta: { hideNav: false } },  
+  {
+    path: '/XXV1_origen/:mercado_id',
+
+      component: () =>
+          import(
+              '../modules/retail/consumidor/XXV1_origen/XXV1_origen.vue'
+          )
+  },
   // =========================================
   // RETAIL - ADMIN
   // =========================================  
@@ -108,6 +114,7 @@ const routes = [
     component: Khjs_despachar,
     meta: { hideNav: false }
   },
+  { path: '/XYem_mi_negocio', component: XYem_mi_negocio, meta: { hideNav: false } },
   // =========================================
   // RETAIL - DELIVERY
   // =========================================

@@ -55,8 +55,8 @@
         " @visible-updated="
             onVisibleUpdated
         " @deleted="
-        onProductoDeleted
-    " @edit="
+            onProductoDeleted
+        " @edit="
         onEditarProducto
     " @foto="
         onProductoFotos

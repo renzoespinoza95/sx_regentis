@@ -1,206 +1,407 @@
 import axios from 'axios'
+
 import {
   ref
 }
 from 'vue'
-import { useQuery } from '@tanstack/vue-query'
-import { useMercado } from './useMercado'
+
+import {
+  useQuery
+}
+from '@tanstack/vue-query'
+
+import {
+  useMercado
+}
+from './useMercado'
+
+import {
+  useUsuario
+}
+from './usuarioService'
+
 import {
   firma
-} from './security'
+}
+from './security'
 
-const API = import.meta.env.VITE_PUBLIC_URL_BASE
+const API =
+  import.meta.env.VITE_PUBLIC_URL_BASE
 
-const USE_VQ = import.meta.env.VITE_PUBLIC_VUE_QUERY == '1'
-const STALE = parseInt(import.meta.env.VITE_PUBLIC_VQ_STALETIME || '0')
+const USE_VQ =
+  import.meta.env.VITE_PUBLIC_VUE_QUERY == '1'
 
-const STORAGE_KEY = 'regentis_principal_cache'
+const STALE =
+  parseInt(
 
-// 🔥 mercado por env
-const MERCADO_ID = parseInt(import.meta.env.VITE_PUBLIC_MERCADO_ID || '0')
+    import.meta.env.VITE_PUBLIC_VQ_STALETIME
+    ||
+    '0'
 
-// 🔥 negocio por env (NUEVO)
-const NEG_ID = parseInt(import.meta.env.VITE_PUBLIC_NEG_ID || '0')
+  )
 
-export function usePrincipal(){
+const STORAGE_KEY =
+  'regentis_principal_cache'
 
-  // 🔥 sincronización global
-  const { setMercado } = useMercado()
+/* =========================================
+   🔥 STORAGE MERCADO
+========================================= */
 
-  const fetchPrincipal = async () => {
+const STORAGE_MERCADO_ID =
+  'regentis_mercado_id'
 
-    const cache = getCache()
 
-    /* =========================
-      🔥 FIRMA
-    ========================== */
 
-    const seguridad =
-      firma()
+/* =========================================
+   🔥 GET MERCADO ID
+========================================= */
 
-    console.log(
-      'FIRMA PRINCIPAL >>>',
-      seguridad
+function getMercadoId(){
+
+  return parseInt(
+
+    localStorage.getItem(
+      STORAGE_MERCADO_ID
     )
 
-    /* =========================
-       🔥 1. CACHE
-    ========================== */
-    if (cache) {
+    ||
 
-      // 🔥 sincronizar estado global desde cache
-      setMercado(cache)
+    '0'
 
-      // 🔥 revalidar en segundo plano
-      setTimeout(async () => {
-        try {
-
-          const r = await axios.post(
-              `${API}/app/principal`,
-
-              {
-
-                mercado_id:
-                  MERCADO_ID,
-
-                neg_id:
-                  NEG_ID,
-
-                xin:
-                  seguridad.xin,
-
-                yuan:
-                  seguridad.yuan
-
-              }
-
-            )
-
-          setCache(r.data.data)
-
-        } catch (e) {
-          console.error('Error revalidando principal', e)
-        }
-      }, 0)
-
-      return cache
-    }
-
-    /* =========================
-       🔥 2. FETCH
-    ========================== */
-
-    const r = await axios.post(
-      `${API}/app/principal`,
-
-      {
-
-        mercado_id:
-          MERCADO_ID,
-
-        neg_id:
-          NEG_ID,
-
-        xin:
-          seguridad.xin,
-
-        yuan:
-          seguridad.yuan
-
-      }
-
-    )
-
-    setCache(r.data.data)
-
-    return r.data.data
-  }
-
-  /* =========================
-     🔥 VUE QUERY
-  ========================== */
-
-  if (USE_VQ && STALE > 0){
-
-    return useQuery({
-      queryKey: ['principal', MERCADO_ID, NEG_ID],
-      queryFn: fetchPrincipal,
-      staleTime: STALE * 60 * 1000
-    })
-
-  }
-
-/* =========================
-   💥 AXIOS DIRECTO
-========================== */
-
-const data =
-  ref(null)
-
-const isLoading =
-  ref(false)
-
-async function refetch(){
-
-  try {
-
-    isLoading.value = true
-
-    const res =
-      await fetchPrincipal()
-
-    data.value = res
-
-    return res
-
-  } finally {
-
-    isLoading.value = false
-
-  }
+  )
 
 }
 
 /* =========================================
-🔥 AUTOLOAD
+   🔥 SET MERCADO ID
 ========================================= */
 
-refetch()
+export function setMercadoId(
+  mercado_id
+){
 
-return {
+  localStorage.setItem(
 
-  data,
+    STORAGE_MERCADO_ID,
 
-  isLoading,
+    String(
+      mercado_id
+      ||
+      0
+    )
 
-  refetch
+  )
 
 }
 
-  /* =========================
+/* =========================================
+   🔥 USE PRINCIPAL
+========================================= */
+
+export function usePrincipal(){
+
+  /* =========================================
+     🔥 GLOBAL
+  ========================================= */
+
+  const {
+    setMercado
+  } = useMercado()
+
+  /* =========================================
+   🔥 USUARIO
+========================================= */
+
+const {
+  getNegId
+} = useUsuario()
+
+  /* =========================================
+     🔥 FETCH
+  ========================================= */
+
+  const fetchPrincipal =
+    async () => {
+
+      const cache =
+        getCache()
+
+      /* =========================================
+         🔥 MERCADO ID
+      ========================================= */
+
+      const mercado_id =
+        getMercadoId()
+
+      /* =========================================
+         🔥 FIRMA
+      ========================================= */
+
+      const seguridad =
+        firma()
+
+      console.log(
+        'FIRMA PRINCIPAL >>>',
+        seguridad
+      )
+
+      console.log(
+        'MERCADO_ID >>>',
+        mercado_id
+      )
+
+      /* =========================================
+         🔥 CACHE
+      ========================================= */
+
+      if (cache) {
+
+        /* =========================================
+           🔥 SYNC GLOBAL
+        ========================================= */
+
+        setMercado(cache)
+
+        /* =========================================
+           🔥 REVALIDAR
+        ========================================= */
+
+        setTimeout(async () => {
+
+          try {
+
+            const r =
+              await axios.post(
+
+                `${API}/app/principal`,
+
+                {
+
+                  mercado_id:
+                    mercado_id,
+
+                  neg_id:
+
+  getNegId()
+
+  ||
+
+  0,
+
+                  xin:
+                    seguridad.xin,
+
+                  yuan:
+                    seguridad.yuan
+
+                }
+
+              )
+
+            setCache(
+              r.data.data
+            )
+
+          } catch (e) {
+
+            console.error(
+              'Error revalidando principal',
+              e
+            )
+
+          }
+
+        }, 0)
+
+        return cache
+
+      }
+
+      /* =========================================
+         🔥 FETCH REAL
+      ========================================= */
+
+      const r =
+        await axios.post(
+
+          `${API}/app/principal`,
+
+          {
+
+            mercado_id:
+              mercado_id,
+
+            neg_id:
+
+  getNegId()
+
+  ||
+
+  0,
+
+            xin:
+              seguridad.xin,
+
+            yuan:
+              seguridad.yuan
+
+          }
+
+        )
+
+      setCache(
+        r.data.data
+      )
+
+      return r.data.data
+
+    }
+
+  /* =========================================
+     🔥 VUE QUERY
+  ========================================= */
+
+  if (
+
+    USE_VQ
+    &&
+    STALE > 0
+
+  ){
+
+    return useQuery({
+
+      queryKey: [
+
+        'principal',
+
+        getMercadoId(),
+
+        getNegId()
+||
+0
+
+      ],
+
+      queryFn:
+        fetchPrincipal,
+
+      staleTime:
+        STALE
+        *
+        60
+        *
+        1000
+
+    })
+
+  }
+
+  /* =========================================
+     💥 AXIOS DIRECTO
+  ========================================= */
+
+  const data =
+    ref(null)
+
+  const isLoading =
+    ref(false)
+
+  async function refetch(){
+
+    try {
+
+      isLoading.value = true
+
+      const res =
+        await fetchPrincipal()
+
+      data.value =
+        res
+
+      return res
+
+    } finally {
+
+      isLoading.value = false
+
+    }
+
+  }
+
+  /* =========================================
+     🔥 AUTOLOAD
+  ========================================= */
+
+  refetch()
+
+  return {
+
+    data,
+
+    isLoading,
+
+    refetch
+
+  }
+
+  /* =========================================
      🔥 CACHE HELPERS
-  ========================== */
+  ========================================= */
 
   function getCache(){
+
     try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      return raw ? JSON.parse(raw) : null
+
+      const raw =
+        localStorage.getItem(
+          STORAGE_KEY
+        )
+
+      return raw
+        ? JSON.parse(raw)
+        : null
+
     } catch(e){
-      console.error('Error leyendo cache principal', e)
+
+      console.error(
+        'Error leyendo cache principal',
+        e
+      )
+
       return null
+
     }
+
   }
 
   function setCache(data){
+
     try {
 
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+      localStorage.setItem(
 
-      // 🔥 sincronizar estado global SIEMPRE
+        STORAGE_KEY,
+
+        JSON.stringify(data)
+
+      )
+
+      /* =========================================
+         🔥 GLOBAL
+      ========================================= */
+
       setMercado(data)
 
     } catch(e){
-      console.error('Error guardando cache principal', e)
+
+      console.error(
+        'Error guardando cache principal',
+        e
+      )
+
     }
+
   }
+
 }

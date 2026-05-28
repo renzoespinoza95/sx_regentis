@@ -100,8 +100,8 @@
                 ">
 
                 <!-- GALERIA -->
-                <ProductoGallery :imagenes="producto?.imagenes || []
-                    " />
+                <ProductoGallery :imagenes="producto?.imagenes || []" @updated="onGalleryUpdated"
+                    @deleted="onGalleryDeleted" />
 
                 <!-- UPLOADER -->
                 <ProductoUploader :producto="producto" @uploaded="
@@ -255,6 +255,51 @@ function close() {
         }
 
     )
+
+}
+
+/* =========================================
+🔥 GALLERY UPDATED
+========================================= */
+
+function onGalleryUpdated(lista) {
+
+    if (!producto.value) {
+        return
+    }
+
+    producto.value.imagenes =
+        [...lista]
+
+}
+
+/* =========================================
+🔥 GALLERY DELETED
+========================================= */
+
+function onGalleryDeleted(img) {
+
+    if (!producto.value) {
+        return
+    }
+
+    producto.value.imagenes =
+
+        (producto.value.imagenes || [])
+
+            .filter(x =>
+
+                Number(
+                    x.product_image_id
+                )
+
+                !==
+
+                Number(
+                    img.product_image_id
+                )
+
+            )
 
 }
 

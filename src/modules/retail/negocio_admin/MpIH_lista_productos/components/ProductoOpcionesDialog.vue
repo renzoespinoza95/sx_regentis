@@ -40,7 +40,7 @@
             <!-- STOCK -->
             <button class="item-btn" @click="abrirStock">
 
-                📦 Stock
+                📦 Aumentar stock
 
             </button>
 
