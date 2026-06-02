@@ -1,16 +1,16 @@
 <template>
 
     <div ref="sidebar" class="
-            w-24
-            flex
-            flex-col
-            items-center
-            gap-4
-            pt-2
-            overflow-y-auto
-            no-scrollbar
-            cursor-grab
-        " style="
+        w-18
+        flex
+        pt-[4px]
+        flex-col
+        items-center
+        gap-1
+        overflow-y-auto
+        no-scrollbar
+        cursor-grab
+    " style="
             max-height:
                 calc(100vh - 140px);
         ">

@@ -323,14 +323,14 @@
     <string name="abc_shareactionprovider_share_with_application">Share with <ns1:g example="Mail" id="application_name">%s</ns1:g></string>
     <string name="abc_toolbar_collapse_description">Collapse</string>
     <string name="androidx_startup" translatable="false">androidx.startup</string>
-    <string name="appName" translatable="false">Mercado Huamantanga</string>
+    <string name="appName" translatable="false">Union Comercial</string>
     <string name="app_name">Android Browser Helper</string>
     <string name="assetStatements">
     [{
         \"relation\": [\"delegate_permission/common.handle_all_urls\"],
         \"target\": {
             \"namespace\": \"web\",
-            \"site\": \"https://huamantanga.lat\"
+            \"site\": \"https://unioncomercial.lat\"
         }
     }]
     
@@ -365,20 +365,20 @@
     <string name="fallback_menu_item_copy_link">Copy link</string>
     <string name="fallback_menu_item_open_in_browser">Open in browser</string>
     <string name="fallback_menu_item_share_link">Share link</string>
-    <string name="fullScopeUrl" translatable="false">https://huamantanga.lat/</string>
+    <string name="fullScopeUrl" translatable="false">https://unioncomercial.lat/</string>
     <string name="generatorApp" translatable="false">bubblewrap-cli</string>
-    <string name="hostName" translatable="false">huamantanga.lat</string>
-    <string name="launchUrl" translatable="false">https://huamantanga.lat/</string>
-    <string name="launcherName" translatable="false">Mercado Huamantanga</string>
+    <string name="hostName" translatable="false">unioncomercial.lat</string>
+    <string name="launchUrl" translatable="false">https://unioncomercial.lat/</string>
+    <string name="launcherName" translatable="false">Union Comercial</string>
     <string name="manage_space_no_data_toast">This app holds no browsing data.</string>
     <string name="manage_space_not_supported_toast">This app\'s data is stored in %1$s.</string>
     <string name="no_provider_toast">Please install Chrome Stable 72 or later.</string>
     <string name="orientation" translatable="false">default</string>
-    <string name="providerAuthority" translatable="false">com.regentis.mercado3.fileprovider</string>
+    <string name="providerAuthority" translatable="false">com.regentis.unioncomercial.fileprovider</string>
     <string name="search_menu_title">Search</string>
     <string name="status_bar_notification_info_overflow">999+</string>
     <string name="update_chrome_toast">Please update to Chrome Stable 72 or later.</string>
-    <string name="webManifestUrl" translatable="false">https://huamantanga.lat/manifest.json</string>
+    <string name="webManifestUrl" translatable="false">https://unioncomercial.lat/manifest.json</string>
     <style name="AlertDialog.AppCompat" parent="Base.AlertDialog.AppCompat"/>
     <style name="AlertDialog.AppCompat.Light" parent="Base.AlertDialog.AppCompat.Light"/>
     <style name="Animation.AppCompat.Dialog" parent="Base.Animation.AppCompat.Dialog"/>

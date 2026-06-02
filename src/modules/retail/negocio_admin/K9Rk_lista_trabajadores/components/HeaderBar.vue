@@ -22,26 +22,6 @@
         <!-- RIGHT -->
         <div class="flex items-center gap-2">
 
-            <!-- 🔥 NUEVO -->
-            <div class="
-            w-9
-            h-9
-            bg-white
-            rounded-full
-            flex
-            items-center
-            justify-center
-            cursor-pointer
-            active:scale-95
-            transition
-        " @click="$emit('openNuevoTrabajador')">
-
-                <i class="fa fa-plus text-sm" :style="{ color: mercado.topnavbar_color || '#FD7635' }">
-
-                </i>
-
-            </div>
-
             <!-- 🔥 ELIPSIS -->
             <div class="
             w-9

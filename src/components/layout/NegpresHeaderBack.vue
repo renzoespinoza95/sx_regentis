@@ -15,6 +15,39 @@
 
         <div class="logo-box">
 
+          <!-- 🔙 BACK -->
+          <button v-if="route.query?.titulo" @click="router.back()" class="
+        w-10
+        h-10
+
+        rounded-full
+
+        bg-white
+
+        flex
+        items-center
+        justify-center
+
+        shadow-[0_4px_12px_rgba(0,0,0,0.12)]
+
+        active:scale-95
+
+        transition
+    ">
+
+            <i class="
+            fa
+            fa-arrow-left
+
+            text-sm
+
+            text-[#7DBA66]
+        ">
+
+            </i>
+
+          </button>
+
           <img :src="data?.negocio?.img_logo || 'https://barsi-img.b-cdn.net/recursos/logo-regentis.png'"
             class="logo-img">
 
@@ -61,32 +94,6 @@
       <template v-else>
 
         <div class="flex items-center gap-2">
-
-          <!-- FAVORITOS -->
-          <div id="icon-heart-header" class="icon-btn relative" @click="irFavoritos">
-
-            <i class="fa fa-heart"></i>
-
-            <span v-if="favoritosCount > 0" class="notif-badge">
-
-              {{ favoritosCount }}
-
-            </span>
-
-          </div>
-
-          <!-- CARRITO -->
-          <div class="icon-btn relative" @click="irCarrito">
-
-            <i class="fa fa-shopping-cart"></i>
-
-            <span v-if="carritoCount > 0" class="notif-badge">
-
-              {{ carritoCount }}
-
-            </span>
-
-          </div>
 
           <!-- MENU -->
           <!-- AVATAR -->

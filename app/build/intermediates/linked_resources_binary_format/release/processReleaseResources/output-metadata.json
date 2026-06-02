@@ -4,15 +4,15 @@
     "type": "LINKED_RESOURCES_BINARY_FORMAT",
     "kind": "Directory"
   },
-  "applicationId": "com.regentis.mercado3",
+  "applicationId": "com.regentis.unioncomercial",
   "variantName": "release",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 18,
-      "versionName": "1.17",
+      "versionCode": 21,
+      "versionName": "1.20",
       "outputFile": "linked-resources-binary-format-release.ap_"
     }
   ],

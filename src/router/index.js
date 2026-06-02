@@ -39,7 +39,7 @@ import Lfdx_detalle_pedido from '../modules/retail/negocio_admin/Lfdx_detalle_pe
 import MpIH_lista_productos from '../modules/retail/negocio_admin/MpIH_lista_productos/MpIH_lista_productos.vue'
 import Khjs_despachar from '../modules/retail/negocio_admin/Khjs_despachar/Khjs_despachar.vue'
 import XYem_mi_negocio from '../modules/retail/negocio_admin/XYem_mi_negocio/XYem_mi_negocio.vue'
-
+import Qrrs_reporte_venta from '../modules/retail/negocio_admin/Qrrs_reporte_venta/Qrrs_reporte_venta.vue'
 
 
 /* NEGOCIO_STAFF */
@@ -59,7 +59,7 @@ const routes = [
     }
   },
   // =========================================
-  // COMUNUES
+  // COMUNES
   // =========================================
   { path: '/principal', component: RegPrincipalApp,  meta: { hideNav: false }  },  
   { path: '/mod_registro/:usu_id', component: Mod_registro, meta: { hideNav: true } },
@@ -107,8 +107,18 @@ const routes = [
   { path: '/Vlsz_venta_directa', component: Vlsz_venta_directa, meta: { hideNav: false } },
   { path: '/WdtJ_atencion_mesa', component: WdtJ_atencion_mesa, meta: { hideNav: false } },
   { path: '/TdNV_lista_productos', component: TdNV_lista_productos, meta: { hideNav: false } },  
+  { path: '/Qrrs_reporte_venta', component: Qrrs_reporte_venta, meta: { hideNav: false } },
   { path: '/RPsB_lista_clientes', component: RPsB_lista_clientes, meta: { hideNav: false } },
   { path: '/Mod_pedidos', component: Mod_pedidos, meta: { hideNav: false } },
+  {
+    path:
+        '/voucher-viewer',
+
+      component:
+          () => import(
+              '../modules/retail/negocio_admin/PM1N_ag_pedido/components/VoucherViewer.vue'
+          )
+  },
   {
     path: '/Khjs_despachar/:carrito_id',
     component: Khjs_despachar,

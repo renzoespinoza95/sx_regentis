@@ -4,15 +4,15 @@
     "type": "MERGED_MANIFESTS",
     "kind": "Directory"
   },
-  "applicationId": "com.regentis.mercado3",
+  "applicationId": "com.regentis.unioncomercial",
   "variantName": "release",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 18,
-      "versionName": "1.17",
+      "versionCode": 21,
+      "versionName": "1.20",
       "outputFile": "AndroidManifest.xml"
     }
   ],

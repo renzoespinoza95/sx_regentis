@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.regentis.mercado3.app-mergeReleaseResources-25:/values-bs/values-bs.xml",
+            "outputFile": "com.regentis.unioncomercial.app-mergeReleaseResources-25:/values-bs/values-bs.xml",
             "map": [
                 {
                     "source": "C:\\Users\\user\\.gradle\\caches\\8.11.1\\transforms\\02e37f92c71ffadabef41ae6f5feca22\\transformed\\play-services-base-18.1.0\\res\\values-bs\\values.xml",

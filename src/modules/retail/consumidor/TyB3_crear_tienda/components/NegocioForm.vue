@@ -96,7 +96,7 @@
                     mb-2
                 ">
 
-                    Celular Yape/Plin
+                    Celular Yape/Plin (opcional)
 
                 </div>
 
@@ -333,7 +333,12 @@ async function crearNegocio() {
             mercado_id: 3,
 
             celular_yape:
-                celularYape.value
+
+                celularYape.value?.trim()
+
+                ||
+
+                '999XXX999'
 
         }
 
@@ -410,8 +415,8 @@ async function crearNegocio() {
                             Date.now()
                             -
                             pollingStart
-
-                        if (elapsed >= 40000) {
+                        // 100 segundos recomendable
+                        if (elapsed >= 100000) {
 
                             console.warn(
                                 '⏱️ polling timeout'

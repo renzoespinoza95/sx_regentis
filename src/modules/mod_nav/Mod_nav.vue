@@ -127,7 +127,7 @@ async function guardar() {
 
                 } else {
 
-                    router.replace('/principal')
+                    router.replace('/XXV1_origen')
 
                 }
 

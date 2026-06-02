@@ -193,79 +193,95 @@ async function cargarPedido() {
 
     try {
 
-        const carrito_id_encriptado =
-            route.params.id
+        /* =========================================
+           🔥 FIRMA
+        ========================================= */
 
-        const r = await axios.get(
-            `${API}/N5BR/detalle_pedido/${encodeURIComponent(carrito_id_encriptado)}`
-        )
-
-        pedido.value = r.data.pedido || null
+        const seguridad =
+            firma()
 
         /* =========================================
-   🔥 YAPLINS
-========================================= */
+           🔥 CARRITO_ID
+        ========================================= */
 
-        try {
-
-            const seguridad =
-                firma()
-
-            const ry =
-                await axios.post(
-
-                    `${API}/nraz/lista_pedidos`,
-
-                    {
-
-                        neg_id:
-                            pedido.value?.neg_id,
-
-                        xin:
-                            seguridad.xin,
-
-                        yuan:
-                            seguridad.yuan
-
-                    }
-
-                )
-
-            const pedidos =
-                ry.data?.data || []
-
-            const actual =
-                pedidos.find(
-
-                    x => Number(x.carrito_id)
-                        ===
-                        Number(
-                            pedido.value?.carrito_id
-                        )
-
-                )
-
-            yaplins.value =
-                actual?.yaplins || []
-
-        } catch (e) {
-
-            console.error(
-                'Error cargando yaplins',
-                e
+        const carrito_id =
+            Number(
+                route.params.id
             )
 
-        }
+        /* =========================================
+           🔥 REQUEST
+        ========================================= */
 
-        productos.value = (r.data.productos || []).map(p => ({
-            carrito_detalle_id: p.carrito_detalle_id,
-            nombre: p.name,
-            cantidad: Number(p.cantidad || 0),
-            unidad: 'und',
-            precio: Number(p.precio_unitario || 0),
-            img: p.img,
-            subtotal: p.subtotal
-        }))
+        const r =
+            await axios.post(
+
+                `${API}/N5BR/detalle_pedido`,
+
+                {
+
+                    carrito_id,
+
+                    xin:
+                        seguridad.xin,
+
+                    yuan:
+                        seguridad.yuan
+
+                }
+
+            )
+
+        /* =========================================
+           🔥 PEDIDO
+        ========================================= */
+
+        pedido.value =
+            r.data.pedido || null
+
+        /* =========================================
+           🔥 YAPLINS
+        ========================================= */
+
+        yaplins.value =
+            r.data.yaplins || []
+
+        /* =========================================
+           🔥 PRODUCTOS
+        ========================================= */
+
+        productos.value =
+
+            (r.data.productos || [])
+
+                .map(p => ({
+
+                    carrito_detalle_id:
+                        p.carrito_detalle_id,
+
+                    nombre:
+                        p.name,
+
+                    cantidad:
+                        Number(
+                            p.cantidad || 0
+                        ),
+
+                    unidad:
+                        'und',
+
+                    precio:
+                        Number(
+                            p.precio_unitario || 0
+                        ),
+
+                    img:
+                        p.img,
+
+                    subtotal:
+                        p.subtotal
+
+                }))
 
     } catch (e) {
 
@@ -273,7 +289,9 @@ async function cargarPedido() {
             'Error cargando detalle pedido',
             e
         )
+
     }
+
 }
 
 onMounted(() => {

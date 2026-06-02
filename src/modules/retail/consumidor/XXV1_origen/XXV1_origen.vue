@@ -6,28 +6,35 @@
 
         <div class="content-container">
 
-            <SearchBar />
+            <SearchBar v-model="search" />
 
             <div class="flex mt-4">
 
                 <CatSidebar :categorias="categorias" :active="activeIndex" @change="setCategoria" />
 
-                <MercadoGrid :mercados="mercadosFiltrados" />
+                <div class="flex-1">
+
+                    <MercadoGrid v-if="mercadosFiltrados.length" :mercados="mercadosFiltrados" />
+
+                    <EmptyLetter v-else titulo="Sin resultados" texto="No encontramos mercados con ese nombre 😕" />
+
+                </div>
 
             </div>
 
         </div>
 
     </div>
+    <PromoApkModal ref="promoApkModalRef" />
 
 </template>
 
 <script setup>
-
 import {
     ref,
     computed,
-    onMounted
+    onMounted,
+    watch
 }
     from 'vue'
 
@@ -55,6 +62,14 @@ import {
     setMercadoId
 }
     from '../../../../services/usePrincipal.js'
+import EmptyLetter
+    from '../../../../components/layout/EmptyLetter.vue'
+import PromoApkModal
+    from '../../../reg_principal/components/PromoApkModal.vue'
+import {
+    useUsuario
+}
+    from '../../../../services/usuarioService.js'
 
 /* =========================================
    🔥 DATA
@@ -72,6 +87,16 @@ const route =
 
 const router =
     useRouter()
+
+const promoApkModalRef =
+    ref(null)
+
+const search =
+    ref('')
+
+const {
+    isLogged
+} = useUsuario()
 /* =========================================
    🔥 FETCH
 ========================================= */
@@ -158,12 +183,21 @@ async function loadData() {
 
 }
 
-onMounted(() => {
+onMounted(async () => {
 
-    loadData()
+    await loadData()
+
+    if (!isLogged.value) {
+
+        setTimeout(() => {
+
+            promoApkModalRef.value?.open()
+
+        }, 500)
+
+    }
 
 })
-
 /* =========================================
    🔥 CATEGORIAS
 ========================================= */
@@ -216,10 +250,48 @@ const mercadosFiltrados =
 
             )
 
-        return (
+        const listaMercados =
             cat?.lista_mercado
             ||
             []
+
+        const texto =
+            search.value
+                .trim()
+                .toLowerCase()
+
+        if (texto.length < 3) {
+
+            return listaMercados
+
+        }
+
+        return listaMercados.filter(
+
+            m =>
+
+                String(
+                    m.nombre || ''
+                )
+                    .toLowerCase()
+                    .includes(texto)
+
+                ||
+
+                String(
+                    m.ciudad || ''
+                )
+                    .toLowerCase()
+                    .includes(texto)
+
+                ||
+
+                String(
+                    m.departamento || ''
+                )
+                    .toLowerCase()
+                    .includes(texto)
+
         )
 
     })
@@ -296,9 +368,9 @@ function setCategoria(index) {
 
     margin: auto;
 
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-bottom: 40px;
+    padding-bottom: 80px;
+    padding-left: 2px;
+    padding-right: 2px;
 
 }
 </style>

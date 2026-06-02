@@ -48,34 +48,93 @@
             </div>
 
             <!-- 🔥 CATEGORIAS -->
-            <div ref="categoriasScroll"
-                class="overflow-x-auto pb-2 no-scrollbar cursor-grab active:cursor-grabbing select-none"
-                @mousedown="onMouseDown" @mousemove="onMouseMove" @mouseup="onMouseUp" @mouseleave="onMouseUp"
+            <div ref="categoriasScroll" class="
+        overflow-x-auto
+        pb-2
+        no-scrollbar
+        cursor-grab
+        active:cursor-grabbing
+        select-none
+    " @mousedown="onMouseDown" @mousemove="onMouseMove" @mouseup="onMouseUp" @mouseleave="onMouseUp"
                 @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd">
 
-                <div class="grid grid-rows-2 grid-flow-col gap-2 w-max">
+                <div class="
+            grid
+            grid-rows-2
+            grid-flow-col
+            gap-2
+            w-max
+        ">
 
                     <!-- TODOS -->
-                    <div @click="selectCategoria(null)"
-                        class="flex-shrink-0 px-3 py-2 rounded-full text-xs flex items-center gap-1 cursor-pointer transition active:scale-95"
-                        :class="activeCat === null
-                            ? 'bg-orange-500 text-white'
-                            : 'bg-orange-100 text-orange-600'
-                            ">
+                    <div @click="
+                        selectCategoria(
+                            null
+                        )
+                        " class="
+                flex-shrink-0
+                px-3
+                py-2
+                rounded-full
+                text-xs
+                flex
+                items-center
+                gap-1
+                cursor-pointer
+                transition
+                active:scale-95
+                font-medium
+            " :class="activeCat === null
+
+                ?
+
+                'bg-green-800 text-white shadow-md'
+
+                :
+
+                'bg-green-100 text-green-800 hover:bg-green-200'
+
+                ">
 
                         🔥 Todos
 
                     </div>
 
                     <!-- CATEGORIAS -->
-                    <div v-for="cat in categorias" :key="cat.category_id" @click="selectCategoria(cat.category_id)"
-                        class="flex-shrink-0 px-3 py-2 rounded-full text-xs flex items-center gap-1 cursor-pointer transition active:scale-95"
-                        :class="activeCat === cat.category_id
-                            ? 'bg-orange-500 text-white'
-                            : 'bg-orange-100 text-orange-600'
-                            ">
+                    <div v-for="cat in categorias" :key="cat.category_id
+                        " @click="
+                            selectCategoria(
+                                cat.category_id
+                            )
+                            " class="
+                flex-shrink-0
+                px-3
+                py-2
+                rounded-full
+                text-xs
+                flex
+                items-center
+                gap-1
+                cursor-pointer
+                transition
+                active:scale-95
+                font-medium
+            " :class="activeCat === cat.category_id
 
-                        <span class="text-base leading-none">
+                ?
+
+                'bg-green-800 text-white shadow-md'
+
+                :
+
+                'bg-green-100 text-green-800 hover:bg-green-200'
+
+                ">
+
+                        <span class="
+                    text-base
+                    leading-none
+                ">
 
                             {{ cat.icon || '📦' }}
 
@@ -100,10 +159,16 @@
                     class="flex items-center gap-2 p-2 rounded hover:bg-gray-100 cursor-pointer active:scale-[0.98] transition">
 
                     <!-- IMG -->
-                    <img :src="p.img
+                    <img :src="p.imagenes?.[0]?.img
                         ||
-                        'https://picsum.photos/40'
-                        " class="w-8 h-8 rounded object-cover" />
+                        'https://barsi-img.b-cdn.net/recursos/6qz5.png'
+                        " class="
+        w-10
+        h-10
+        rounded-lg
+        object-cover
+        flex-shrink-0
+    " />
 
                     <!-- NOMBRE -->
                     <div class="flex-1 text-sm">
@@ -113,7 +178,7 @@
                     </div>
 
                     <!-- PRECIO -->
-                    <span class="text-xs text-gray-500">
+                    <span class="text-xs text-[#0F0F0F]">
 
                         S/
                         {{

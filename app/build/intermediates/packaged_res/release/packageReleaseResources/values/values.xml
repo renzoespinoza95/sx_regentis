@@ -11,24 +11,24 @@
     <color name="navigationDividerColorDark">#000000</color>
     <color name="shortcut_background">#F5F5F5</color>
     <integer name="splashScreenFadeOutDuration">300</integer>
-    <string name="appName" translatable="false">Mercado Huamantanga</string>
+    <string name="appName" translatable="false">Union Comercial</string>
     <string name="assetStatements">
     [{
         \"relation\": [\"delegate_permission/common.handle_all_urls\"],
         \"target\": {
             \"namespace\": \"web\",
-            \"site\": \"https://huamantanga.lat\"
+            \"site\": \"https://unioncomercial.lat\"
         }
     }]
     
   </string>
     <string name="fallbackType" translatable="false">customtabs</string>
-    <string name="fullScopeUrl" translatable="false">https://huamantanga.lat/</string>
+    <string name="fullScopeUrl" translatable="false">https://unioncomercial.lat/</string>
     <string name="generatorApp" translatable="false">bubblewrap-cli</string>
-    <string name="hostName" translatable="false">huamantanga.lat</string>
-    <string name="launchUrl" translatable="false">https://huamantanga.lat/</string>
-    <string name="launcherName" translatable="false">Mercado Huamantanga</string>
+    <string name="hostName" translatable="false">unioncomercial.lat</string>
+    <string name="launchUrl" translatable="false">https://unioncomercial.lat/</string>
+    <string name="launcherName" translatable="false">Union Comercial</string>
     <string name="orientation" translatable="false">default</string>
-    <string name="providerAuthority" translatable="false">com.regentis.mercado3.fileprovider</string>
-    <string name="webManifestUrl" translatable="false">https://huamantanga.lat/manifest.json</string>
+    <string name="providerAuthority" translatable="false">com.regentis.unioncomercial.fileprovider</string>
+    <string name="webManifestUrl" translatable="false">https://unioncomercial.lat/manifest.json</string>
 </resources>

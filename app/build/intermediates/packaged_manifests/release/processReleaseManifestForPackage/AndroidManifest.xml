@@ -22,9 +22,9 @@
      the abbreviated format.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.regentis.mercado3"
-    android:versionCode="18"
-    android:versionName="1.17" >
+    package="com.regentis.unioncomercial"
+    android:versionCode="21"
+    android:versionName="1.20" >
 
     <uses-sdk
         android:minSdkVersion="21"
@@ -45,13 +45,13 @@
     </queries>
 
     <permission
-        android:name="com.regentis.mercado3.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        android:name="com.regentis.unioncomercial.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="com.regentis.mercado3.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+    <uses-permission android:name="com.regentis.unioncomercial.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
 
     <application
-        android:name="com.regentis.mercado3.Application"
+        android:name="com.regentis.unioncomercial.Application"
         android:allowBackup="true"
         android:appComponentFactory="androidx.core.app.CoreComponentFactory"
         android:extractNativeLibs="true"
@@ -86,7 +86,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.regentis.mercado3.LauncherActivity"
+            android:name="com.regentis.unioncomercial.LauncherActivity"
             android:alwaysRetainTaskState="true"
             android:exported="true"
             android:label="@string/launcherName" >
@@ -165,7 +165,7 @@
         </provider>
 
         <service
-            android:name="com.regentis.mercado3.DelegationService"
+            android:name="com.regentis.unioncomercial.DelegationService"
             android:enabled="@bool/enableNotification"
             android:exported="@bool/enableNotification" >
             <meta-data
@@ -192,7 +192,7 @@
 
         <provider
             android:name="androidx.startup.InitializationProvider"
-            android:authorities="com.regentis.mercado3.androidx-startup"
+            android:authorities="com.regentis.unioncomercial.androidx-startup"
             android:exported="false" >
             <meta-data
                 android:name="androidx.emoji2.text.EmojiCompatInitializer"

@@ -9,11 +9,11 @@ Clear-Host
 # CONSTANTES
 # ============================================
 
-$PACKAGE_ID = "com.regentis.mercado3"
+$PACKAGE_ID = "com.regentis.unioncomercial"
 
-$APP_NAME = "Mercado Huamantanga"
+$APP_NAME = "Union Comercial"
 
-$ICON_FILE = "mercado3.png"
+$ICON_FILE = "unioncomercial.png"
 
 $VERSION_FILE = "version.txt"
 
@@ -113,7 +113,7 @@ $json.appVersionName = $VERSION_NAME
 # ICON URL
 # ============================================
 
-$json.iconUrl = "https://huamantanga.lat/$ICON_FILE"
+$json.iconUrl = "https://unioncomercial.lat/$ICON_FILE"
 
 # ============================================
 # START URL

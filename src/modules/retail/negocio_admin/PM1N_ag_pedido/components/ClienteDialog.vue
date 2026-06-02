@@ -86,7 +86,7 @@
                     class="flex items-center gap-2 p-2 rounded hover:bg-gray-100 cursor-pointer active:scale-[0.98] transition">
 
                     <!-- IMG -->
-                    <img src="https://picsum.photos/40" class="w-8 h-8 rounded object-cover" />
+                    <img src="https://barsi-img.b-cdn.net/people/4d36.jpg" class="w-8 h-8 rounded object-cover" />
 
                     <!-- NOMBRE -->
                     <div class="flex-1 text-sm">

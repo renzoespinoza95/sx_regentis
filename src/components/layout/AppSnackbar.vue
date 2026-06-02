@@ -16,14 +16,33 @@
                 <!-- BOTONES -->
                 <div class="flex items-center gap-2">
 
-                    <button v-if="showConfirm" class="bg-green-500 px-3 py-1 rounded text-white text-xs"
-                        @click="confirmar">
-                        Sí
-                    </button>
+                    <template v-if="actions.length">
 
-                    <button class="bg-red-500 px-3 py-1 rounded text-white text-xs" @click="cerrar">
-                        {{ showConfirm ? 'No' : 'Cerrar' }}
-                    </button>
+                        <button v-for="(a, index) in actions" :key="index"
+                            class="px-3 py-1 rounded text-white text-xs bg-green-600" @click="a.action()">
+
+                            {{ a.text }}
+
+                        </button>
+
+                    </template>
+
+                    <template v-else>
+
+                        <button v-if="showConfirm" class="bg-green-500 px-3 py-1 rounded text-white text-xs"
+                            @click="confirmar">
+
+                            Sí
+
+                        </button>
+
+                        <button class="bg-red-500 px-3 py-1 rounded text-white text-xs" @click="cerrar">
+
+                            {{ showConfirm ? 'No' : 'Cerrar' }}
+
+                        </button>
+
+                    </template>
 
                 </div>
 
@@ -41,26 +60,46 @@ import gsap from 'gsap'
 
 const visible = ref(false)
 const message = ref('')
-const showConfirm = ref(false)
 
 const box = ref(null)
 
+const showConfirm = ref(false)
+
+const actions = ref([])
+
 let callback = null
 
-function open(msg, onConfirm = null) {
+function open(
+    msg,
+    onConfirm = null,
+    customActions = []
+) {
+
     message.value = msg
-    showConfirm.value = !!onConfirm
-    callback = onConfirm
+
+    showConfirm.value =
+        !!onConfirm
+
+    callback =
+        onConfirm
+
+    actions.value =
+        customActions
+
     visible.value = true
 
     nextTick(() => {
+
         gsap.fromTo(
+
             box.value,
+
             {
                 y: -120,
                 opacity: 0,
                 scale: 0.95
             },
+
             {
                 y: 0,
                 opacity: 1,
@@ -68,8 +107,11 @@ function open(msg, onConfirm = null) {
                 duration: 0.35,
                 ease: 'power3.out'
             }
+
         )
+
     })
+
 }
 
 function cerrar() {
@@ -88,5 +130,11 @@ function confirmar() {
     cerrar()
 }
 
-defineExpose({ open })
+defineExpose({
+
+    open,
+
+    cerrar
+
+})
 </script>

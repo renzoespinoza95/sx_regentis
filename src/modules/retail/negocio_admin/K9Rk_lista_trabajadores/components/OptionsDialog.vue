@@ -22,11 +22,98 @@
             ">
 
             <!-- TITLE -->
-            <div class="text-xl font-black text-gray-800 mb-4">
+            <div class="
+                    text-xl
+                    font-black
+                    text-gray-800
+                    mb-4
+                ">
 
                 Opciones ⚙️
 
             </div>
+
+            <!-- NUEVO TRABAJADOR -->
+            <button class="
+                    w-full
+                    flex
+                    items-center
+                    gap-3
+                    px-4
+                    py-4
+                    rounded-2xl
+                    bg-[#fff4ee]
+                    text-[#FD7635]
+                    font-semibold
+                    active:scale-[0.98]
+                    transition
+                    mb-3
+                " @click="nuevoTrabajador">
+
+                <div class="
+                        w-10
+                        h-10
+                        rounded-full
+                        bg-[#FD7635]
+                        text-white
+                        flex
+                        items-center
+                        justify-center
+                        shrink-0
+                    ">
+
+                    <i class="fa fa-plus"></i>
+
+                </div>
+
+                <div class="text-left">
+
+                    ➕ Nuevo trabajador
+
+                </div>
+
+            </button>
+
+            <!-- USUARIO EXISTENTE -->
+            <button class="
+                    w-full
+                    flex
+                    items-center
+                    gap-3
+                    px-4
+                    py-4
+                    rounded-2xl
+                    bg-[#eef7ff]
+                    text-blue-600
+                    font-semibold
+                    active:scale-[0.98]
+                    transition
+                    mb-3
+                " @click="usuarioExistente">
+
+                <div class="
+                        w-10
+                        h-10
+                        rounded-full
+                        bg-blue-500
+                        text-white
+                        flex
+                        items-center
+                        justify-center
+                        shrink-0
+                    ">
+
+                    <i class="fa fa-user"></i>
+
+                </div>
+
+                <div class="text-left">
+
+                    👤 Usuario existente
+
+                </div>
+
+            </button>
 
             <!-- TUTORIAL -->
             <button class="
@@ -102,6 +189,15 @@ import {
 import gsap
     from 'gsap'
 
+const emit =
+    defineEmits([
+
+        'nuevoTrabajador',
+
+        'usuarioExistente'
+
+    ])
+
 const visible =
     ref(false)
 
@@ -110,7 +206,8 @@ const box =
 
 function open() {
 
-    visible.value = true
+    visible.value =
+        true
 
     nextTick(() => {
 
@@ -152,12 +249,33 @@ function close() {
 
             onComplete: () => {
 
-                visible.value = false
+                visible.value =
+                    false
 
             }
 
         }
 
+    )
+
+}
+
+function nuevoTrabajador() {
+
+    close()
+
+    emit(
+        'nuevoTrabajador'
+    )
+
+}
+
+function usuarioExistente() {
+
+    close()
+
+    emit(
+        'usuarioExistente'
     )
 
 }

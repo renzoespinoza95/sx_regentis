@@ -635,7 +635,7 @@ async function login() {
           ) {
 
             router.replace(
-              `/CV2K_negocio/${NEG_ID}`
+              `/principal`
             )
 
           } else {
@@ -652,7 +652,7 @@ async function login() {
         else {
 
           router.replace(
-            '/dash'
+            '/principal'
           )
 
         }

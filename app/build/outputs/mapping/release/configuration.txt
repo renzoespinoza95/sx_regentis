@@ -9,9 +9,9 @@
 -keep class com.google.androidbrowserhelper.trusted.ManageDataLauncherActivity { <init>(); }
 -keep class com.google.androidbrowserhelper.trusted.NotificationPermissionRequestActivity { <init>(); }
 -keep class com.google.androidbrowserhelper.trusted.WebViewFallbackActivity { <init>(); }
--keep class com.regentis.mercado3.Application { <init>(); }
--keep class com.regentis.mercado3.DelegationService { <init>(); }
--keep class com.regentis.mercado3.LauncherActivity { <init>(); }
+-keep class com.regentis.unioncomercial.Application { <init>(); }
+-keep class com.regentis.unioncomercial.DelegationService { <init>(); }
+-keep class com.regentis.unioncomercial.LauncherActivity { <init>(); }
 -keep class android.widget.Space { <init>(android.content.Context, android.util.AttributeSet); }
 
 -keep class androidx.appcompat.app.AlertController$RecycleListView { <init>(android.content.Context, android.util.AttributeSet); }

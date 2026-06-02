@@ -14,7 +14,9 @@
                 <!-- LISTA -->
                 <div class="space-y-3">
 
-                    <WorkerItem v-for="item in filtrados" :key="item.id" :item="item" />
+                    <WorkerItem v-for="item in filtrados" :key="item.usu_id" :item="item" @crearPin="
+                        crearPinTrabajador
+                    " />
 
                 </div>
 
@@ -24,7 +26,15 @@
 
     </div>
     <NuevoTrabajadorDialog ref="nuevoTrabajadorDialogRef" @created="cargarTrabajadores" />
-    <OptionsDialog ref="dialogRef" />
+    <OptionsDialog ref="dialogRef" @usuarioExistente="
+        openNuevoTrabajadorDialog
+    " @nuevoTrabajador="
+        openNuevoTrabajadorManualDialog
+    " />
+
+    <NuevoTrabajadorManualDialog ref="nuevoTrabajadorManualDialogRef" @created="cargarTrabajadores" />
+
+    <AppSnackbar ref="snackbarRef" />
 </template>
 <script setup>
 
@@ -62,6 +72,16 @@ import WorkerItem
 
 import OptionsDialog
     from './components/OptionsDialog.vue'
+import NuevoTrabajadorManualDialog
+    from './components/NuevoTrabajadorManualDialog.vue'
+
+import AppSnackbar
+    from '../../../../components/layout/AppSnackbar.vue'
+
+import {
+    firma
+}
+    from '../../../../services/security.js'
 
 /* ======================================
    🔥 API
@@ -86,6 +106,12 @@ const {
     getNegId
 } = useUsuario()
 
+const snackbarRef =
+    ref(null)
+
+const nuevoTrabajadorManualDialogRef =
+    ref(null)
+
 /* ======================================
    🔥 FONDO
 ====================================== */
@@ -107,6 +133,78 @@ const nuevoTrabajadorDialogRef =
 function openNuevoTrabajadorDialog() {
 
     nuevoTrabajadorDialogRef.value?.open()
+
+}
+
+function openNuevoTrabajadorManualDialog() {
+
+    nuevoTrabajadorManualDialogRef
+        .value
+        ?.open()
+
+}
+
+async function crearPinTrabajador(
+    trabajador
+) {
+
+    snackbarRef.value?.open(
+
+        `¿Crear PIN para ${trabajador.nombres_apellidos}?`,
+
+        async () => {
+
+            try {
+
+                const seguridad =
+                    firma()
+
+                const r =
+                    await axios.post(
+
+                        `${API}/Sp07/crearPinCode`,
+
+                        {
+
+                            usu_id:
+                                trabajador.usu_id,
+
+                            xin:
+                                seguridad.xin,
+
+                            yuan:
+                                seguridad.yuan
+
+                        }
+
+                    )
+
+                snackbarRef.value?.open(
+
+                    `PIN: ${r.data.pin_code}
+
+Válido por 4 minutos`
+
+                )
+
+            }
+            catch (e) {
+
+                snackbarRef.value?.open(
+
+                    e?.response?.data?.msg
+
+                    ||
+
+                    'Error creando PIN'
+
+                )
+
+            }
+
+        }
+
+    )
 
 }
 

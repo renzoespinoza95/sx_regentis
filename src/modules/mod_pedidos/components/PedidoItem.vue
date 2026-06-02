@@ -77,8 +77,20 @@
             <!-- IMAGEN -->
             <div class="w-24 h-24 shrink-0">
 
-                <img :src="`https://picsum.photos/200?random=${item.neg_id}`"
-                    class="w-full h-full rounded-xl object-cover" />
+                <img :src="item.neg_logo
+
+                    ||
+
+                    'https://picsum.photos/200'
+
+                    " class="
+        w-full
+        h-full
+
+        rounded-xl
+
+        object-cover
+    " />
 
             </div>
 

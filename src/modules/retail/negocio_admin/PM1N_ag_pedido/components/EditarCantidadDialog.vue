@@ -22,21 +22,50 @@
             </div>
 
             <!-- CONTADOR -->
-            <div class="flex justify-center items-center gap-3">
+            <div class="flex justify-center items-center gap-4">
 
-                <button class="w-8 h-8 rounded text-white font-bold shadow-sm active:scale-95 transition" :style="{
-                    background: '#22c55e'
-                }" @click="menos">
+                <button class="
+            w-11
+            h-11
+            rounded-lg
+            text-white
+            text-xl
+            font-bold
+            shadow-md
+            active:scale-95
+            transition
+        " :style="{
+            background: '#22c55e'
+        }" @click="menos">
 
                     -
 
                 </button>
 
-                <input v-model="cantidad" type="number" class="w-12 text-center border rounded" />
+                <input v-model="cantidad" type="number" class="
+            w-16
+            h-11
+            text-center
+            border-2
+            border-gray-300
+            rounded-lg
+            text-lg
+            font-semibold
+        " />
 
-                <button class="w-8 h-8 rounded text-white font-bold shadow-sm active:scale-95 transition" :style="{
-                    background: '#22c55e'
-                }" @click="mas">
+                <button class="
+            w-11
+            h-11
+            rounded-lg
+            text-white
+            text-xl
+            font-bold
+            shadow-md
+            active:scale-95
+            transition
+        " :style="{
+            background: '#22c55e'
+        }" @click="mas">
 
                     +
 

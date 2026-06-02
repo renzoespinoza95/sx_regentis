@@ -17,7 +17,7 @@
         <div class="max-w-3xl mx-auto text-center">
 
             <p class="text-sm md:text-xl text-gray-700 leading-relaxed animate-fade">
-                🍊 ¿Tú también quieres una aplicación de pedidos para tu negocio?
+                🍊 ¿Tú también quieres una aplicación de pedidos para tu mercado?
             </p>
 
             <p class="text-gray-600 text-sm md:text-xl mt-5 leading-relaxed animate-fade-delay">

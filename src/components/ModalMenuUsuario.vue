@@ -1,12 +1,20 @@
 <template>
     <transition name="fade">
-        <div v-if="modelValue"
-            class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[9999]"
-            @click.self="cerrar">
+        <div v-if="modelValue" class="
+        fixed
+        inset-0
 
+        bg-black/40
+
+        flex
+        items-center
+        justify-center
+
+        z-[9999]
+    " @click.self="cerrar">
             <div ref="modalRef" class="menu-modal-box">
 
-                <button v-if="tipoxusuId !== 1" @click="irAdministracion" class="menu-item-btn admin-gold-btn">
+                <button v-if="tipoxusuId !== 1" @click="irAdministracion" class="menu-item-btn">
 
                     👑 Administración
 
@@ -16,14 +24,43 @@
                     Mi cuenta
                 </button>
 
-                <!-- 🔥 NUEVO BOTÓN -->
-                <button @click="verInformacion" class="menu-item-btn">
-                    Información
-                </button>
-
                 <button @click="irContacto" class="menu-item-btn">
                     Contacto
                 </button>
+
+                <button @click="verInformacion" class="menu-item-btn">
+
+                    ℹ️ Información
+
+                </button>
+
+                <template v-if="isLogged">
+
+                    <button @click="irFavoritos" class="menu-item-btn relative">
+
+                        ❤️ Favoritos
+
+                        <span v-if="favoritosCount > 0" class="menu-badge">
+
+                            {{ favoritosCount }}
+
+                        </span>
+
+                    </button>
+
+                    <button @click="irCarrito" class="menu-item-btn relative">
+
+                        🛒 Carrito
+
+                        <span v-if="carritoCount > 0" class="menu-badge">
+
+                            {{ carritoCount }}
+
+                        </span>
+
+                    </button>
+
+                </template>
                 <!-- 🔥 ACTUALIZAR -->
                 <button v-if="necesitaActualizar" @click="actualizarApp" class="menu-item-btn rainbow-update-btn">
 
@@ -37,20 +74,37 @@
 
             </div>
 
-            <!-- 🔥 MODAL USUARIO -->
-            <ModalUsuario v-model="showInfoUsuario" />
+
 
         </div>
     </transition>
 </template>
 <script setup>
-import { computed, nextTick, ref, watch } from 'vue'
+import {
+
+    computed,
+
+    nextTick,
+
+    ref,
+
+    watch,
+
+    onMounted,
+
+    onUnmounted
+
+}
+
+    from 'vue'
 import { useRouter } from 'vue-router'
 import { gsap } from 'gsap'
 import { useUsuario } from '../services/usuarioService.js'
 import ModalUsuario from './ModalUsuario.vue'
 import { usePrincipal } from '../services/usePrincipal.js'
 import { bus } from '../services/eventBus.js' // 🔥 NUEVO
+
+
 
 const props = defineProps({
     modelValue: {
@@ -59,14 +113,34 @@ const props = defineProps({
     }
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit =
+    defineEmits([
+
+        'update:modelValue',
+
+        'open-info'
+
+    ])
 
 const router = useRouter()
-const { getUser } = useUsuario()
+
+const {
+
+    getUser,
+
+    isLogged
+
+} = useUsuario()
 
 const modalRef = ref(null)
 
 const showInfoUsuario = ref(false)
+
+const carritoCountLocal =
+    ref(0)
+
+const favoritosCountLocal =
+    ref(0)
 
 /* =========================================
    🔥 TOGGLE BOTTOMNAV
@@ -126,6 +200,54 @@ const tipoxusuId = computed(() => {
     return Number(user?.tipoxusu_id || 0)
 })
 
+function updateCounts(payload) {
+
+    carritoCountLocal.value =
+        payload.carrito || 0
+
+    favoritosCountLocal.value =
+        payload.favoritos || 0
+
+}
+
+onMounted(() => {
+
+    bus.on(
+
+        'header:updateCounts',
+
+        updateCounts
+
+    )
+
+})
+
+onUnmounted(() => {
+
+    bus.off(
+
+        'header:updateCounts',
+
+        updateCounts
+
+    )
+
+})
+
+const favoritosCount =
+    computed(() => {
+
+        return favoritosCountLocal.value
+
+    })
+
+const carritoCount =
+    computed(() => {
+
+        return carritoCountLocal.value
+
+    })
+
 const version =
     import.meta.env.VITE_PUBLIC_VERSION
 
@@ -150,6 +272,56 @@ const versionPrincipal = computed(() => {
     }
 
 })
+
+function irUbicaciones() {
+
+    cerrar()
+
+    router.push(
+        '/PCJj_mapa_ubicacion'
+    )
+
+}
+
+function irFavoritos() {
+
+    cerrar()
+
+    router.push({
+
+        path:
+            '/Adfj_mis_favoritos',
+
+        query: {
+
+            titulo:
+                'Favoritos'
+
+        }
+
+    })
+
+}
+
+function irCarrito() {
+
+    cerrar()
+
+    router.push({
+
+        path:
+            '/URl4_usuario_carrito',
+
+        query: {
+
+            titulo:
+                'Carrito de compras'
+
+        }
+
+    })
+
+}
 
 const playstoreUrl = computed(() => {
 
@@ -213,7 +385,9 @@ function actualizarApp() {
 
 }
 
-function cerrar() {
+function cerrar(
+    callback = null
+) {
 
     bus.emit(
         'bottomnav:toggle',
@@ -242,7 +416,22 @@ function cerrar() {
 
         onComplete: () => {
 
-            emit('update:modelValue', false)
+            if (
+
+                typeof callback
+                ===
+                'function'
+
+            ) {
+
+                callback()
+
+            }
+
+            emit(
+                'update:modelValue',
+                false
+            )
 
         }
 
@@ -266,269 +455,166 @@ function irContacto() {
 }
 
 function verInformacion() {
-    showInfoUsuario.value = true
+
+    cerrar(() => {
+
+        emit(
+            'open-info'
+        )
+
+    })
+
 }
+
 </script>
 
 
 <style scoped>
-.menu-modal-bg {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.35);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-    padding: 20px;
-}
-
 .menu-modal-box {
-    width: 100%;
-    max-width: 320px;
+
+    width: 320px;
+
     background: white;
-    border-radius: 22px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
-    padding: 14px;
+
+    border-radius: 24px;
+
+    padding: 20px;
+
 }
 
 .menu-item-btn {
+
     width: 100%;
-    text-align: center;
-    padding: 14px 16px;
-    border-radius: 16px;
-    background: #fff7f2;
-    color: #FD7635;
+
+    height: 48px;
+
+    border-radius: 18px;
+
+    background: #f8f8f8;
+
+    font-size: 14px;
+
     font-weight: 600;
+
+    transition: all 0.2s ease;
+
     margin-bottom: 10px;
-    transition: 0.2s;
+
+    position: relative;
+
 }
 
-.menu-item-btn:hover {
-    transform: scale(1.02);
+.menu-item-btn:active {
+
+    transform: scale(0.97);
+
 }
 
 .fade-enter-active,
 .fade-leave-active {
+
     transition: opacity .2s ease;
+
 }
 
 .fade-enter-from,
 .fade-leave-to {
+
     opacity: 0;
+
 }
 
 .menu-cancel-btn {
+
     width: 100%;
-    text-align: center;
-    padding: 14px 16px;
-    border-radius: 16px;
+
+    height: 48px;
+
+    border-radius: 18px;
+
     background: #ef4444;
+
     color: white;
+
+    font-size: 14px;
+
     font-weight: 600;
-    transition: 0.2s;
+
+    transition: all 0.2s ease;
+
 }
 
-.menu-cancel-btn:hover {
-    transform: scale(1.02);
-    background: #dc2626;
+.menu-cancel-btn:active {
+
+    transform: scale(0.97);
+
 }
 
 /* =========================================
-   🌈 BOTON ACTUALIZAR
+   ACTUALIZAR APP
 ========================================= */
 
 .rainbow-update-btn {
 
-    position: relative;
-
-    overflow: hidden;
-
-    background: #fff;
+    background: #f8f8f8;
 
     color: #111;
 
-    border: 2px solid transparent;
+    border: 2px solid #FD7635;
 
     font-weight: 700;
 
 }
 
 /* =========================================
-   🌈 BORDE ANIMADO
+   ADMIN
 ========================================= */
 
-.rainbow-update-btn::before {
+.gold-btn {
 
-    content: "";
+    background: #f8f8f8;
+
+    color: #111;
+
+    font-weight: 700;
+
+}
+
+/* =========================================
+   BADGE
+========================================= */
+
+.menu-badge {
 
     position: absolute;
 
-    inset: 0;
+    top: 50%;
 
-    padding: 2px;
+    right: 14px;
 
-    border-radius: 16px;
+    transform: translateY(-50%);
 
-    background: linear-gradient(90deg,
-            #ff0000,
-            #ff7a00,
-            #ffee00,
-            #00ff66,
-            #00ccff,
-            #6a00ff,
-            #ff00c8,
-            #ff0000);
+    min-width: 22px;
 
-    background-size: 300% 300%;
+    height: 22px;
 
-    animation: rainbowMove 3s linear infinite;
+    padding: 0 6px;
 
-    -webkit-mask:
-        linear-gradient(#fff 0 0) content-box,
-        linear-gradient(#fff 0 0);
+    border-radius: 999px;
 
-    -webkit-mask-composite: xor;
+    background: #EF4444;
 
-    mask-composite: exclude;
+    color: white;
 
-    pointer-events: none;
+    font-size: 11px;
 
-}
+    font-weight: 700;
 
-/* =========================================
-   ✨ GLOW
-========================================= */
+    display: flex;
 
-.rainbow-update-btn::after {
+    align-items: center;
 
-    content: "";
-
-    position: absolute;
-
-    inset: -4px;
-
-    border-radius: 18px;
-
-    background: inherit;
-
-    filter: blur(8px);
-
-    opacity: 0.6;
-
-    z-index: -1;
-
-}
-
-/* =========================================
-   🌈 ANIMACION
-========================================= */
-
-@keyframes rainbowMove {
-
-    0% {
-
-        background-position: 0% 50%;
-
-    }
-
-    100% {
-
-        background-position: 300% 50%;
-
-    }
-
-}
-
-/* =========================================
-   👑 ADMIN GOLD
-========================================= */
-
-.admin-gold-btn {
-
-    position: relative;
-
-    overflow: hidden;
-
-    background:
-        linear-gradient(135deg,
-            #fff7cc 0%,
-            #ffd700 18%,
-            #ffef8a 35%,
-            #c99700 52%,
-            #fff2a6 70%,
-            #d4a200 85%,
-            #fff7cc 100%);
-
-    color: #4b3200;
-
-    font-weight: 800;
-
-    border: 1px solid rgba(255, 255, 255, .5);
-
-    box-shadow:
-        inset 0 2px 4px rgba(255, 255, 255, .45),
-        inset 0 -2px 4px rgba(0, 0, 0, .12),
-        0 6px 18px rgba(255, 215, 0, .35);
-
-    text-shadow:
-        0 1px 0 rgba(255, 255, 255, .6);
-
-}
-
-/* =========================================
-   ✨ SHINE
-========================================= */
-
-.admin-gold-btn::before {
-
-    content: "";
-
-    position: absolute;
-
-    top: 0;
-    left: -120%;
-
-    width: 60%;
-    height: 100%;
-
-    background:
-        linear-gradient(120deg,
-            transparent 0%,
-            rgba(255, 255, 255, .2) 30%,
-            rgba(255, 255, 255, .9) 50%,
-            rgba(255, 255, 255, .2) 70%,
-            transparent 100%);
-
-    transform: skewX(-25deg);
-
-    animation: goldShine 2.8s infinite;
-
-}
-
-/* =========================================
-   ✨ ANIMACION
-========================================= */
-
-@keyframes goldShine {
-
-    0% {
-
-        left: -120%;
-
-    }
-
-    45% {
-
-        left: 140%;
-
-    }
-
-    100% {
-
-        left: 140%;
-
-    }
+    justify-content: center;
 
 }
 </style>

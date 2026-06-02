@@ -1,22 +1,58 @@
 <template>
 
-    <button class="w-full py-3 text-white rounded-md font-semibold mt-3" :style="{
-        background: mercado.topnavbar_color
-    }" @click="$emit('guardar')">
+    <div class="flex gap-2 mt-3">
 
-        <span v-if="loading">
+        <!-- ======================================
+             ❌ CANCELAR
+        ====================================== -->
 
-            Guardando...
+        <button class="
+                flex-1
+                py-3
+                rounded-md
+                font-semibold
+                text-white
+                bg-red-500
+                active:scale-[0.98]
+                transition
+            " @click="$emit('cancelar')">
 
-        </span>
+            CANCELAR
 
-        <span v-else>
+        </button>
 
-            GUARDAR
+        <!-- ======================================
+             💾 GUARDAR
+        ====================================== -->
 
-        </span>
+        <button class="
+                flex-1
+                py-3
+                text-white
+                rounded-md
+                font-semibold
+                active:scale-[0.98]
+                transition
+            " :style="{
+                background:
+                    mercado.topnavbar_color
+            }" @click="$emit('guardar')">
 
-    </button>
+            <span v-if="loading">
+
+                Guardando...
+
+            </span>
+
+            <span v-else>
+
+                GUARDAR
+
+            </span>
+
+        </button>
+
+    </div>
 
 </template>
 
@@ -24,20 +60,28 @@
 
 import {
     useMercado
-} from '../../../../../services/useMercado.js'
+}
+    from '../../../../../services/useMercado.js'
 
 defineProps({
 
-    loading: Boolean
+    loading:
+        Boolean
 
 })
 
 defineEmits([
-    'guardar'
+
+    'guardar',
+
+    'cancelar'
+
 ])
 
 const {
     mercado
-} = useMercado()
+}
+    =
+    useMercado()
 
 </script>

@@ -9,26 +9,38 @@
       <div class="flex items-center gap-3">
 
         <!-- 🔙 BACK -->
-        <button v-if="route.query?.titulo" @click="router.back()" class="
-      w-9
-      h-9
+        <button @click="goBack" class="
+        w-10
+        h-10
 
-      rounded-full
+        rounded-full
 
-      bg-white/20
+        bg-white
 
-      flex
-      items-center
-      justify-center
+        flex
+        items-center
+        justify-center
 
-      text-white
+        shadow-[0_4px_12px_rgba(0,0,0,0.12)]
 
-      active:scale-95
+        active:scale-95
 
-      transition
+        transition
     ">
 
-          <i class="fa fa-arrow-left"></i>
+          <i class="
+        fa
+        fa-arrow-left
+
+        text-sm
+    " :style="{
+      color:
+        mercadoData.topnavbar_color
+        ||
+        '#FD7635'
+    }">
+
+          </i>
 
         </button>
 
@@ -331,6 +343,34 @@ onMounted(() => {
   }
 
 })
+
+/* =========================================
+   🔙 BACK
+========================================= */
+
+function goBack() {
+
+  /* =========================================
+     🔥 SI TIENE TITULO
+  ========================================= */
+
+  if (route.query?.titulo) {
+
+    router.back()
+
+    return
+
+  }
+
+  /* =========================================
+     🔥 DEFAULT
+  ========================================= */
+
+  router.push(
+    '/XXV1_origen'
+  )
+
+}
 </script>
 
 <style scoped>

@@ -121,7 +121,7 @@ const opciones = [
     },
 
     {
-        value: 'POR PAGAR',
+        value: 'POR_PAGAR',
         emoji: '⏳'
     }
 

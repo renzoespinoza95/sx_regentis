@@ -3,7 +3,20 @@
     <div class="bg-gray-50 rounded-md px-3 py-2 flex items-center gap-3 text-sm">
 
         <!-- 🔥 IMAGEN -->
-        <img src="https://picsum.photos/60" class="w-10 h-10 rounded object-cover" />
+        <img :src="item.img
+
+            ||
+
+            'https://picsum.photos/60'
+
+            " class="
+        w-10
+        h-10
+
+        rounded
+
+        object-cover
+    " />
 
         <!-- 🔥 INFO -->
         <div class="flex-1 flex items-center gap-3">

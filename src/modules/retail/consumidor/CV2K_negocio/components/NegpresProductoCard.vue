@@ -1,5 +1,10 @@
 <template>
-  <div class="bg-white rounded-2xl shadow-md overflow-hidden" @click="irDetalle">
+  <div class="
+        bg-white
+        rounded-2xl
+        shadow-md
+        overflow-hidden
+    ">
 
     <div class="relative">
       <img :src="img
@@ -15,9 +20,42 @@
         object-cover
     " />
 
-      <span class="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
-        {{ badge }}
-      </span>
+      <button class="
+        absolute
+
+        top-2
+        right-2
+
+        w-9
+        h-9
+
+        rounded-full
+
+        bg-[#FD7635]/85
+
+        backdrop-blur-sm
+
+        text-white
+
+        shadow-lg
+
+        hover:scale-105
+
+        active:scale-95
+
+        transition
+
+        z-10
+    " @click.stop="irDetalle">
+
+        <i class="
+            fa
+            fa-eye
+            text-sm
+        ">
+        </i>
+
+      </button>
     </div>
 
     <div class="p-3">

@@ -1,130 +1,400 @@
 <template>
 
-    <div v-if="modelValue" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[9999]"
-        @click.self="close">
+    <div v-if="modelValue" class="
+            fixed
+            inset-0
 
-        <div ref="modalRef" class="relative bg-white w-[90%] max-w-md rounded-2xl shadow-2xl p-5 overflow-hidden">
+            bg-black/40
 
-            <!-- 🔥 CERRAR -->
-            <div class="absolute top-3 right-3 z-10">
+            flex
+            items-center
+            justify-center
 
-                <button @click="close"
-                    class="w-8 h-8 rounded-full bg-red-500 text-white shadow-md flex items-center justify-center hover:scale-105 active:scale-95 transition">
+            z-[9999]
+        " @click.self="close">
 
-                    <i class="fa fa-times text-sm"></i>
+        <div ref="modalRef" class="
+                relative
+                bg-white
+                w-[92%]
+                max-w-[460px]
+                max-h-[85vh]
+                rounded-[24px]
+                shadow-2xl
+                overflow-hidden
+                flex
+                flex-col
+            ">
 
-                </button>
+            <div class="
+                    overflow-y-auto
+                    p-6
+                ">
 
-            </div>
-            <!-- HEADER -->
-            <div class="text-center mb-4">
+                <!-- 🔥 CERRAR -->
+                <div class="
+                        absolute
+                        top-3
+                        right-3
+                        z-10
+                    ">
 
-                <img :src="user?.img_perfil || 'https://picsum.photos/80'"
-                    class="w-20 h-20 rounded-full mx-auto mb-2" />
+                    <button @click="close" class="
+                            w-8
+                            h-8
+                            rounded-full
+                            bg-red-500
+                            text-white
+                            shadow-md
+                            flex
+                            items-center
+                            justify-center
+                            hover:scale-105
+                            active:scale-95
+                            transition
+                        ">
 
-                <div class="font-semibold text-lg">
-                    {{ user?.nombres_apellidos }}
-                </div>
+                        <i class="
+                                fa
+                                fa-times
+                                text-sm
+                            "></i>
 
-                <div class="text-sm text-gray-500">
-                    {{ user?.email }}
-                </div>
-
-                <!-- 🔥 BOTÓN PEQUEÑO CERRAR SESIÓN -->
-                <button @click="logout" class="mt-2 text-xs bg-red-500 text-white px-3 py-1 rounded-full shadow">
-                    Cerrar sesión
-                </button>
-
-            </div>
-
-            <!-- INFO USUARIO -->
-            <div class="text-sm space-y-2 mb-4">
-
-                <!-- Línea 1 -->
-                <div class="flex justify-between">
-                    <div><b>Usuario:</b> {{ user?.sobrenombre }}</div>
-                    <div><b>Código:</b> {{ user?.cod_usu }}</div>
-                </div>
-
-                <!-- Línea 2 -->
-                <div class="flex justify-between">
-                    <div><b>Rol:</b> {{ user?.rol_nombre }}</div>
-                    <div><b>Tipo Usuario:</b> {{ user?.tipoxusu_descripcion }}</div>
-                </div>
-
-            </div>
-
-            <!-- INFO NEGOCIO -->
-            <div class="bg-gray-50 rounded-xl p-3 mb-4">
-
-                <div class="font-semibold mb-2">Negocio</div>
-
-                <div class="text-sm space-y-1">
-                    <div><b>Nombre:</b> {{ user?.negocio_nombre }}</div>
-                    <div><b>Dirección:</b> {{ user?.negocio_direccion }}</div>
-                    <div><b>Ciudad:</b> {{ user?.negocio_ciudad }}</div>
-                </div>
-
-            </div>
-
-            <!-- SCREENS -->
-            <div class="mt-4">
-                <div class="font-semibold mb-2">Pantallas</div>
-
-                <div class="flex flex-wrap gap-2">
-                    <span v-for="s in screens" :key="s.screen_id" class="bg-gray-100 px-2 py-1 rounded text-xs">
-                        {{ s.titulo || s.nombre }}
-                    </span>
-                </div>
-            </div>
-
-            <!-- SUSCRIPCION -->
-            <div class="bg-orange-50 rounded-xl p-3 mt-5">
-
-                <div class="font-semibold mb-2">
-
-                    Suscripción ✨
+                    </button>
 
                 </div>
 
-                <div class="text-sm space-y-1">
+                <!-- HEADER -->
+                <div class="
+                        text-center
+                        mb-4
+                    ">
 
-                    <div>
+                    <img :src="user?.img_perfil
+                        ||
+                        'https://picsum.photos/80'
+                        " class="
+                            w-20
+                            h-20
+                            rounded-full
+                            mx-auto
+                            mb-2
+                        " />
 
-                        <b>Fecha inicio:</b>
+                    <div class="
+                            font-semibold
+                            text-lg
+                        ">
 
-                        {{
-
-                            formatFecha(
-                                user?.fecha_inicio_premium
-                        )
-
-                        }}
+                        {{ user?.nombres_apellidos }}
 
                     </div>
 
-                    <div>
+                    <div class="
+                            text-sm
+                            text-gray-500
+                        ">
 
-                        <b>Fecha término:</b>
+                        {{ user?.email }}
+
+                    </div>
+
+                    <!-- 🔥 BOTÓN PEQUEÑO CERRAR SESIÓN -->
+                    <button @click="logout" class="
+                            mt-2
+                            text-xs
+                            bg-red-500
+                            text-white
+                            px-3
+                            py-1
+                            rounded-full
+                            shadow
+                        ">
+
+                        Cerrar sesión
+
+                    </button>
+
+                </div>
+
+                <!-- INFO USUARIO -->
+                <div class="
+                        text-sm
+                        space-y-2
+                        mb-4
+                    ">
+
+                    <!-- Línea 1 -->
+                    <div class="
+                            flex
+                            justify-between
+                        ">
+
+                        <div>
+
+                            <b>Usuario:</b>
+
+                            {{ user?.sobrenombre }}
+
+                        </div>
+
+                        <div>
+
+                            <b>Código:</b>
+
+                            {{ user?.cod_usu }}
+
+                        </div>
+
+                    </div>
+
+                    <!-- Línea 2 -->
+                    <div class="
+                            flex
+                            justify-between
+                        ">
+
+                        <div>
+
+                            <b>Rol:</b>
+
+                            {{ user?.rol_nombre }}
+
+                        </div>
+
+                        <div>
+
+                            <b>Tipo Usuario:</b>
+
+                            {{ user?.tipoxusu_descripcion }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- INFO NEGOCIO -->
+                <div class="
+                        bg-gray-50
+                        rounded-xl
+                        p-3
+                        mb-4
+                    ">
+
+                    <div class="
+                            font-semibold
+                            mb-2
+                        ">
+
+                        Negocio
+
+                    </div>
+
+                    <div class="
+                            text-sm
+                            space-y-1
+                        ">
+
+                        <div>
+
+                            <b>Nombre:</b>
+
+                            {{ user?.negocio_nombre }}
+
+                        </div>
+
+                        <div>
+
+                            <b>Dirección:</b>
+
+                            {{ user?.negocio_direccion }}
+
+                        </div>
+
+                        <div>
+
+                            <b>Ciudad:</b>
+
+                            {{ user?.negocio_ciudad }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- SCREENS -->
+                <div class="
+                        mt-4
+                    ">
+
+                    <div class="
+                            font-semibold
+                            mb-2
+                        ">
+
+                        Pantallas
+
+                    </div>
+
+                    <div class="
+                            flex
+                            flex-wrap
+                            gap-2
+                        ">
+
+                        <span v-for="s in screens" :key="s.screen_id" class="
+                                bg-gray-100
+                                px-2
+                                py-1
+                                rounded
+                                text-xs
+                            ">
+
+                            {{ s.titulo || s.nombre }}
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <!-- SUSCRIPCION -->
+                <div class="
+                        bg-orange-50
+                        rounded-xl
+                        p-3
+                        mt-5
+                    ">
+
+                    <div class="
+                            font-semibold
+                            mb-2
+                        ">
+
+                        Suscripción ✨
+
+                    </div>
+
+                    <div class="
+                            text-sm
+                            space-y-1
+                        ">
+
+                        <div>
+
+                            <b>Fecha inicio:</b>
+
+                            {{
+
+                                formatFecha(
+                                    user?.fecha_inicio_premium
+                                )
+
+                            }}
+
+                        </div>
+
+                        <div>
+
+                            <b>Fecha término:</b>
+
+                            {{
+
+                                formatFecha(
+                                    user?.fecha_fin_premium
+                                )
+
+                            }}
+
+                            <span v-if="
+                                diasRestantes
+                                !==
+                                null
+                            " class="
+                                    text-xs
+                                    text-green-600
+                                    font-semibold
+                                    ml-1
+                                ">
+
+                                ({{ diasRestantes }} días)
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- PIN CODE -->
+
+                <div class="
+        mt-5
+    ">
+
+                    <button @click="crearPinCode" :disabled="tienePinActivo
+                        ||
+                        generandoPin
+                        " class="
+            w-full
+
+            py-3
+
+            rounded-xl
+
+            font-bold
+
+            text-white
+
+            transition
+        " :class="tienePinActivo
+
+            ?
+
+            'bg-green-700'
+
+            :
+
+            'bg-green-500 hover:bg-green-600'
+
+            ">
 
                         {{
 
-                            formatFecha(
-                                user?.fecha_fin_premium
-                        )
+                            pinCode
+
+                            ||
+
+                            (
+
+                                generandoPin
+
+                                    ?
+
+                                    'Generando...'
+
+                                    :
+
+                                    'Crear PIN'
+
+                            )
 
                         }}
 
-                        <span v-if="diasRestantes !== null" class="
-            text-xs
-            text-green-600
-            font-semibold
-            ml-1
-        ">
+                    </button>
 
-                            ({{ diasRestantes }} días)
+                    <div v-if="pinCode" class="
+        text-center
+        text-sm
+        font-bold
+        text-red-600
+        mt-2
+    ">
 
-                        </span>
+                        Válido por⏳ {{ tiempoRestanteTexto }}
 
                     </div>
 
@@ -144,7 +414,8 @@ import {
     ref,
     watch,
     nextTick,
-    computed
+    computed,
+    onUnmounted
 }
     from 'vue'
 
@@ -162,6 +433,13 @@ import {
     bus
 }
     from '../services/eventBus.js'
+import axios
+    from 'axios'
+
+import {
+    firma
+}
+    from '../services/security.js'
 
 /* =========================
    PROPS / EMITS
@@ -201,6 +479,12 @@ const user =
 
     )
 
+const tiempoRestante =
+    ref(0)
+
+let timerPin =
+    null
+
 const screens =
     computed(() =>
 
@@ -208,6 +492,15 @@ const screens =
         || []
 
     )
+
+const pinCode =
+    ref('')
+
+const pinCodeFechaFin =
+    ref('')
+
+const generandoPin =
+    ref(false)
 
 /* =========================
    ANIMACIÓN
@@ -237,11 +530,11 @@ watch(
 
                     {
 
-                        scale: 0.8,
+                        scale: 0.7,
 
                         opacity: 0,
 
-                        y: 40
+                        y: 30
 
                     },
 
@@ -253,9 +546,9 @@ watch(
 
                         y: 0,
 
-                        duration: 0.4,
+                        duration: 0.28,
 
-                        ease: 'power3.out'
+                        ease: 'back.out(1.7)'
 
                     }
 
@@ -283,6 +576,106 @@ watch(
    METHODS
 ========================= */
 
+const tiempoRestanteTexto =
+    computed(() => {
+
+        const total =
+            tiempoRestante.value
+
+        const minutos =
+            Math.floor(
+                total / 60
+            )
+
+        const segundos =
+            total % 60
+
+        return `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`
+
+    })
+
+function iniciarContador() {
+
+    if (
+
+        !pinCodeFechaFin.value
+
+    ) {
+
+        return
+
+    }
+
+    if (
+
+        timerPin
+
+    ) {
+
+        clearInterval(
+            timerPin
+        )
+
+    }
+
+    timerPin =
+        setInterval(() => {
+
+            const ahora =
+                new Date()
+
+            const fin =
+                new Date(
+                    pinCodeFechaFin.value
+                )
+
+            const diff =
+                Math.floor(
+
+                    (
+                        fin.getTime()
+                        -
+                        ahora.getTime()
+                    )
+
+                    / 1000
+
+                )
+
+            tiempoRestante.value =
+                Math.max(
+                    diff,
+                    0
+                )
+
+            if (
+
+                diff <= 0
+
+            ) {
+
+                clearInterval(
+                    timerPin
+                )
+
+                timerPin =
+                    null
+
+                pinCode.value =
+                    ''
+
+                pinCodeFechaFin.value =
+                    ''
+
+                tiempoRestante.value =
+                    0
+
+            }
+
+        }, 1000)
+
+}
+
 function close() {
 
     bus.emit(
@@ -299,15 +692,15 @@ function close() {
 
         {
 
-            scale: 0.8,
+            scale: 0.85,
 
             opacity: 0,
 
-            y: 40,
+            y: 20,
 
-            duration: 0.3,
+            duration: 0.2,
 
-            ease: 'power3.in',
+            ease: 'power2.in',
 
             onComplete: () => {
 
@@ -326,6 +719,13 @@ function close() {
     )
 
 }
+
+const tienePinActivo =
+    computed(() => {
+
+        return !!pinCode.value
+
+    })
 
 /* =========================
    📅 FECHAS
@@ -402,6 +802,71 @@ const diasRestantes =
 
     })
 
+async function crearPinCode() {
+
+    if (
+
+        generandoPin.value
+        ||
+        tienePinActivo.value
+
+    ) {
+
+        return
+
+    }
+
+    try {
+
+        generandoPin.value =
+            true
+
+        const seguridad =
+            firma()
+
+        const r =
+            await axios.post(
+
+                `${import.meta.env.VITE_PUBLIC_URL_BASE}/Sp07/crearPinCode`,
+
+                {
+
+                    usu_id:
+                        user.value?.usu_id,
+
+                    xin:
+                        seguridad.xin,
+
+                    yuan:
+                        seguridad.yuan
+
+                }
+
+            )
+
+        pinCode.value =
+            r.data.pin_code || ''
+
+        pinCodeFechaFin.value =
+            r.data.pin_code_fecha_fin || ''
+
+        iniciarContador()
+
+    }
+    catch (e) {
+
+        console.error(e)
+
+    }
+    finally {
+
+        generandoPin.value =
+            false
+
+    }
+
+}
+
 function logout() {
 
     clearUsuario()
@@ -436,5 +901,21 @@ function logout() {
     }
 
 }
+
+onUnmounted(() => {
+
+    if (
+
+        timerPin
+
+    ) {
+
+        clearInterval(
+            timerPin
+        )
+
+    }
+
+})
 
 </script>

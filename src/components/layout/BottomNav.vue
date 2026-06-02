@@ -110,27 +110,58 @@
 
     </button>
 
-    <!-- UBICACIONES -->
-    <button class="flex-1 h-full flex flex-col items-center justify-center" @click="go('/PCJj_mapa_ubicacion')">
+    <!-- MENU -->
+    <button class="flex-1 h-full flex flex-col items-center justify-center" @click="abrirMenuUsuario">
 
-      <i class="fa fa-map-marker text-xl transition" :class="isActive('/PCJj_mapa_ubicacion')
-        ? 'text-orange-500'
-        : 'text-white'
-        ">
+      <i class="
+            fa
+            fa-bars
+
+            text-xl
+
+            transition
+        " :class="showMenuUsuario
+
+          ?
+
+          'text-orange-500'
+
+          :
+
+          'text-white'
+          ">
       </i>
 
-      <span class="text-xs mt-1 transition" :class="isActive('/PCJj_mapa_ubicacion')
-        ? 'text-orange-500 font-semibold'
-        : 'text-white'
-        ">
+      <span class="
+            text-xs
+            mt-1
+            transition
+        " :class="showMenuUsuario
 
-        Ubicaciones
+          ?
+
+          'text-orange-500 font-semibold'
+
+          :
+
+          'text-white'
+          ">
+
+        Menú
 
       </span>
 
     </button>
 
   </div>
+
+  <ModalMenuUsuario v-model="showMenuUsuario
+    " @open-info="
+      showUsuario = true
+      " />
+
+  <ModalUsuario v-model="showUsuario
+    " />
 </template>
 <script setup>
 
@@ -139,6 +170,7 @@ import {
   useRoute
 }
   from 'vue-router'
+
 
 import {
   computed,
@@ -166,6 +198,11 @@ import {
 }
   from '../../services/useTrackingQueue.js'
 
+import ModalMenuUsuario
+  from '../ModalMenuUsuario.vue'
+
+import ModalUsuario
+  from '../ModalUsuario.vue'
 /* ======================================
    ENV
 ====================================== */
@@ -206,6 +243,12 @@ const hideCount =
    TRACKING
 ====================================== */
 
+const showMenuUsuario =
+  ref(false)
+
+const showUsuario =
+  ref(false)
+
 const {
 
   getTracking,
@@ -213,6 +256,12 @@ const {
 
 } =
   useTrackingQueue()
+
+function abrirMenuUsuario() {
+
+  showMenuUsuario.value = true
+
+}
 
 /* ======================================
    PATH ACTUAL

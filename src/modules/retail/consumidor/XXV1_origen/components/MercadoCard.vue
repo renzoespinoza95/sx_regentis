@@ -19,28 +19,66 @@
     ">
 
         <!-- IMG -->
-        <div class="relative">
+        <div class="
+    relative
 
+    h-32
+
+    flex
+    items-center
+    justify-center
+
+    p-4
+">
+
+            <!-- FONDO PREMIUM -->
+            <div class="
+        absolute
+        inset-0
+    " style="
+        background-color: #d8c78d;
+
+        background-image:
+
+            radial-gradient(circle at center center,
+                rgba(120, 90, 20, 0.10) 2px,
+                transparent 2px),
+
+            repeating-linear-gradient(45deg,
+                rgba(120, 90, 20, 0.08) 0px,
+                rgba(120, 90, 20, 0.08) 2px,
+                transparent 2px,
+                transparent 12px),
+
+            repeating-linear-gradient(-45deg,
+                rgba(255, 255, 255, 0.18) 0px,
+                rgba(255, 255, 255, 0.18) 2px,
+                transparent 2px,
+                transparent 12px),
+
+            linear-gradient(180deg,
+                #efe2b2 0%,
+                #d8c78d 45%,
+                #c7b16f 100%);
+    ">
+
+            </div>
+
+            <!-- LOGO -->
             <img :src="mercado.logo
                 ||
                 'https://barsi-img.b-cdn.net/recursos/sg3f.png'
                 " class="
-                    w-full
-                    h-32
-                    object-cover
-                " />
+            relative
+            z-10
 
-            <!-- OVERLAY -->
-            <div class="
-                absolute
-                inset-0
+            w-full
+            h-full
 
-                bg-gradient-to-t
-                from-black/40
-                to-transparent
-            ">
+            object-contain
 
-            </div>
+            drop-shadow-[0_8px_20px_rgba(0,0,0,0.22)]
+        " />
 
         </div>
 
@@ -49,15 +87,25 @@
 
             <!-- TITULO -->
             <div class="
-                text-sm
-                font-black
+    text-sm
+    font-black
 
-                text-white
+    text-white
 
-                line-clamp-2
+    tracking-wide
 
-                tracking-wide
-            ">
+    leading-tight
+
+    min-h-[38px]
+
+    overflow-hidden
+
+    text-ellipsis
+
+    line-clamp-2
+
+    break-words
+">
 
                 {{ mercado.nombre }}
 
@@ -65,14 +113,26 @@
 
             <!-- DIRECCION -->
             <div class="
-                text-xs
+    text-xs
 
-                text-white/80
+    text-white/80
 
-                mt-2
-            ">
+    mt-2
 
-                📍 {{ mercado.direccion }}
+    leading-tight
+
+    min-h-[30px]
+
+    overflow-hidden
+
+    text-ellipsis
+
+    line-clamp-2
+
+    break-words
+">
+
+                📍 {{ mercado.ciudad }}
 
             </div>
 
@@ -84,9 +144,6 @@
 
                 mt-1
             ">
-
-                {{ mercado.ciudad }}
-                -
                 {{ mercado.departamento }}
 
             </div>

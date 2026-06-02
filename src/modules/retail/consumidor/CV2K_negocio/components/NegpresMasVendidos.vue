@@ -3,35 +3,109 @@
     <div class="mt-6">
 
         <div class="px-4 mb-3 font-semibold text-gray-700">
+
             Mas Vendidos
+
         </div>
 
-        <!-- CAROUSEL -->
-        <div ref="container" class="flex gap-4 overflow-x-auto no-scrollbar px-4 cursor-grab" @mousedown="startDrag"
-            @mousemove="onDrag" @mouseup="stopDrag" @mouseleave="stopDrag" @touchstart="startDrag" @touchmove="onDrag"
-            @touchend="stopDrag">
+        <div class="relative">
 
-            <div v-for="(p, index) in productos" :key="p.product_id" :ref="el => itemsRef[index] = el"
-                class="w-[180px] flex-shrink-0">
-                <NegpresProductoCard :product_id="p.product_id" :title="p.name" :price="p.price" :rating="5" :img="p.imagenes?.find(
+            <!-- IZQUIERDA -->
+            <button class="
+                    absolute
 
-                    x =>
+                    left-1
+                    top-1/2
 
-                        Number(
-                            x.orden
-                        ) === 1
+                    -translate-y-1/2
 
-                )?.img
+                    z-20
 
-                    ||
+                    w-10
+                    h-10
 
-                    p.imagenes?.[0]?.img
+                    rounded-full
 
-                    ||
+                    bg-black/20
 
-                    'https://barsi-img.b-cdn.net/recursos/6qz5.png'
+                    backdrop-blur-sm
 
-                    " badge="🔥" />
+                    text-white
+
+                    hover:bg-black/40
+
+                    transition
+                " @click="scrollLeftBtn">
+
+                <i class="fa fa-chevron-left"></i>
+
+            </button>
+
+            <!-- DERECHA -->
+            <button class="
+                    absolute
+
+                    right-1
+                    top-1/2
+
+                    -translate-y-1/2
+
+                    z-20
+
+                    w-10
+                    h-10
+
+                    rounded-full
+
+                    bg-black/20
+
+                    backdrop-blur-sm
+
+                    text-white
+
+                    hover:bg-black/40
+
+                    transition
+                " @click="scrollRightBtn">
+
+                <i class="fa fa-chevron-right"></i>
+
+            </button>
+
+            <!-- CAROUSEL -->
+            <div ref="container" class="
+                    flex
+                    gap-4
+                    overflow-x-auto
+                    no-scrollbar
+                    px-4
+                    cursor-grab
+                " @mousedown="startDrag" @mousemove="onDrag" @mouseup="stopDrag" @mouseleave="stopDrag">
+
+                <div v-for="(p, index) in productos" :key="p.product_id" :ref="el => itemsRef[index] = el"
+                    class="w-[180px] flex-shrink-0">
+
+                    <NegpresProductoCard :product_id="p.product_id" :title="p.name" :price="p.price" :rating="5" :img="p.imagenes?.find(
+
+                        x =>
+
+                            Number(
+                                x.orden
+                            ) === 1
+
+                    )?.img
+
+                        ||
+
+                        p.imagenes?.[0]?.img
+
+                        ||
+
+                        'https://barsi-img.b-cdn.net/recursos/6qz5.png'
+                        " badge="👁️" />
+
+                </div>
+
             </div>
 
         </div>
@@ -80,6 +154,30 @@ function onDrag(e) {
     const x = pageX - container.value.offsetLeft
     const walk = (x - startX) * 1.2
     container.value.scrollLeft = scrollLeft - walk
+}
+
+function scrollLeftBtn() {
+
+    container.value?.scrollBy({
+
+        left: -300,
+
+        behavior: 'smooth'
+
+    })
+
+}
+
+function scrollRightBtn() {
+
+    container.value?.scrollBy({
+
+        left: 300,
+
+        behavior: 'smooth'
+
+    })
+
 }
 
 async function animarItems() {

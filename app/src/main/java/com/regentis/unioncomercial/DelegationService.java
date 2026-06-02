@@ -1,4 +1,4 @@
-package com.regentis.mercado3;
+package com.regentis.unioncomercial;
 
 
 import com.google.androidbrowserhelper.locationdelegation.LocationDelegationExtraCommandHandler;

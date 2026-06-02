@@ -8,10 +8,20 @@
 
         <div class="flex-1 flex justify-center p-4">
 
+
+
             <div class="w-full max-w-md md:max-w-4xl bg-white rounded-2xl shadow-md p-4 space-y-3">
 
-                <InputFecha v-model="form.fecha" />
+
+                <PillsPedidos :pedidos="pedidos" :activoId="pedidoActivoId" @select="
+                    seleccionarPedido
+                " @delete="
+                    confirmarEliminarPedido
+                " />
+
                 <InputCliente v-model="form.cliente" @select="onSelectCliente" />
+                <InputFecha v-model="form.fecha" />
+
                 <InputTipoPago v-model="form.tipo_pago
                     " :showPorPagar="!isPublicoGeneral
                         " />
@@ -20,7 +30,12 @@
 
                 <ResumenPedido :items="productos" />
 
-                <BtnGuardar :loading="loadingGuardar" @guardar="guardarVenta" />
+                <BtnGuardar :loading="loadingGuardar
+                    " @guardar="
+                        guardarVenta
+                    " @cancelar="
+                        cancelarPedido
+                    " />
 
             </div>
 
@@ -30,7 +45,8 @@
         <EditarCantidadDialog ref="editRef" @update="updateProducto" />
         <AppSnackbar ref="snackbarRef" />
         <CrearClienteDialog ref="crearClienteRef" />
-
+        <GsapToast ref="toastRef" />
+        <VoucherModal ref="voucherRef" />
     </div>
 
 
@@ -68,6 +84,14 @@ import {
 }
     from '../../../../services/security.js'
 
+import PillsPedidos
+    from './components/PillsPedidos.vue'
+
+import GsapToast
+    from '../../../../components/layout/GsapToast.vue'
+import VoucherModal
+    from './components/VoucherModal.vue'
+
 
 const { mercado } = useMercado()
 const addRef = ref(null)
@@ -84,16 +108,37 @@ const loadingGuardar = ref(false)
 const categoriasGlobal =
     ref([])
 
+const voucherRef =
+    ref(null)
+
 const productosGlobal =
     ref([])
+
+function verVoucher(
+    urlPdf
+) {
+
+    voucherRef.value?.open(
+        urlPdf
+    )
+
+}
 
 const fondoStyle = computed(() => {
     if (!mercado.value?.patron_fondo) return {}
     return cssToObject(mercado.value.patron_fondo)
 })
 
+const pedidos =
+    ref([])
+
+const pedidoActivoId =
+    ref(0)
+
 const optionsRef =
     ref(null)
+
+const toastRef = ref(null)
 
 const editRef = ref(null)
 
@@ -102,6 +147,9 @@ const crearClienteRef =
 
 const publicoGeneralId =
     ref(1)
+
+const creandoBorrador =
+    ref(false)
 
 function openEdit(p) {
     editRef.value.open(p)
@@ -119,7 +167,19 @@ function openDialog() {
 }
 
 function openAddDialog() {
+
+    if (!pedidoActivoId.value) {
+
+        snackbarRef.value?.open(
+            'Seleccione un pedido primero'
+        )
+
+        return
+
+    }
+
     addRef.value.open()
+
 }
 
 function onAgregarProducto(p) {
@@ -167,6 +227,330 @@ function onAgregarProducto(p) {
 
 }
 
+const pedidoActivo =
+    computed(() => {
+
+        return pedidos.value.find(
+
+            x =>
+
+                Number(
+                    x.venta_borrador_id
+                )
+
+                ===
+
+                Number(
+                    pedidoActivoId.value
+                )
+
+        )
+
+    })
+
+async function nuevo() {
+
+    try {
+
+        toastRef.value?.show({
+
+            text:
+                'Guardando por seguridad...',
+
+            type:
+                'info'
+
+        })
+
+        await guardarBorradorActual()
+
+        await crearNuevoBorrador()
+
+        toastRef.value?.show({
+
+            text:
+                'Nuevo pedido creado',
+
+            type:
+                'success'
+
+        })
+
+    }
+    catch (e) {
+
+        console.error(e)
+
+        toastRef.value?.show({
+
+            text:
+                'Error creando pedido',
+
+            type:
+                'error'
+
+        })
+
+    }
+
+}
+
+async function guardarBorradorActual() {
+
+    try {
+
+        const seguridad =
+            firma()
+
+        await axios.post(
+
+            `${API}/P7DX/draftGuardar`,
+
+            {
+
+                venta_borrador_id:
+
+                    pedidoActivo.value
+                        ?.venta_borrador_id
+
+                    ||
+
+                    0,
+
+                neg_id:
+                    getNegId(),
+
+                usu_id_vendedor:
+                    getUsuId(),
+
+                cliente_id:
+
+                    form.value
+                        ?.cliente_id
+
+                    ||
+
+                    1,
+
+                cliente_nombre:
+
+                    form.value
+                        ?.cliente
+
+                    ||
+
+                    'PUBLICO GENERAL',
+
+                fecha:
+
+                    form.value
+                        ?.fecha
+
+                    ||
+
+                    getFechaHoy(),
+
+                tipo_pago:
+
+                    form.value
+                        ?.tipo_pago
+
+                    ||
+
+                    'EFECTIVO',
+
+                items:
+                    productos.value,
+
+                xin:
+                    seguridad.xin,
+
+                yuan:
+                    seguridad.yuan
+
+            }
+
+        )
+
+        const pedido =
+            pedidos.value.find(
+                x =>
+                    x.venta_borrador_id
+                    ==
+                    pedidoActivoId.value
+            )
+
+        if (pedido) {
+
+            pedido.cliente_nombre =
+                form.value.cliente
+
+        }
+
+    }
+    catch (e) {
+
+        console.error(
+
+            'ERROR GUARDAR BORRADOR',
+
+            e
+
+        )
+
+        throw e
+
+    }
+
+}
+
+async function crearNuevoBorrador() {
+
+    creandoBorrador.value =
+        true
+
+    const seguridad =
+        firma()
+
+    const r =
+        await axios.post(
+
+            `${API}/P7DX/draftGuardar`,
+
+            {
+
+                venta_borrador_id: 0,
+
+                neg_id:
+                    getNegId(),
+
+                usu_id_vendedor:
+                    getUsuId(),
+
+                cliente_id:
+                    publicoGeneralId.value,
+
+                cliente_nombre:
+                    'PUBLICO GENERAL',
+
+                fecha:
+                    getFechaHoy(),
+
+                tipo_pago:
+                    'EFECTIVO',
+
+                xin:
+                    seguridad.xin,
+
+                yuan:
+                    seguridad.yuan
+
+            }
+
+        )
+
+    const nuevoId =
+        r.data
+            ?.venta_borrador_id
+
+    await cargarBorradores()
+
+    pedidoActivoId.value =
+        nuevoId
+
+    form.value = {
+
+        fecha:
+            getFechaHoy(),
+
+        cliente_id:
+            publicoGeneralId.value,
+
+        cliente:
+            'PUBLICO GENERAL',
+
+        tipo_pago:
+            'EFECTIVO'
+
+    }
+
+    productos.value = []
+
+    await seleccionarPedido({
+
+        venta_borrador_id:
+            nuevoId
+
+    })
+
+    creandoBorrador.value =
+        false
+
+}
+
+async function cargarBorradores() {
+
+    try {
+
+        const seguridad =
+            firma()
+
+        const r =
+            await axios.post(
+
+                `${API}/H9KD/draftListar`,
+
+                {
+
+                    neg_id:
+                        getNegId(),
+
+                    usu_id_vendedor:
+                        getUsuId(),
+
+                    xin:
+                        seguridad.xin,
+
+                    yuan:
+                        seguridad.yuan
+
+                }
+
+            )
+
+        if (
+            r.data.status === 'ok'
+        ) {
+
+            pedidos.value =
+                r.data.data || []
+
+            if (
+
+                !pedidoActivoId.value
+                &&
+                pedidos.value.length
+
+            ) {
+
+                pedidoActivoId.value =
+
+                    pedidos.value[0]
+                        .venta_borrador_id
+
+            }
+
+        }
+
+    }
+    catch (e) {
+
+        console.error(e)
+
+    }
+
+}
+
 function nuevoPedido() {
 
     productos.value = []
@@ -193,7 +577,44 @@ function nuevoPedido() {
 
 }
 
+function abrirVoucher(url) {
+
+    if (!url) {
+
+        snackbarRef.value?.open(
+            'No existe voucher'
+        )
+
+        return
+
+    }
+
+    window.open(
+
+        `/voucher-viewer?pdf=` +
+
+        encodeURIComponent(url),
+
+        '_blank'
+
+    )
+
+}
+
+
+
 async function guardarVenta() {
+
+    if (!pedidoActivoId.value) {
+
+        snackbarRef.value?.open(
+            'Seleccione un pedido'
+        )
+
+        return
+
+    }
+
 
     try {
 
@@ -284,9 +705,93 @@ async function guardarVenta() {
 
         if (r.data.status === 'ok') {
 
+            const urlPdf = r.data.url_pdf || ''
+
             snackbarRef.value?.open(
-                'Venta registrada correctamente ✅'
+
+                'Venta registrada correctamente ✅',
+
+                null,
+
+                [
+
+                    {
+
+                        text: 'Voucher',
+
+                        action: () => {
+
+                            verVoucher(
+                                r.data.url_pdf
+                            )
+
+                        }
+
+                    },
+
+                    {
+
+                        text: 'Cerrar',
+
+                        action: () => {
+
+                            snackbarRef.value?.cerrar?.()
+
+                        }
+
+                    }
+
+                ]
+
             )
+
+            const borradorId =
+
+                pedidoActivoId.value
+
+            const seguridad =
+                firma()
+
+            await axios.post(
+
+                `${API}/W8LP/draftEliminar`,
+
+                {
+
+                    venta_borrador_id:
+                        borradorId,
+
+                    xin:
+                        seguridad.xin,
+
+                    yuan:
+                        seguridad.yuan
+
+                }
+
+            )
+
+            await cargarBorradores()
+
+            pedidoActivoId.value = 0
+
+            productos.value = []
+
+            form.value = {
+
+                fecha:
+                    getFechaHoy(),
+
+                cliente_id:
+                    null,
+
+                cliente:
+                    '',
+
+                tipo_pago:
+                    'EFECTIVO'
+
+            }
 
             // 🔥 LIMPIAR
             productos.value = []
@@ -365,10 +870,46 @@ function abrirCrearCliente() {
 
 }
 
-function onSelectCliente(cliente) {
+async function onSelectCliente(cliente) {
 
     form.value.cliente_id =
         cliente.cliente_id
+
+    form.value.cliente =
+        cliente.nombre
+
+    const pedido =
+        pedidos.value.find(
+
+            x =>
+
+                Number(
+                    x.venta_borrador_id
+                )
+
+                ===
+
+                Number(
+                    pedidoActivoId.value
+                )
+
+        )
+
+    if (pedido) {
+
+        pedido.cliente_nombre =
+            cliente.nombre
+
+        pedido.cliente_id =
+            cliente.cliente_id
+
+        pedidos.value = [
+            ...pedidos.value
+        ]
+
+    }
+
+    await guardarBorradorActual()
 
 }
 
@@ -593,9 +1134,274 @@ function eliminarProducto(p) {
 }
 
 const productos = ref([])
+
+async function seleccionarPedido(
+    pedido
+) {
+
+    try {
+
+        if (
+
+            !creandoBorrador.value
+
+            &&
+
+            pedidoActivoId.value
+
+            &&
+
+            Number(
+                pedidoActivoId.value
+            )
+
+            !==
+
+            Number(
+                pedido.venta_borrador_id
+            )
+
+        ) {
+
+            await guardarBorradorActual()
+
+        }
+
+    }
+    catch (e) {
+
+        console.error(
+            'ERROR GUARDANDO BORRADOR',
+            e
+        )
+
+    }
+
+    pedidoActivoId.value =
+
+        pedido.venta_borrador_id
+
+    const seguridad =
+        firma()
+
+    const r =
+        await axios.post(
+
+            `${API}/Q2ZA/draftDetalle`,
+
+            {
+
+                venta_borrador_id:
+
+                    pedido
+                        .venta_borrador_id,
+
+                xin:
+                    seguridad.xin,
+
+                yuan:
+                    seguridad.yuan
+
+            }
+
+        )
+
+    if (
+        r.data.status === 'ok'
+    ) {
+
+        const data =
+            r.data.data
+
+        form.value = {
+
+            fecha:
+                data.fecha,
+
+            cliente_id:
+                data.cliente_id,
+
+            cliente:
+                data.cliente_nombre,
+
+            tipo_pago:
+                data.tipo_pago
+
+        }
+
+        productos.value =
+            data.items || []
+
+    }
+
+}
+
+async function eliminarPedido(
+    pedido
+) {
+
+    try {
+
+        const seguridad =
+            firma()
+
+        await axios.post(
+
+            `${API}/W8LP/draftEliminar`,
+
+            {
+
+                venta_borrador_id:
+
+                    pedido
+                        .venta_borrador_id,
+
+                xin:
+                    seguridad.xin,
+
+                yuan:
+                    seguridad.yuan
+
+            }
+
+        )
+
+        await cargarBorradores()
+
+        /* =====================
+           NO QUEDAN PEDIDOS
+        ===================== */
+
+        if (
+            !pedidos.value.length
+        ) {
+
+            await crearNuevoBorrador()
+
+            return
+
+        }
+
+        /* =====================
+           ÚLTIMO PEDIDO
+        ===================== */
+
+        const ultimo =
+
+            pedidos.value[0]
+
+        await seleccionarPedido({
+
+            venta_borrador_id:
+
+                ultimo
+                    .venta_borrador_id
+
+        })
+
+        toastRef.value?.show({
+
+            text:
+                'Pedido eliminado',
+
+            type:
+                'success'
+
+        })
+
+    }
+    catch (e) {
+
+        console.error(e)
+
+        toastRef.value?.show({
+
+            text:
+                'Error eliminando pedido',
+
+            type:
+                'error'
+
+        })
+
+    }
+
+}
+
+async function cancelarPedido() {
+
+    if (
+        !pedidoActivo.value
+    ) {
+        return
+    }
+
+    snackbarRef.value.open(
+
+        '¿Deseas cancelar este pedido?',
+
+        async () => {
+
+            await eliminarPedido(
+                pedidoActivo.value
+            )
+
+        }
+
+    )
+
+}
+
+function confirmarEliminarPedido(
+    pedido
+) {
+
+    snackbarRef.value.open(
+
+        `¿Eliminar ${pedido.cliente_nombre
+        ||
+        'este pedido'
+        }?`,
+
+        async () => {
+
+            await eliminarPedido(
+                pedido
+            )
+
+        }
+
+    )
+
+}
+
 /* ======================================
    🔥 INIT
 ====================================== */
 
-cargarCategoriasInfo()
+async function init() {
+
+    await cargarCategoriasInfo()
+
+    await cargarBorradores()
+
+    if (!pedidos.value.length) {
+
+        await crearNuevoBorrador()
+
+        return
+
+    }
+
+    await seleccionarPedido({
+
+        venta_borrador_id:
+            pedidos.value[0]
+                .venta_borrador_id
+
+    })
+
+}
+
+init()
 </script>

@@ -102,43 +102,7 @@ const fondoStyle =
    🔥 MODAL LOGIN GUEST
 ========================================= */
 
-watch(
 
-  isLogged,
-
-  (logged) => {
-
-    /* =========================================
-       🔓 LOGUEADO
-    ========================================= */
-
-    if (logged) {
-
-      promoRef.value?.close()
-
-      return
-
-    }
-
-    /* =========================================
-       🔒 INVITADO
-    ========================================= */
-
-    setTimeout(() => {
-
-      promoRef.value?.open()
-
-    }, 1200)
-
-  },
-
-  {
-
-    immediate: true
-
-  }
-
-)
 
 onMounted(() => {
 

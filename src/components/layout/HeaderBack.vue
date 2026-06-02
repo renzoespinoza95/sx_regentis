@@ -62,35 +62,9 @@
 
         <div class="flex items-center gap-2">
 
-          <!-- FAVORITOS -->
-          <div id="icon-heart-header" class="icon-btn relative" @click="irFavoritos">
-
-            <i class="fa fa-heart"></i>
-
-            <span v-if="favoritosCount > 0" class="notif-badge">
-
-              {{ favoritosCount }}
-
-            </span>
-
-          </div>
-
-          <!-- CARRITO -->
-          <div class="icon-btn relative" @click="irCarrito">
-
-            <i class="fa fa-shopping-cart"></i>
-
-            <span v-if="carritoCount > 0" class="notif-badge">
-
-              {{ carritoCount }}
-
-            </span>
-
-          </div>
-
           <!-- MENU -->
           <!-- AVATAR -->
-          <div class="icon-btn overflow-hidden p-0" @click="abrirMenuUsuario">
+          <div class="icon-btn overflow-hidden p-0" @click="abrirModalUsuario">
 
             <img :src="user?.img_perfil || 'https://picsum.photos/80'" class="w-full h-full object-cover" />
 

@@ -1,17 +1,47 @@
 <template>
 
-    <div v-if="visible" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div v-if="visible" class="
+            fixed
+            inset-0
+            bg-black/40
+            flex
+            items-center
+            justify-center
+            z-50
+        ">
 
-        <div ref="box" class="bg-white rounded-xl p-5 w-72 space-y-3">
+        <div ref="box" class="
+                bg-white
+                rounded-xl
+                p-5
+                w-72
+                space-y-3
+            ">
 
             <!-- ======================================
-                 🆕 NUEVO
+                 🆕 NUEVO PEDIDO
             ====================================== -->
 
-            <button class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100 transition flex items-center gap-2"
-                @click="nuevo">
+            <button class="
+                    w-full
+                    text-left
+                    px-3
+                    py-2
+                    rounded-lg
+                    hover:bg-gray-100
+                    transition
+                    flex
+                    items-center
+                    gap-2
+                " @click="
+                    crearPedido
+                ">
 
-                <i class="fa fa-file-o text-green-500"></i>
+                <i class="
+                        fa
+                        fa-file-o
+                        text-green-500
+                    "></i>
 
                 <span>
 
@@ -21,10 +51,30 @@
 
             </button>
 
-            <button class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100 transition flex items-center gap-2"
-                @click="nuevoCliente">
+            <!-- ======================================
+                 👤 NUEVO CLIENTE
+            ====================================== -->
 
-                <i class="fa fa-user-plus text-blue-500"></i>
+            <button class="
+                    w-full
+                    text-left
+                    px-3
+                    py-2
+                    rounded-lg
+                    hover:bg-gray-100
+                    transition
+                    flex
+                    items-center
+                    gap-2
+                " @click="
+                    nuevoCliente
+                ">
+
+                <i class="
+                        fa
+                        fa-user-plus
+                        text-blue-500
+                    "></i>
 
                 <span>
 
@@ -38,7 +88,16 @@
                  ❌ CERRAR
             ====================================== -->
 
-            <button class="w-full text-white py-2 rounded-md bg-red-500 mt-2" @click="close">
+            <button class="
+                    w-full
+                    text-white
+                    py-2
+                    rounded-md
+                    bg-red-500
+                    mt-2
+                " @click="
+                    close
+                ">
 
                 Cerrar
 
@@ -55,21 +114,26 @@
 import {
     ref,
     nextTick
-} from 'vue'
+}
+    from 'vue'
 
-import gsap from 'gsap'
+import gsap
+    from 'gsap'
 
-const visible = ref(false)
+const visible =
+    ref(false)
 
-const box = ref(null)
+const box =
+    ref(null)
 
-const emit = defineEmits([
+const emit =
+    defineEmits([
 
-    'nuevo',
+        'nuevo',
 
-    'nuevo-cliente'
+        'nuevo-cliente'
 
-])
+    ])
 
 /* ======================================
    🔥 OPEN
@@ -82,17 +146,21 @@ function open() {
     nextTick(() => {
 
         gsap.fromTo(
+
             box.value,
+
             {
                 scale: 0.7,
                 opacity: 0
             },
+
             {
                 scale: 1,
                 opacity: 1,
                 duration: 0.3,
                 ease: 'back.out(1.7)'
             }
+
         )
 
     })
@@ -105,35 +173,47 @@ function open() {
 
 function close() {
 
-    gsap.to(box.value, {
+    gsap.to(
 
-        scale: 0.7,
+        box.value,
 
-        opacity: 0,
+        {
 
-        duration: 0.2,
+            scale: 0.7,
 
-        onComplete: () => {
+            opacity: 0,
 
-            visible.value = false
+            duration: 0.2,
+
+            onComplete: () => {
+
+                visible.value = false
+
+            }
 
         }
 
-    })
+    )
 
 }
 
 /* ======================================
-   🆕 NUEVO
+   🆕 CREAR PEDIDO
 ====================================== */
 
-function nuevo() {
+function crearPedido() {
 
-    emit('nuevo')
+    emit(
+        'nuevo'
+    )
 
     close()
 
 }
+
+/* ======================================
+   👤 CREAR CLIENTE
+====================================== */
 
 function nuevoCliente() {
 
@@ -146,7 +226,9 @@ function nuevoCliente() {
 }
 
 defineExpose({
+
     open
+
 })
 
 </script>

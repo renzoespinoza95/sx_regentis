@@ -349,10 +349,7 @@ function close() {
 
 function goPlay() {
 
-    window.open(
-        playstore.value,
-        '_blank'
-    )
+    // Sin acción
 
 }
 
@@ -486,27 +483,31 @@ function runAnimations() {
 
         {
 
-            scale: 0.4,
+            x: -700,
 
             opacity: 0,
 
-            y: 120
+            rotate: -8,
+
+            scale: 0.85
 
         },
 
         {
 
-            scale: 1,
+            x: 0,
 
             opacity: 1,
 
-            y: 0,
+            rotate: 0,
 
-            duration: 1,
+            scale: 1,
+
+            duration: 1.3,
 
             delay: 0.9,
 
-            ease: 'elastic.out(1,0.5)'
+            ease: 'power4.out'
 
         }
 
@@ -539,26 +540,27 @@ function runAnimations() {
     /* =========================================
        🔥 RESPIRAR PLAYSTORE
     ========================================= */
-
-    gsap.to(
-
-        playRef.value,
-
-        {
-
-            scale: 1.05,
-
-            duration: 1.4,
-
-            repeat: -1,
-
-            yoyo: true,
-
-            ease: 'sine.inOut'
-
-        }
-
-    )
+    /*
+        gsap.to(
+    
+            playRef.value,
+    
+            {
+    
+                scale: 1.05,
+    
+                duration: 1.4,
+    
+                repeat: -1,
+    
+                yoyo: true,
+    
+                ease: 'sine.inOut'
+    
+            }
+    
+        )
+            */
 
 }
 
