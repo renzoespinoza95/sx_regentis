@@ -52,20 +52,23 @@
 
         <ProductoOpcionesDialog ref="productoDialogRef" @stock-updated="
             onStockUpdated
+
         " @visible-updated="
             onVisibleUpdated
         " @deleted="
             onProductoDeleted
         " @edit="
-        onEditarProducto
-    " @foto="
-        onProductoFotos
-    " />
+            onEditarProducto
+        " @foto="
+            onProductoFotos
+        " @calculadora="
+            openCalculadora
+        " />
 
         <ProductoFotosDialog ref="productoFotosRef" @uploaded="
             onProductoImagenUploaded
         " />
-
+        <CalculadoraPrecioDialog ref="calculadoraRef" v-if="true" />
 
         <GsapToast ref="toastRef" />
         <NuevoProductoDialog ref="nuevoProductoRef" @created="
@@ -81,12 +84,14 @@
 </template>
 
 <script setup>
+import { watch, computed, onMounted, ref } from 'vue'
+
 import axios from 'axios'
 import HeaderBar from './components/HeaderBar.vue'
 import SearchBar from './components/SearchBar.vue'
 import ProductoItem from './components/ProductoItem.vue'
 import { useUsuario } from '../../../../services/usuarioService'
-import { computed, onMounted, ref } from 'vue'
+
 import {
     firma
 }
@@ -109,6 +114,14 @@ import MisCategoriasDialog
     from './components/MisCategoriasDialog.vue'
 import ProductoFotosDialog
     from './components/ProductoFotosDialog.vue'
+
+import CalculadoraPrecioDialog
+    from './components/CalculadoraPrecioDialog.vue'
+
+console.log(
+    'CalculadoraPrecioDialog',
+    CalculadoraPrecioDialog
+)
 
 let timeout = null
 
@@ -148,6 +161,9 @@ const productosOriginales =
 
 const listaBaseBusqueda =
     ref([])
+
+const calculadoraRef =
+    ref(null)
 
 const misCategoriasRef =
     ref(null)
@@ -508,6 +524,43 @@ function onProductoFotos(item) {
 
 }
 
+function openCalculadora(producto) {
+
+    console.log(
+        'CLICK CALCULADORA'
+    )
+
+    console.log(
+        'REF',
+        calculadoraRef.value
+    )
+
+    console.log(
+        'OPEN',
+        calculadoraRef.value?.open
+    )
+
+    try {
+
+        calculadoraRef.value?.open(
+            producto
+        )
+
+        console.log(
+            'OPEN EJECUTADO'
+        )
+
+    }
+    catch (e) {
+
+        console.error(
+            e
+        )
+
+    }
+
+}
+
 /* =========================================
    👁️ VISIBLE UPDATED
 ========================================= */
@@ -701,4 +754,18 @@ function onEditarProducto(item) {
     )
 
 }
+
+
+watch(
+    calculadoraRef,
+    v => {
+        console.log(
+            'CALCULADORA REF CAMBIO',
+            v
+        )
+    },
+    {
+        immediate: true
+    }
+)
 </script>

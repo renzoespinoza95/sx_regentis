@@ -126,8 +126,24 @@ function cerrar() {
 }
 
 function confirmar() {
-    if (callback) callback()
-    cerrar()
+
+    if (callback) {
+
+        cerrar()
+
+        setTimeout(() => {
+
+            callback()
+
+        }, 250)
+
+    }
+    else {
+
+        cerrar()
+
+    }
+
 }
 
 defineExpose({

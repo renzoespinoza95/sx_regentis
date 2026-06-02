@@ -1,0 +1,338 @@
+<template>
+
+    <div v-if="visible" class="
+            fixed
+            inset-0
+            z-[9999]
+            bg-black/50
+            backdrop-blur-sm
+            flex
+            items-center
+            justify-center
+            p-4
+        ">
+
+        <div ref="box" class="
+                bg-white
+                rounded-[32px]
+                w-full
+                max-w-sm
+                overflow-hidden
+                shadow-[0_20px_60px_rgba(0,0,0,0.25)]
+            ">
+
+            <!-- HEADER -->
+            <div class="
+                    px-5
+                    pt-5
+                    pb-4
+                    text-white
+                " style="
+                    background:
+                    linear-gradient(
+                        135deg,
+                        #FD7635 0%,
+                        #ff995e 100%
+                    );
+                ">
+
+                <div class="
+                        text-xl
+                        font-black
+                    ">
+
+                    {{ titulo }}
+
+                </div>
+
+                <div class="
+                        text-sm
+                        opacity-90
+                        mt-1
+                    ">
+
+                    Configurar ganancia %
+
+                </div>
+
+            </div>
+
+            <!-- BODY -->
+            <div class="
+                    p-6
+                ">
+
+                <div class="
+                        flex
+                        items-center
+                        justify-center
+                        gap-4
+                    ">
+
+                    <!-- MENOS -->
+                    <button class="
+                            w-14
+                            h-14
+                            rounded-full
+                            bg-red-500
+                            text-white
+                            text-2xl
+                            font-bold
+                        " @click="
+                            disminuir
+                        ">
+
+                        -
+
+                    </button>
+
+                    <!-- VALOR -->
+                    <!-- VALOR -->
+                    <!-- VALOR -->
+                    <div class="
+        text-center
+        w-[140px]
+        shrink-0
+    ">
+
+                        <input v-model.number="porcentaje" type="number" min="0" class="
+            w-full
+            h-[72px]
+            text-center
+            text-5xl
+            font-black
+            text-[#FD7635]
+            border-0
+            outline-none
+            bg-transparent
+            appearance-none
+        ">
+
+                        <div class="
+            text-sm
+            text-gray-500
+            -mt-2
+        ">
+
+                            %
+
+                        </div>
+
+                    </div>
+
+                    <!-- MAS -->
+                    <button class="
+                            w-14
+                            h-14
+                            rounded-full
+                            bg-green-500
+                            text-white
+                            text-2xl
+                            font-bold
+                        " @click="
+                            aumentar
+                        ">
+
+                        +
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- FOOTER -->
+            <div class="
+                    p-5
+                    border-t
+                    bg-white
+                    space-y-3
+                ">
+
+                <button class="
+                        w-full
+                        h-[54px]
+                        rounded-2xl
+                        bg-[#FD7635]
+                        text-white
+                        font-bold
+                    " @click="
+                        confirmar
+                    ">
+
+                    Guardar ✨
+
+                </button>
+
+                <button class="
+                        w-full
+                        h-[54px]
+                        rounded-2xl
+                        bg-red-500
+                        text-white
+                        font-bold
+                    " @click="
+                        close
+                    ">
+
+                    Cerrar
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</template>
+
+<script setup>
+
+import {
+    ref,
+    nextTick
+}
+    from 'vue'
+
+import gsap
+    from 'gsap'
+
+const emit =
+    defineEmits([
+
+        'confirm'
+
+    ])
+
+const visible =
+    ref(false)
+
+const box =
+    ref(null)
+
+const titulo =
+    ref('')
+
+const porcentaje =
+    ref(25)
+
+function open(data) {
+
+    titulo.value =
+        data.titulo
+
+    porcentaje.value =
+        Number(
+            data.valor
+        )
+
+    visible.value =
+        true
+
+    nextTick(() => {
+
+        gsap.fromTo(
+
+            box.value,
+
+            {
+                scale: 0.7,
+                opacity: 0
+            },
+
+            {
+                scale: 1,
+                opacity: 1,
+                duration: 0.3,
+                ease: 'back.out(1.7)'
+            }
+
+        )
+
+    })
+
+}
+
+function close() {
+
+    gsap.to(
+
+        box.value,
+
+        {
+
+            scale: 0.7,
+
+            opacity: 0,
+
+            duration: 0.2,
+
+            onComplete: () => {
+
+                visible.value =
+                    false
+
+            }
+
+        }
+
+    )
+
+}
+
+function aumentar() {
+
+    porcentaje.value++
+
+}
+
+function disminuir() {
+
+    if (
+
+        porcentaje.value <= 0
+
+    ) {
+
+        return
+
+    }
+
+    porcentaje.value--
+
+}
+
+function confirmar() {
+
+    porcentaje.value =
+
+        Math.max(
+
+            0,
+
+            Number(
+                porcentaje.value
+            ) || 0
+
+        )
+
+    emit(
+
+        'confirm',
+
+        porcentaje.value
+
+    )
+
+    close()
+
+}
+
+defineExpose({
+
+    open
+
+})
+
+</script>

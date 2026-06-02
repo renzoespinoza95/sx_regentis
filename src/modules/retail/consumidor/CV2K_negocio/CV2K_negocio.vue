@@ -15,7 +15,7 @@
       <NegpresCategoriasGrid :categorias="data?.categorias || []" />
       <AppChatFloat :neg-id="data?.negocio?.neg_id || data?.neg_id"
         texto-mensaje="Buenos días. Me gustaría recibir información sobre sus productos, precios y métodos de entrega. Muchas gracias." />
-
+      <AppSnackbar ref="snackbarRef" />
     </div>
 
   </div>
@@ -24,7 +24,13 @@
 
 <script setup>
 
-import { computed, onMounted } from 'vue'
+import {
+  computed,
+  onMounted,
+  ref,
+  watch
+}
+  from 'vue'
 import { useMercado } from '../../../../services/useMercado.js'
 import { cssToObject } from '../../../../services/useCss.js'
 import { useUsuario } from '../../../../services/usuarioService.js'
@@ -42,6 +48,8 @@ import NegpresSearch from './components/NegpresSearch.vue'
 import NegpresHero from './components/NegpresHero.vue'
 import AppChatFloat from '../../../../components/layout/AppChatFloat.vue'
 import { useTienda } from '../../../../services/useTienda.js'
+import AppSnackbar
+  from '../../../../components/layout/AppSnackbar.vue'
 
 /* =========================
    🔥 PRINCIPAL (CLAVE)
@@ -89,6 +97,9 @@ setNegIdTienda(
   neg_id_route
 )
 
+const snackbarRef =
+  ref(null)
+
 /* =========================
    🔥 FONDO DINÁMICO
 ========================= */
@@ -102,6 +113,56 @@ const fondoStyle = computed(() => {
   return cssToObject(mercado.value.patron_fondo)
 
 })
+
+watch(
+
+  data,
+
+  (v) => {
+
+    if (!v) {
+      return
+    }
+
+    const isPrueba =
+
+      Number(
+
+        v?.negocio?.is_prueba
+
+        ??
+
+        v?.is_prueba
+
+        ??
+
+        0
+
+      )
+
+    if (
+
+      isPrueba === 1
+
+    ) {
+
+      snackbarRef.value?.open(
+
+        '⚠️ Todos los productos mostrados aquí no están disponibles actualmente'
+
+      )
+
+    }
+
+  },
+
+  {
+
+    immediate: true
+
+  }
+
+)
 
 onMounted(() => {
 

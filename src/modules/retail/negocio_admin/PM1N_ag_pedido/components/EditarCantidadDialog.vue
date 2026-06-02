@@ -78,9 +78,7 @@
 
                 S/
                 {{
-                    Number(
-                        producto?.precio || 0
-                    ).toFixed(2)
+                    precioActual.toFixed(2)
                 }}
 
                 ×
@@ -97,6 +95,58 @@
 
             </div>
 
+            <div v-if="
+                producto?.precio_volumen?.length
+            " class="
+        text-left
+        bg-gray-50
+        rounded-xl
+        p-3
+        text-xs
+    ">
+
+                <div class="
+            font-semibold
+            mb-2
+        ">
+
+                    💰 Precios por volumen
+
+                </div>
+
+                <div v-for="r in producto.precio_volumen" :key="r.cantidad_desde" class="
+            flex
+            justify-between
+            py-1
+        ">
+
+                    <span>
+
+                        {{ r.nombre_rango }}
+
+                    </span>
+
+                    <span class="
+                font-semibold
+                text-green-600
+            ">
+
+                        S/
+
+                        {{
+
+                            Number(
+                                r.precio_unitario_calculado
+                            ).toFixed(2)
+
+                        }}
+
+                    </span>
+
+                </div>
+
+            </div>
+
             <!-- BOTON -->
             <button class="w-full py-2 text-white rounded-md bg-green-500" @click="guardar">
                 PEDIR
@@ -105,7 +155,7 @@
         </div>
 
     </div>
-
+    <GsapToast ref="toastRef" />
 </template>
 
 <script setup>
@@ -117,6 +167,8 @@ import {
     from 'vue'
 import gsap from 'gsap'
 import { useMercado } from '../../../../../services/useMercado.js'
+import GsapToast
+    from '../../../../../components/layout/GsapToast.vue'
 
 const { mercado } = useMercado()
 
@@ -129,20 +181,20 @@ const cantidad = ref(1)
 const total =
     computed(() => {
 
-        const precio =
-            Number(
-                producto.value?.precio || 0
-            )
-
         return (
-            precio
+
+            precioActual.value
+
             *
+
             cantidad.value
+
         ).toFixed(2)
 
     })
 
 const emit = defineEmits(['update'])
+const toastRef = ref(null)
 
 function open(p) {
     producto.value = p
@@ -175,12 +227,96 @@ function menos() {
 }
 
 function guardar() {
+
+    const stock =
+
+        Number(
+            producto.value?.stock || 0
+        )
+
+    if (
+
+        cantidad.value > stock
+
+    ) {
+
+        toastRef.value?.show({
+
+            text:
+
+                `Stock insuficiente. Disponible: ${stock}`,
+
+            type:
+                'error'
+
+        })
+
+        return
+
+    }
+
     emit('update', {
+
         ...producto.value,
-        cantidad: cantidad.value
+
+        cantidad:
+            cantidad.value,
+
+        precio:
+            precioActual.value
+
     })
+
     close()
+
 }
+
+const precioActual =
+    computed(() => {
+
+        const lista =
+
+            producto.value
+                ?.precio_volumen
+
+            ||
+
+            []
+
+        let precio =
+
+            Number(
+                producto.value
+                    ?.precio || 0
+            )
+
+        lista.forEach(r => {
+
+            if (
+
+                cantidad.value
+
+                >=
+
+                Number(
+                    r.cantidad_desde
+                )
+
+            ) {
+
+                precio =
+
+                    Number(
+                        r.precio_unitario_calculado
+                    )
+
+            }
+
+        })
+
+        return precio
+
+    })
 
 defineExpose({ open })
 </script>

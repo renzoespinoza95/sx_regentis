@@ -76,6 +76,47 @@
 
             </button>
 
+            <button class="
+        w-full
+        flex
+        items-center
+        gap-3
+        px-4
+        py-4
+        rounded-2xl
+        bg-[#eef7ff]
+        text-blue-600
+        font-semibold
+    " @click="
+        emit(
+            'calculadora',
+            producto
+        )
+        ">
+
+                <div class="
+            w-10
+            h-10
+            rounded-full
+            bg-blue-500
+            text-white
+            flex
+            items-center
+            justify-center
+        ">
+
+                    🧮
+
+                </div>
+
+                <div>
+
+                    Calculadora precio
+
+                </div>
+
+            </button>
+
             <!-- CERRAR -->
             <button class="
                     w-full
@@ -160,6 +201,8 @@ const emit =
         'visible-updated',
 
         'deleted',
+
+        'calculadora',
 
         'edit',
 

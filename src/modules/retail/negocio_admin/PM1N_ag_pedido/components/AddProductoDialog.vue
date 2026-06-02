@@ -177,6 +177,26 @@
 
                     </div>
 
+                    <div class="text-[11px]" :class="Number(
+                        p.stock || 0
+                    ) <= 0
+
+                            ?
+
+                            'text-red-500 font-semibold'
+
+                            :
+
+                            'text-green-600'
+
+                        ">
+
+                        Stock:
+
+                        {{ p.stock || 0 }}
+
+                    </div>
+
                     <!-- PRECIO -->
                     <span class="text-xs text-[#0F0F0F]">
 
@@ -199,6 +219,8 @@
         </div>
 
     </div>
+
+    <GsapToast ref="toastRef" />
 
 </template>
 <script setup>
@@ -233,6 +255,8 @@ import {
 
 import EditarCantidadDialog
     from './EditarCantidadDialog.vue'
+import GsapToast
+    from '../../../../../components/layout/GsapToast.vue'
 
 const visible = ref(false)
 
@@ -251,6 +275,8 @@ const categorias =
         'categoriasGlobal',
         ref([])
     )
+
+const toastRef = ref(null)
 
 const activeCat = ref(null)
 
@@ -526,6 +552,28 @@ function onBuscar() {
 
 function selectProducto(p) {
 
+    if (
+
+        Number(
+            p.stock || 0
+        ) <= 0
+
+    ) {
+
+        toastRef.value?.show({
+
+            text:
+                'No hay stock disponible',
+
+            type:
+                'error'
+
+        })
+
+        return
+
+    }
+
     cantRef.value.open({
 
         nombre:
@@ -541,7 +589,15 @@ function selectProducto(p) {
             1,
 
         product_id:
-            p.product_id
+            p.product_id,
+
+        stock:
+            Number(
+                p.stock || 0
+            ),
+
+        precio_volumen:
+            p.precio_volumen || []
 
     })
 

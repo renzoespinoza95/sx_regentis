@@ -2,20 +2,58 @@
 
     <div class="mt-3 px-2">
 
-        <div ref="container" class="flex gap-2 overflow-x-auto no-scrollbar cursor-grab" @mousedown="startDrag"
-            @mousemove="onDrag" @mouseup="stopDrag" @mouseleave="stopDrag" @touchstart="startDrag" @touchmove="onDrag"
-            @touchend="stopDrag">
+        <div ref="container" class="
+                flex
+                flex-wrap
+                content-start
+                gap-2
+                overflow-x-auto
+                no-scrollbar
+                cursor-grab
+                h-[68px]
+            " @mousedown="startDrag" @mousemove="onDrag" @mouseup="stopDrag" @mouseleave="stopDrag"
+            @touchstart="startDrag" @touchmove="onDrag" @touchend="stopDrag">
 
             <!-- 🔥 TODOS -->
-            <button @click="$emit('select', { category_id: null })" :style="active === null ? activeStyle : pillStyle"
-                class="flex items-center gap-2 px-3 py-1 rounded-full text-xs shadow-sm whitespace-nowrap transition">
+            <button @click="$emit('select', { category_id: null })" :style="active === null
+                    ? activeStyle
+                    : pillStyle
+                " class="
+                    flex
+                    items-center
+                    gap-2
+                    px-3
+                    py-1
+                    rounded-full
+                    text-xs
+                    shadow-sm
+                    whitespace-nowrap
+                    transition
+                    h-[28px]
+                ">
+
                 🔥 Todos
+
             </button>
 
             <!-- 🔥 CATEGORIAS -->
-            <button v-for="c in categorias" :key="c.category_id" @click="$emit('select', c)"
-                class="flex items-center gap-2 px-3 py-1 rounded-full text-xs shadow-sm whitespace-nowrap transition"
-                :style="c.category_id === active ? activeStyle : pillStyle">
+            <button v-for="c in categorias" :key="c.category_id" @click="$emit('select', c)" :style="c.category_id === active
+                    ? activeStyle
+                    : pillStyle
+                " class="
+                    flex
+                    items-center
+                    gap-2
+                    px-3
+                    py-1
+                    rounded-full
+                    text-xs
+                    shadow-sm
+                    whitespace-nowrap
+                    transition
+                    h-[28px]
+                ">
+
                 <span>
 
                     {{
@@ -28,14 +66,24 @@
 
                             '🚫'
 
-                    :
+                            :
 
-                    (c.icon || '📦')
+                            (
+                                c.icon
+                                ||
+                                '📦'
+                            )
 
                     }}
 
                 </span>
-                <span>{{ c.descripcion }}</span>
+
+                <span>
+
+                    {{ c.descripcion }}
+
+                </span>
+
             </button>
 
         </div>
