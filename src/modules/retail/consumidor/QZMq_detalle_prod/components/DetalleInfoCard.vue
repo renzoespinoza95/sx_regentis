@@ -29,6 +29,92 @@
     <!-- 🔢 CANTIDAD -->
     <DetalleCounter ref="counterRef" />
 
+    <!-- 💰 TOTAL -->
+    <div class="
+        mt-4
+        text-center
+        text-gray-700
+        font-semibold
+    ">
+
+      S/
+
+      {{
+        precioActual.toFixed(2)
+      }}
+
+      ×
+
+      {{
+
+        counterRef?.qty || 1
+
+      }}
+
+      =
+
+      <span class="text-green-600">
+
+        S/{{ total }}
+
+      </span>
+
+    </div>
+
+    <!-- 💰 PRECIOS POR VOLUMEN -->
+    <div v-if="
+      producto?.precio_volumen?.length
+    " class="
+        mt-4
+        text-left
+        bg-gray-50
+        rounded-xl
+        p-3
+        text-xs
+    ">
+
+      <div class="
+            font-semibold
+            mb-2
+        ">
+
+        💰 Precios por volumen
+
+      </div>
+
+      <div v-for="r in producto.precio_volumen" :key="r.cantidad_desde" class="
+            flex
+            justify-between
+            py-1
+        ">
+
+        <span>
+
+          {{ r.nombre_rango }}
+
+        </span>
+
+        <span class="
+                font-semibold
+                text-green-600
+            ">
+
+          S/
+
+          {{
+
+            Number(
+              r.precio_unitario_calculado
+            ).toFixed(2)
+
+          }}
+
+        </span>
+
+      </div>
+
+    </div>
+
     <!-- 📄 DESCRIPCIÓN -->
     <p class="mt-4 text-gray-500 text-sm leading-relaxed">
       Producto seleccionado del catálogo
@@ -129,6 +215,80 @@ function flyToHeart(e) {
     onComplete: () => clone.remove()
   })
 }
+
+
+const precioActual =
+  computed(() => {
+
+    const cantidad =
+
+      Number(
+        counterRef.value?.qty || 1
+      )
+
+    const lista =
+
+      props.producto
+        ?.precio_volumen
+
+      ||
+
+      []
+
+    let precio =
+
+      Number(
+        props.producto?.price || 0
+      )
+
+    lista.forEach(r => {
+
+      if (
+
+        cantidad
+
+        >=
+
+        Number(
+          r.cantidad_desde
+        )
+
+      ) {
+
+        precio =
+
+          Number(
+            r.precio_unitario_calculado
+          )
+
+      }
+
+    })
+
+    return precio
+
+  })
+
+const total =
+  computed(() => {
+
+    const cantidad =
+
+      Number(
+        counterRef.value?.qty || 1
+      )
+
+    return (
+
+      precioActual.value
+
+      *
+
+      cantidad
+
+    ).toFixed(2)
+
+  })
 
 /* =========================
    🔥 FAVORITO

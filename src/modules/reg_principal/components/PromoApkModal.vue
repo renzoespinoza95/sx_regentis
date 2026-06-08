@@ -482,33 +482,16 @@ function runAnimations() {
         playRef.value,
 
         {
-
-            x: -700,
-
             opacity: 0,
-
-            rotate: -8,
-
-            scale: 0.85
-
+            y: 30
         },
 
         {
-
-            x: 0,
-
             opacity: 1,
-
-            rotate: 0,
-
-            scale: 1,
-
-            duration: 1.3,
-
-            delay: 0.9,
-
-            ease: 'power4.out'
-
+            y: 0,
+            duration: 0.8,
+            delay: 0.5,
+            ease: 'power2.out'
         }
 
     )

@@ -28,7 +28,7 @@ py-5
             text-center
         ">
 
-      Crear negocio en Regentis
+      Crear negocio en UnionComercial
 
     </div>
 

@@ -1,16 +1,15 @@
 <template>
 
     <div v-if="visible" class="
-            fixed
-            inset-0
-            z-[999]
-            bg-black/50
-            backdrop-blur-sm
-            flex
-            items-center
-            justify-center
-            p-4
-        ">
+        fixed
+        inset-0
+        z-[999]
+        bg-black/40
+        flex
+        items-center
+        justify-center
+        p-4
+    ">
 
         <div ref="box" class="
                 bg-white
@@ -182,11 +181,11 @@
 
                                     ?
 
-                            '🚫'
+                                    '🚫'
 
-                            :
+                                    :
 
-                            (c.icon || '📦')
+                                    (c.icon || '📦')
 
                             }}
 
@@ -290,21 +289,17 @@ async function open(data = []) {
     await nextTick()
 
     gsap.fromTo(
-
         box.value,
-
         {
             scale: 0.7,
             opacity: 0
         },
-
         {
             scale: 1,
             opacity: 1,
-            duration: 0.3,
-            ease: 'back.out(1.7)'
+            duration: 0.25,
+            ease: 'power2.out'
         }
-
     )
 
 }

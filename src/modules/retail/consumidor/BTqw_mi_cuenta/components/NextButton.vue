@@ -2,7 +2,7 @@
 
     <div class="mt-6">
 
-        <button class="
+        <button :disabled="disabled" class="
                 w-full
                 h-14
                 rounded-2xl
@@ -17,7 +17,12 @@
                 gap-2
                 active:scale-[0.98]
                 transition
-            ">
+            " :class="{
+
+                'opacity-50 cursor-not-allowed':
+                    disabled
+
+            }">
 
             💾 Guardar
 
@@ -26,3 +31,16 @@
     </div>
 
 </template>
+<script setup>
+defineProps({
+
+    disabled: {
+
+        type: Boolean,
+
+        default: false
+
+    }
+
+})
+</script>

@@ -140,7 +140,8 @@
     </div>
 
     <!-- 🔥 STOCK -->
-    <CantidadProductoDialog ref="cantidadRef" boton-texto="Guardar stock" @confirm="guardarStock" />
+    <CantidadProductoDialog ref="cantidadRef" boton-texto="Guardar stock" :mostrar-precios="false"
+        @confirm="guardarStock" />
     <AppSnackbar ref="snackbarRef" />
     <GsapToast ref="toastRef" />
 </template>

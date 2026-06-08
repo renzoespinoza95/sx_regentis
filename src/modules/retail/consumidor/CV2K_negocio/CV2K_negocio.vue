@@ -148,7 +148,7 @@ watch(
 
       snackbarRef.value?.open(
 
-        '⚠️ Todos los productos mostrados aquí no están disponibles actualmente'
+        '⚠️ Los productos mostrados no están disponibles'
 
       )
 

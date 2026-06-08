@@ -3,6 +3,8 @@
     <div class="
         mercado-card
 
+        h-[250px]
+
         rounded-2xl
 
         overflow-hidden
@@ -22,7 +24,7 @@
         <div class="
     relative
 
-    h-32
+    h-28
 
     flex
     items-center
@@ -83,7 +85,7 @@
         </div>
 
         <!-- BODY -->
-        <div class="p-3 flex-1">
+        <div class="p-1 flex-1">
 
             <!-- TITULO -->
             <div class="
@@ -121,7 +123,7 @@
 
     leading-tight
 
-    min-h-[30px]
+    min-h-[20px]
 
     overflow-hidden
 

@@ -81,10 +81,17 @@
 
         </div>
         <!-- BOTON -->
-        <button class="btn-login" :disabled="loading || !usuarioExiste" :class="{
-          'opacity-50 cursor-not-allowed':
-            !usuarioExiste
-        }" @click="login">
+        <button class="btn-login" :disabled="loading
+          ||
+          !usuarioExiste
+          ||
+          !usuIdValido
+          " :class="{
+    'opacity-50 cursor-not-allowed':
+      !usuarioExiste
+      ||
+      !usuIdValido
+  }" @click="login">
 
           <span v-if="!loading">
 
@@ -117,8 +124,10 @@
 import {
   onMounted,
   ref,
-  watch
-} from 'vue'
+  watch,
+  computed
+}
+  from 'vue'
 
 import axios from 'axios'
 import {
@@ -139,6 +148,8 @@ import {
   firma
 } from '../../../services/security.js'
 
+
+
 /* ======================================
    🔥 DEMO
 ====================================== */
@@ -148,6 +159,15 @@ const loading = ref(false)
 const nombre = ref('')
 const celular = ref('')
 const tipo = ref('CLIENTE')
+
+const usuIdValido =
+  computed(() => {
+
+    return Number(
+      getUsuId()
+    ) > 0
+
+  })
 
 const API =
   import.meta.env.VITE_PUBLIC_URL_BASE
@@ -162,7 +182,11 @@ const showNegocianteDialog =
 const toastRef = ref(null)
 const showLoader = ref(false)
 const {
-  setLoginData
+
+  setLoginData,
+
+  getUsuId
+
 } = useUsuario()
 
 const usuarioExiste = ref(true)
@@ -393,7 +417,22 @@ async function cargarUsuario() {
   try {
 
     const usu_id =
-      route.params.usu_id
+      getUsuId()
+
+    if (!usu_id) {
+
+      usuarioExiste.value = false
+
+      snackbarRef.value?.open(
+        'Debe iniciar sesión nuevamente'
+      )
+
+      return
+
+    }
+
+    const seguridad = firma()
+
 
     if (!usu_id) return
 
@@ -402,7 +441,10 @@ async function cargarUsuario() {
       `${API}/ZYhL/detalleUsu`,
 
       {
-        usu_id
+        usu_id,
+        xin: seguridad.xin,
+
+        yuan: seguridad.yuan
       }
 
     )
@@ -504,7 +546,7 @@ async function login() {
     const payload = {
 
       usu_id:
-        route.params.usu_id,
+        getUsuId(),
 
       xin:
         seguridad.xin,

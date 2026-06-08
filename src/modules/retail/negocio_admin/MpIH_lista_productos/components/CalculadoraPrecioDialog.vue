@@ -1,16 +1,15 @@
 <template>
 
     <div v-if="visible" class="
-            fixed
-            inset-0
-            bg-black/40
-            backdrop-blur-sm
-            flex
-            items-center
-            justify-center
-            z-[9999]
-            p-4
-        " @click.stop>
+        fixed
+        inset-0
+        bg-black/40
+        flex
+        items-center
+        justify-center
+        z-[9999]
+        p-4
+    " @click.stop>
 
         <div ref="box" class="
                 bg-white

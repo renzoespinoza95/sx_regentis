@@ -23,10 +23,10 @@
                     @select-image="selectImage" @cancel-image="cancelImage" @upload-image="uploadImage" />
 
                 <!-- FORM -->
-                <ProfileForm :form="form" />
+                <ProfileForm :form="form" :usu-id-valido="usuIdValido" @crear-tienda="navegarCrearTienda" />
 
                 <!-- BTN -->
-                <NextButton @click="guardarCuenta" />
+                <NextButton :disabled="!usuIdValido" @click="guardarCuenta" />
 
             </div>
 
@@ -48,7 +48,8 @@
 
 import {
     ref,
-    onMounted
+    onMounted,
+    computed
 }
     from 'vue'
 
@@ -85,6 +86,11 @@ import {
     firma
 }
     from '../../../../services/security'
+import {
+    useRouter
+}
+    from 'vue-router'
+
 
 /* =========================================
    🔥 API
@@ -93,10 +99,21 @@ import {
 const API =
     import.meta.env
         .VITE_PUBLIC_URL_BASE
+const router =
+    useRouter()
 
 const API_FLASK =
     import.meta.env
         .VITE_PUBLIC_URL_FLASK
+
+const usuIdValido =
+    computed(() => {
+
+        return Number(
+            getUsuId()
+        ) > 0
+
+    })
 
 /* =========================================
    🔥 USER
@@ -641,6 +658,14 @@ async function pollJob(job_id) {
             }, 2000)
 
     })
+
+}
+
+function navegarCrearTienda() {
+
+    router.push(
+        '/TyB3_crear_tienda'
+    )
 
 }
 

@@ -3,21 +3,22 @@
     <div class="mt-3 px-2">
 
         <div ref="container" class="
-                flex
-                flex-wrap
-                content-start
-                gap-2
-                overflow-x-auto
-                no-scrollbar
-                cursor-grab
-                h-[68px]
+        grid
+        grid-rows-2
+        grid-flow-col
+        gap-2
+        overflow-x-auto
+        no-scrollbar
+        cursor-grab
+        h-[68px]
+        w-full    
             " @mousedown="startDrag" @mousemove="onDrag" @mouseup="stopDrag" @mouseleave="stopDrag"
             @touchstart="startDrag" @touchmove="onDrag" @touchend="stopDrag">
 
             <!-- 🔥 TODOS -->
             <button @click="$emit('select', { category_id: null })" :style="active === null
-                    ? activeStyle
-                    : pillStyle
+                ? activeStyle
+                : pillStyle
                 " class="
                     flex
                     items-center
@@ -38,8 +39,8 @@
 
             <!-- 🔥 CATEGORIAS -->
             <button v-for="c in categorias" :key="c.category_id" @click="$emit('select', c)" :style="c.category_id === active
-                    ? activeStyle
-                    : pillStyle
+                ? activeStyle
+                : pillStyle
                 " class="
                     flex
                     items-center

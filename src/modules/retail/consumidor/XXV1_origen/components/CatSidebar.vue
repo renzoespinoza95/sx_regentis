@@ -1,12 +1,12 @@
 <template>
 
     <div ref="sidebar" class="
-        w-18
+        w-24
         flex
-        pt-[4px]
         flex-col
         items-center
-        gap-1
+        gap-4
+        pt-2
         overflow-y-auto
         no-scrollbar
         cursor-grab

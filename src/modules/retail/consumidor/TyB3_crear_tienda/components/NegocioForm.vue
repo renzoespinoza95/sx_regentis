@@ -205,28 +205,32 @@ const celularYape = ref('')
 onMounted(async () => {
 
     gsap.to(
-
         logoRef.value,
-
         {
-
             y: -10,
-
             duration: 2,
-
             repeat: -1,
-
             yoyo: true,
-
             ease: 'sine.inOut'
-
         }
-
     )
 
-    /* =========================================
-       🔍 VALIDAR NEGOCIO
-    ========================================= */
+    const usu_id =
+        getUsuId()
+
+    console.log(
+        '🔥 usu_id =',
+        usu_id
+    )
+
+    if (!usu_id) {
+
+        snackbarRef.value?.open(
+            'Debe iniciar sesión'
+        )
+
+        return
+    }
 
     try {
 
@@ -235,8 +239,7 @@ onMounted(async () => {
 
         const payload = {
 
-            usu_id:
-                getUsuId(),
+            usu_id,
 
             xin:
                 seguridad.xin,
@@ -299,16 +302,26 @@ onMounted(async () => {
 /* =========================================
    🚀 CREAR NEGOCIO
 ========================================= */
-
 async function crearNegocio() {
+
+    const usu_id =
+        getUsuId()
+
+    if (!usu_id) {
+
+        snackbarRef.value?.open(
+
+            'Debe iniciar sesión para crear una tienda'
+
+        )
+
+        return
+
+    }
 
     try {
 
         loading.value = true
-
-        console.log(
-            '🚀 iniciando creación negocio'
-        )
 
         const seguridad =
             firma()
@@ -322,7 +335,7 @@ async function crearNegocio() {
                 seguridad.yuan,
 
             usu_id:
-                getUsuId(),
+                usu_id,
 
             productos:
                 productos.value,
@@ -347,308 +360,96 @@ async function crearNegocio() {
             payload
         )
 
-        /* =========================================
-           🚀 REQUEST
-        ========================================= */
-
         const res =
             await axios.post(
 
-                `${API_FLASK}/tk_nuevo_neg`,
+                `${API}/EiwA/tiendaAutomatico`,
 
                 payload
 
             )
 
         console.log(
-            '✅ respuesta inicial =>',
+            '✅ respuesta =>',
             res.data
         )
 
-        /* =========================================
-           🔥 POLLING
-        ========================================= */
+        if (
 
-        const job_id =
-            res.data?.job_id
+            res.data?.status
+            !==
+            'ok'
 
-        if (!job_id) {
-
-            console.warn(
-                '⚠️ sin job_id'
-            )
+        ) {
 
             loading.value = false
+
+            snackbarRef.value?.open(
+
+                res.data?.msg
+                ||
+
+                'Error creando negocio'
+
+            )
 
             return
 
         }
 
-        console.log(
-            '⏳ iniciando polling'
-        )
-
         /* =========================================
-   ⏱️ TIMEOUT
-========================================= */
+           🔐 LOGIN
+        ========================================= */
 
-        const pollingStart =
-            Date.now()
+        const loginRes =
+            await axios.post(
 
-        const polling =
-            setInterval(
+                `${API}/coral/loginById`,
 
-                async () => {
+                {
 
-                    try {
+                    usu_id:
+                        getUsuId()
 
-                        console.log(
-                            '🔄 consultando job'
-                        )
-
-                        /* =========================================
-   ⏱️ TIMEOUT 40s
-========================================= */
-
-                        const elapsed =
-
-                            Date.now()
-                            -
-                            pollingStart
-                        // 100 segundos recomendable
-                        if (elapsed >= 100000) {
-
-                            console.warn(
-                                '⏱️ polling timeout'
-                            )
-
-                            clearInterval(
-                                polling
-                            )
-
-                            loading.value = false
-
-                            snackbarRef.value?.open(
-
-                                'El proceso tardó demasiado'
-
-                            )
-
-                            return
-
-                        }
-
-                        const r =
-                            await axios.get(
-
-                                `${API_FLASK}/jobs/result?job_id=${job_id}`
-
-                            )
-
-                        console.log(
-                            '📡 polling =>',
-                            r.data
-                        )
-
-                        if (
-
-                            r.data?.status
-                            ===
-                            'finished'
-
-                            ||
-
-                            r.data?.status
-                            ===
-                            'completed'
-
-                        ) {
-
-                            clearInterval(
-                                polling
-                            )
-
-                            console.log(
-                                '🎉 polling finalizado'
-                            )
-
-                            console.log(
-                                '📦 RESULT COMPLETO =>',
-                                r.data
-                            )
-
-                            /* =========================================
-                               🔥 JSON GENERADO
-                            ========================================= */
-
-                            console.log(
-
-                                '🧠 json_generado =>',
-
-                                r.data?.result?.json_generado
-
-                            )
-
-                            /* =========================================
-                               ❌ ERROR REGENTIS
-                            ========================================= */
-
-                            const regentisStatus =
-
-                                r.data?.result
-                                    ?.regentis
-                                    ?.response
-                                    ?.status
-
-                            if (
-
-                                regentisStatus
-                                ===
-                                'error'
-
-                            ) {
-
-                                loading.value = false
-
-                                console.error(
-
-                                    '❌ REGENTIS ERROR =>',
-
-                                    r.data?.result
-                                        ?.regentis
-
-                                )
-
-                                snackbarRef.value?.open(
-
-                                    r.data?.result
-                                        ?.regentis
-                                        ?.response
-                                        ?.msg
-
-                                    ||
-
-                                    'Error creando negocio'
-
-                                )
-
-                                return
-
-                            }
-
-                            /* =========================================
-                               🔐 LOGIN
-                            ========================================= */
-
-                            try {
-
-                                const loginRes =
-                                    await axios.post(
-
-                                        `${API}/coral/loginById`,
-
-                                        {
-
-                                            usu_id:
-                                                getUsuId()
-
-                                        }
-
-                                    )
-
-                                console.log(
-                                    '🔐 login =>',
-                                    loginRes.data
-                                )
-
-                                if (
-
-                                    loginRes.data?.status
-                                    ===
-                                    'ok'
-
-                                ) {
-
-                                    setLoginData(
-                                        loginRes.data
-                                    )
-
-                                    loading.value = false
-
-                                    router.replace(
-                                        '/'
-                                    )
-
-                                } else {
-
-                                    loading.value = false
-
-                                    snackbarRef.value?.open(
-
-                                        loginRes.data?.msg
-                                        ||
-
-                                        'Error iniciando sesión'
-
-                                    )
-
-                                }
-
-                            } catch (e) {
-
-                                console.error(
-                                    '❌ error login',
-                                    e
-                                )
-
-                                loading.value = false
-
-                                snackbarRef.value?.open(
-                                    'Error iniciando sesión'
-                                )
-
-                            }
-
-                        }
-
-                    } catch (e) {
-
-                        console.error(
-                            '❌ polling error',
-                            e
-                        )
-
-                        /* =========================================
-                           🛑 DETENER POLLING
-                        ========================================= */
-
-                        clearInterval(
-                            polling
-                        )
-
-                        /* =========================================
-                           🔥 OCULTAR LOADER
-                        ========================================= */
-
-                        loading.value = false
-
-                        /* =========================================
-                           🔥 SNACKBAR
-                        ========================================= */
-
-                        snackbarRef.value?.open(
-
-                            'No se pudo consultar el estado del proceso'
-
-                        )
-
-                    }
-
-                },
-
-                2500
+                }
 
             )
+
+        console.log(
+            '🔐 login =>',
+            loginRes.data
+        )
+
+        if (
+
+            loginRes.data?.status
+            ===
+            'ok'
+
+        ) {
+
+            setLoginData(
+                loginRes.data
+            )
+
+            loading.value = false
+
+            router.replace('/')
+
+        } else {
+
+            loading.value = false
+
+            snackbarRef.value?.open(
+
+                loginRes.data?.msg
+                ||
+
+                'Error iniciando sesión'
+
+            )
+
+        }
 
     } catch (e) {
 

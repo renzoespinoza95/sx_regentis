@@ -14,8 +14,8 @@
         justify-between
         items-center
 
-        px-4
-        py-4
+        px-3
+        py-3
 
         shadow-md
     ">

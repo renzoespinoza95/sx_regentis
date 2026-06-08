@@ -369,8 +369,8 @@ function setCategoria(index) {
     margin: auto;
 
     padding-bottom: 80px;
-    padding-left: 2px;
-    padding-right: 2px;
+    padding-left: 12px;
+    padding-right: 12px;
 
 }
 </style>

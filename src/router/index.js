@@ -62,7 +62,7 @@ const routes = [
   // COMUNES
   // =========================================
   { path: '/principal', component: RegPrincipalApp,  meta: { hideNav: false }  },  
-  { path: '/mod_registro/:usu_id', component: Mod_registro, meta: { hideNav: true } },
+  { path: '/mod_registro', component: Mod_registro, meta: { hideNav: true } },
   { path: '/mod_nav', component: Mod_nav, meta: { hideNav: true } },  
   { path: '/dash',   component: Mod_dash },
   { path: '/MpIH_lista_productos', component: MpIH_lista_productos, meta: { hideNav: false } },      
