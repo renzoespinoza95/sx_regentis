@@ -13,7 +13,7 @@
       </div>
 
       <div v-else>
-        <DetalleImagen :producto="producto" />
+        <DetalleImagenSlider :producto="producto" />
         <DetalleInfoCard :producto="producto" @toast="showToast" />
       </div>
 
@@ -41,7 +41,7 @@ Muchas gracias.
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-import DetalleImagen from './components/DetalleImagen.vue'
+import DetalleImagenSlider from './components/DetalleImagenSlider.vue'
 import DetalleInfoCard from './components/DetalleInfoCard.vue'
 import NegpresHeader from '../../../../components/layout/NegpresHeaderBack.vue'
 import { useMercado } from '../../../../services/useMercado.js'

@@ -13,6 +13,7 @@
         ">
 
         <div ref="box" class="
+                relative
                 bg-white
                 rounded-[32px]
                 w-full
@@ -20,6 +21,33 @@
                 overflow-hidden
                 shadow-[0_20px_60px_rgba(0,0,0,0.25)]
             ">
+
+            <!-- CERRAR -->
+            <button class="
+                    absolute
+                    top-4
+                    left-4
+                    z-10
+
+                    w-11
+                    h-11
+
+                    rounded-full
+
+                    bg-red-500
+
+                    text-white
+
+                    flex
+                    items-center
+                    justify-center
+
+                    shadow-lg
+                " @click="close">
+
+                <i class="fa fa-times"></i>
+
+            </button>
 
             <!-- HEADER -->
             <div class="
@@ -39,6 +67,7 @@
                 <div class="
                         text-xl
                         font-black
+                        text-center
                     ">
 
                     {{ titulo }}
@@ -49,9 +78,10 @@
                         text-sm
                         opacity-90
                         mt-1
+                        text-center
                     ">
 
-                    Configurar ganancia %
+                    Configurar rango
 
                 </div>
 
@@ -60,8 +90,58 @@
             <!-- BODY -->
             <div class="
                     p-6
+                    space-y-5
                 ">
 
+                <!-- NOMBRE -->
+                <div>
+
+                    <label class="
+                            block
+                            text-sm
+                            font-semibold
+                            mb-2
+                        ">
+
+                        Nombre de venta
+
+                    </label>
+
+                    <input v-model="nombreRango" type="text" class="
+                            w-full
+                            border
+                            rounded-2xl
+                            px-4
+                            py-3
+                        " placeholder="Unidad">
+
+                </div>
+
+                <!-- CANTIDAD -->
+                <div>
+
+                    <label class="
+                            block
+                            text-sm
+                            font-semibold
+                            mb-2
+                        ">
+
+                        Cantidad
+
+                    </label>
+
+                    <input v-model.number="cantidadDesde" type="number" min="0" class="
+                            w-full
+                            border
+                            rounded-2xl
+                            px-4
+                            py-3
+                        " placeholder="0">
+
+                </div>
+
+                <!-- GANANCIA -->
                 <div class="
                         flex
                         items-center
@@ -78,41 +158,37 @@
                             text-white
                             text-2xl
                             font-bold
-                        " @click="
-                            disminuir
-                        ">
+                        " @click="disminuir">
 
                         -
 
                     </button>
 
                     <!-- VALOR -->
-                    <!-- VALOR -->
-                    <!-- VALOR -->
                     <div class="
-        text-center
-        w-[140px]
-        shrink-0
-    ">
+                            text-center
+                            w-[140px]
+                            shrink-0
+                        ">
 
                         <input v-model.number="porcentaje" type="number" min="0" class="
-            w-full
-            h-[72px]
-            text-center
-            text-5xl
-            font-black
-            text-[#FD7635]
-            border-0
-            outline-none
-            bg-transparent
-            appearance-none
-        ">
+                                w-full
+                                h-[72px]
+                                text-center
+                                text-5xl
+                                font-black
+                                text-[#FD7635]
+                                border-0
+                                outline-none
+                                bg-transparent
+                                appearance-none
+                            ">
 
                         <div class="
-            text-sm
-            text-gray-500
-            -mt-2
-        ">
+                                text-sm
+                                text-gray-500
+                                -mt-2
+                            ">
 
                             %
 
@@ -129,9 +205,7 @@
                             text-white
                             text-2xl
                             font-bold
-                        " @click="
-                            aumentar
-                        ">
+                        " @click="aumentar">
 
                         +
 
@@ -146,7 +220,6 @@
                     p-5
                     border-t
                     bg-white
-                    space-y-3
                 ">
 
                 <button class="
@@ -156,26 +229,9 @@
                         bg-[#FD7635]
                         text-white
                         font-bold
-                    " @click="
-                        confirmar
-                    ">
+                    " @click="confirmar">
 
                     Guardar ✨
-
-                </button>
-
-                <button class="
-                        w-full
-                        h-[54px]
-                        rounded-2xl
-                        bg-red-500
-                        text-white
-                        font-bold
-                    " @click="
-                        close
-                    ">
-
-                    Cerrar
 
                 </button>
 
@@ -200,9 +256,7 @@ import gsap
 
 const emit =
     defineEmits([
-
         'confirm'
-
     ])
 
 const visible =
@@ -217,15 +271,31 @@ const titulo =
 const porcentaje =
     ref(25)
 
-function open(data) {
+const nombreRango =
+    ref('')
+
+const cantidadDesde =
+    ref(0)
+
+function open(data = {}) {
 
     titulo.value =
-        data.titulo
+        data.titulo || ''
 
     porcentaje.value =
         Number(
             data.valor
-        )
+        ) || 0
+
+    nombreRango.value =
+        data.nombre_rango
+        ||
+        ''
+
+    cantidadDesde.value =
+        Number(
+            data.cantidad_desde
+        ) || 0
 
     visible.value =
         true
@@ -317,11 +387,34 @@ function confirmar() {
 
         )
 
+    cantidadDesde.value =
+
+        Math.max(
+
+            0,
+
+            Number(
+                cantidadDesde.value
+            ) || 0
+
+        )
+
     emit(
 
         'confirm',
 
-        porcentaje.value
+        {
+
+            nombre_rango:
+                nombreRango.value,
+
+            cantidad_desde:
+                cantidadDesde.value,
+
+            ganancia_porcentaje:
+                porcentaje.value
+
+        }
 
     )
 

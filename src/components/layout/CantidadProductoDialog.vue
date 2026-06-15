@@ -97,6 +97,18 @@
 
                             {{ r.nombre_rango }}
 
+                            <span class="text-gray-500">
+
+                                (
+
+                                {{ r.cantidad_desde }}
+
+                                und.
+
+                                )
+
+                            </span>
+
                         </span>
 
                         <span class="

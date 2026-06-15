@@ -1,19 +1,17 @@
 <template>
 
     <div v-if="visible" class="
-            fixed
-            inset-0
-            z-[9999]
+        fixed
+        inset-0
 
-            bg-black/50
-            backdrop-blur-sm
+        bg-black/40
 
-            flex
-            items-center
-            justify-center
+        flex
+        items-center
+        justify-center
 
-            p-4
-        ">
+        z-50
+    ">
 
         <div ref="box" class="
                 bg-white

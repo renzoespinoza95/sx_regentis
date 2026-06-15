@@ -255,6 +255,10 @@
 
                                 <tr class="bg-gray-100">
 
+                                    <th class="p-3 border w-[70px]">
+                                        -
+                                    </th>
+
                                     <th class="p-3 border">
                                         Venta
                                     </th>
@@ -271,43 +275,123 @@
                                         Precio
                                     </th>
 
+                                    <th class="p-3 border w-[80px]">
+                                        +
+                                    </th>
+
                                 </tr>
 
                             </thead>
 
                             <tbody>
+                                <tr v-for="(fila, index) in rangos" :key="fila.nombre_rango + '_' + index">
 
-                                <tr v-for="fila in rangos" :key="fila.nombre_rango">
+                                    <!-- ELIMINAR -->
+                                    <td class="
+            border
+            p-3
+            text-center
+        ">
 
-                                    <td class="border p-3">
-                                        {{ fila.nombre_rango }}
-                                    </td>
+                                        <button v-if="
+                                            rangos.length > 1
+                                        " class="
+                w-10
+                h-10
 
-                                    <td class="border p-3 text-center">
-                                        {{ fila.cantidad_desde }}
-                                    </td>
+                rounded-full
 
-                                    <td class="border p-3 text-center">
+                bg-red-500
 
-                                        <button class="
-                                                px-3
-                                                py-2
-                                                rounded-xl
-                                                bg-[#FD7635]
-                                                text-white
-                                            " @click="
-                                                editarGanancia(
-                                                    fila
-                                                )
-                                                ">
-                                            {{ fila.ganancia_porcentaje }}%
+                text-white
+
+                font-bold
+            " @click="
+                eliminarFila(
+                    index
+                )
+                ">
+
+                                            <i class="fa fa-minus"></i>
+
                                         </button>
 
                                     </td>
 
+                                    <!-- VENTA -->
+                                    <td class="border p-3">
+
+                                        {{ fila.nombre_rango }}
+
+                                    </td>
+
+                                    <!-- CANTIDAD -->
+                                    <td class="border p-3 text-center">
+
+                                        {{ fila.cantidad_desde }}
+
+                                    </td>
+
+                                    <!-- GANANCIA -->
+                                    <td class="border p-3 text-center">
+
+                                        <button class="
+                px-3
+                py-2
+                rounded-xl
+                bg-[#FD7635]
+                text-white
+            " @click="
+                editarGanancia(
+                    fila
+                )
+                ">
+
+                                            {{ fila.ganancia_porcentaje }}%
+
+                                        </button>
+
+                                    </td>
+
+                                    <!-- PRECIO -->
                                     <td class="border p-3 text-right">
+
                                         S/
+
                                         {{ precioFila(fila).toFixed(2) }}
+
+                                    </td>
+
+                                    <!-- AGREGAR -->
+                                    <td class="
+            border
+            p-3
+            text-center
+        ">
+
+                                        <button v-if="
+                                            index
+                                            ===
+                                            rangos.length - 1
+                                        " class="
+                w-10
+                h-10
+
+                rounded-full
+
+                bg-green-500
+
+                text-white
+
+                font-bold
+            " @click="
+                agregarFila()
+                ">
+
+                                            <i class="fa fa-plus"></i>
+
+                                        </button>
+
                                     </td>
 
                                 </tr>
@@ -557,60 +641,42 @@ const {
     =
     useUsuario()
 
+const RANGOS_DEFAULT = [
+
+    {
+        cantidad_desde: 1,
+        nombre_rango: 'Unidad',
+        ganancia_porcentaje: 25
+    },
+
+    {
+        cantidad_desde: 6,
+        nombre_rango: '6 unidades',
+        ganancia_porcentaje: 22
+    },
+
+    {
+        cantidad_desde: 12,
+        nombre_rango: 'Docena',
+        ganancia_porcentaje: 18
+    },
+
+    {
+        cantidad_desde: 40,
+        nombre_rango: 'Caja',
+        ganancia_porcentaje: 10
+    }
+
+]
+
 const rangos =
-    ref([
-
-        {
-
-            cantidad_desde: 1,
-
-            nombre_rango:
-                'Unidad',
-
-            ganancia_porcentaje:
-                25
-
-        },
-
-        {
-
-            cantidad_desde: 6,
-
-            nombre_rango:
-                '6 unidades',
-
-            ganancia_porcentaje:
-                22
-
-        },
-
-        {
-
-            cantidad_desde: 12,
-
-            nombre_rango:
-                'Docena',
-
-            ganancia_porcentaje:
-                18
-
-        },
-
-        {
-
-            cantidad_desde: 40,
-
-            nombre_rango:
-                'Caja',
-
-            ganancia_porcentaje:
-                10
-
-        }
-
-    ])
-
-
+    ref(
+        JSON.parse(
+            JSON.stringify(
+                RANGOS_DEFAULT
+            )
+        )
+    )
 
 
 const costoUnitarioBase =
@@ -734,7 +800,7 @@ async function cargarDetalle() {
 
             &&
 
-            r.data.rangos.length
+            r.data.rangos.length > 0
 
         ) {
 
@@ -758,6 +824,21 @@ async function cargarDetalle() {
                             )
 
                     })
+
+                )
+
+        }
+        else {
+
+            rangos.value =
+
+                JSON.parse(
+
+                    JSON.stringify(
+
+                        RANGOS_DEFAULT
+
+                    )
 
                 )
 
@@ -807,7 +888,29 @@ function costoBaseFila(
 
 }
 
+function eliminarFila(
+    index
+) {
 
+    if (
+
+        rangos.value.length <= 1
+
+    ) {
+
+        return
+
+    }
+
+    rangos.value.splice(
+
+        index,
+
+        1
+
+    )
+
+}
 
 function gananciaFila(
     fila
@@ -829,6 +932,22 @@ async function open(p) {
 
     producto.value =
         p
+
+    rangos.value =
+
+        JSON.parse(
+
+            JSON.stringify(
+
+                RANGOS_DEFAULT
+
+            )
+
+        )
+
+    compraTotal.value = 0
+
+    cantidadComprada.value = 0
 
     paso.value =
         1
@@ -896,8 +1015,6 @@ function close() {
 
 }
 
-
-
 function editarGanancia(
     fila
 ) {
@@ -912,6 +1029,12 @@ function editarGanancia(
             titulo:
                 fila.nombre_rango,
 
+            nombre_rango:
+                fila.nombre_rango,
+
+            cantidad_desde:
+                fila.cantidad_desde,
+
             valor:
                 fila.ganancia_porcentaje
 
@@ -919,33 +1042,95 @@ function editarGanancia(
 
 }
 
-
-
-
 function onGananciaConfirm(
-
-    porcentaje
-
+    payload
 ) {
+
+    /* =========================
+       NUEVA FILA
+    ========================= */
 
     if (
 
-        !filaEditando.value
+        filaEditando.value
+        ===
+        null
 
     ) {
+
+        rangos.value.push({
+
+            nombre_rango:
+                payload.nombre_rango,
+
+            cantidad_desde:
+                payload.cantidad_desde,
+
+            ganancia_porcentaje:
+                payload.ganancia_porcentaje
+
+        })
+
+        rangos.value.sort(
+
+            (a, b) =>
+
+                a.cantidad_desde
+                -
+                b.cantidad_desde
+
+        )
 
         return
 
     }
 
-    filaEditando.value
-        .ganancia_porcentaje =
-        porcentaje
+    /* =========================
+       EDITAR
+    ========================= */
+
+    filaEditando.value.nombre_rango =
+        payload.nombre_rango
+
+    filaEditando.value.cantidad_desde =
+        payload.cantidad_desde
+
+    filaEditando.value.ganancia_porcentaje =
+        payload.ganancia_porcentaje
+
+    rangos.value.sort(
+
+        (a, b) =>
+
+            a.cantidad_desde
+            -
+            b.cantidad_desde
+
+    )
 
 }
 
+function agregarFila() {
 
+    filaEditando.value = null
 
+    gananciaDialogRef.value?.open({
+
+        titulo:
+            'Nuevo rango',
+
+        nombre_rango:
+            'Adicional',
+
+        cantidad_desde:
+            0,
+
+        valor:
+            0
+
+    })
+
+}
 
 async function guardar() {
 

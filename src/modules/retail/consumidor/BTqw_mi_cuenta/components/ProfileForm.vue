@@ -65,22 +65,6 @@
 
         </button>
 
-        <button class="
-        w-full
-        h-14
-        rounded-2xl
-        bg-[#FD7635]
-        text-white
-        font-bold
-        shadow-lg
-        active:scale-[0.98]
-        transition
-    " @click="$emit('crear-tienda')">
-
-            🏪 Crear tienda
-
-        </button>
-
     </div>
 
 </template>
