@@ -2,7 +2,7 @@
 
     <div class="mt-6">
 
-        <div class="px-4 mb-3 font-semibold text-gray-700">
+        <div class="px-4 mb-3 font-semibold" :style="subtituloStyle">
 
             Mas Vendidos
 
@@ -115,11 +115,14 @@
 </template>
 
 <script setup>
+import { useTienda }
+    from '../../../../../services/useTienda.js'
 import NegpresProductoCard from './NegpresProductoCard.vue'
 import {
     ref,
     watch,
-    nextTick
+    nextTick,
+    computed
 }
     from 'vue'
 
@@ -138,6 +141,8 @@ let scrollLeft
 
 const itemsRef =
     ref([])
+
+const { data } = useTienda()
 
 function startDrag(e) {
     isDown = true
@@ -179,6 +184,35 @@ function scrollRightBtn() {
     })
 
 }
+
+const subtituloStyle = computed(() => {
+
+    const tema_id = Number(
+        data.value?.tema?.tema_id || 0
+    )
+
+    if (
+
+        tema_id > 0
+
+        &&
+
+        data.value?.tema?.subtitulo
+
+    ) {
+
+        return {
+
+            color:
+                data.value.tema.subtitulo
+
+        }
+
+    }
+
+    return {}
+
+})
 
 async function animarItems() {
 

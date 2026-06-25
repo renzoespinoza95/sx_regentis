@@ -13,8 +13,15 @@
             </div>
 
             <!-- TEXTO -->
-            <div class="text-[10px] mt-1 text-center leading-tight"
-                :class="i === active ? 'text-orange-500 font-semibold' : 'text-[#0F0F0F]'">
+            <div class="text-[10px] mt-1 text-center leading-tight" :class="{
+                'text-orange-500 font-semibold': i === active
+            }" :style="i === active
+
+            ? {}
+
+            : subtituloStyle
+
+        ">
                 {{ cat.name }}
             </div>
 
@@ -25,7 +32,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import {
+    ref,
+    onMounted,
+    onUnmounted,
+    computed
+}
+    from 'vue'
+import { useTienda }
+    from '../../../../../services/useTienda.js'
 import { gsap } from 'gsap'
 
 const itemsRef = ref([])
@@ -41,6 +56,41 @@ function getImg(cat, i) {
 }
 
 const sidebar = ref(null)
+const { data } = useTienda()
+
+const subtituloStyle = computed(() => {
+
+    const tema_id = Number(
+        data.value?.tema?.tema_id || 0
+    )
+
+    if (
+
+        tema_id > 0
+
+        &&
+
+        data.value?.tema?.subtitulo
+
+    ) {
+
+        return {
+
+            color:
+                data.value.tema.subtitulo
+
+        }
+
+    }
+
+    return {
+
+        color:
+            '#0F0F0F'
+
+    }
+
+})
 
 let isDown = false
 let startY = 0

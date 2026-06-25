@@ -80,7 +80,7 @@
     <div class="flex items-center gap-2">
 
       <!-- CARRITO -->
-      <div id="icon-carrito-header" class="relative icon-btn p-0" @click="irCarritoAnonimo">
+      <div v-if="!isLogged" id="icon-carrito-header" class="relative icon-btn p-0" @click="irCarritoAnonimo">
 
         <div class="
       w-full
@@ -198,6 +198,9 @@
     <!-- MODALES -->
     <ModalUsuario v-model="showModalUsuario" />
     <ModalMenuUsuario v-model="showMenuUsuario" />
+    <LoginSelectorDialog v-model="showLoginSelector" @registrarse="loginFirebase" @pin="showPinDialog = true" />
+
+    <PinCodeDialog v-model="showPinDialog" />
     <CompartirNegocioDialog v-model="showCompartir" :slug="data?.negocio?.slug
       ||
       ''
@@ -231,6 +234,26 @@ import {
   cssToObject
 }
   from '../../services/useCss.js'
+import LoginSelectorDialog
+  from '../../modules/retail/consumidor/XXV1_origen/components/LoginSelectorDialog.vue'
+
+import PinCodeDialog
+  from '../../modules/retail/consumidor/XXV1_origen/components/PinCodeDialog.vue'
+
+import {
+  signInWithPopup
+}
+  from "firebase/auth"
+
+import {
+  auth,
+  provider
+}
+  from '../../services/firebase.js'
+
+import axios
+  from 'axios'
+
 
 const { data } = useTienda()
 
@@ -249,6 +272,13 @@ const props = defineProps({
     type: Boolean,
     default: false
   }
+
+})
+
+const api = axios.create({
+
+  baseURL:
+    import.meta.env.VITE_PUBLIC_URL_BASE
 
 })
 
@@ -272,9 +302,20 @@ const titulo = computed(() => {
 })
 
 const {
+
   isLogged,
-  usuario
+
+  usuario,
+
+  setLoginData
+
 } = useUsuario()
+
+const showLoginSelector =
+  ref(false)
+
+const showPinDialog =
+  ref(false)
 
 /* =========================================
    MERCADO
@@ -337,7 +378,72 @@ const headerStyle = computed(() => {
 })
 
 function irLogin() {
-  router.push('/KT3ENavegantes')
+
+  showLoginSelector.value = true
+
+}
+
+async function loginFirebase() {
+
+  try {
+
+    const result =
+      await signInWithPopup(
+
+        auth,
+        provider
+
+      )
+
+    const user =
+      result.user
+
+    const idToken =
+      await user.getIdToken()
+
+    const res =
+      await api.post(
+
+        '/coral/crearUsuarioFirebase',
+
+        {
+
+          token:
+            idToken
+
+        }
+
+      )
+
+    if (
+
+      res.data.status
+      ===
+      'ok'
+
+    ) {
+
+      setLoginData(
+        res.data
+      )
+
+      const usu_id =
+        res.data?.data?.usu_id
+
+      router.replace(
+        `/mod_registro/${usu_id}`
+      )
+
+    }
+
+  }
+
+  catch (e) {
+
+    console.error(e)
+
+  }
+
 }
 
 function abrirModalUsuario() {

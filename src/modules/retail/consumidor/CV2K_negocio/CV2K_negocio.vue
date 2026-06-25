@@ -3,8 +3,7 @@
   <div class="min-h-screen pt-20" :style="fondoStyle">
 
     <!-- HEADER -->
-    <RegHeader v-if="!isLogged" />
-    <NegpresHeader v-else :show-logo-left="true" />
+    <NegpresHeader />
 
     <!-- CONTENIDO -->
     <div class="content-container">

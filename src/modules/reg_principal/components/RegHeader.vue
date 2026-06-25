@@ -1,245 +1,232 @@
 <template>
+  <div class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-4 pt-4 pb-3" :style="headerStyle">
 
-  <div class="header-wrapper" :style="headerStyle">
+    <div class="flex items-center gap-2">
 
-    <div class="header-inner">
+      <div class="
+      w-10
+      h-10
 
-      <!-- LOGO -->
-      <!-- LEFT -->
-      <div class="flex items-center gap-3">
+      rounded-full
 
-        <!-- 🔙 BACK -->
-        <button @click="goBack" class="
-    w-10
-    h-10
+      bg-white
 
-    flex
-    items-center
-    justify-center
+      flex
+      items-center
+      justify-center
 
-    active:scale-95
+      shadow-[0_4px_12px_rgba(0,0,0,0.12)]
 
-    transition
-  ">
+      overflow-hidden
+    ">
 
-          <i class="fa fa-arrow-left text-lg" :style="{
+        <img src="https://barsi-img.b-cdn.net/recursos/logo-regentis.png" class="w-full h-full object-cover"
+          draggable="false" />
 
-            color:
+      </div>
 
-              Number(
-                tema?.tema_id || 0
-              ) > 0
+      <span class="font-semibold text-lg text-white">
+        Ofer.lat
+      </span>
 
-                ?
+    </div>
 
-                '#FFFFFF'
 
-                :
+    <div class="flex items-center gap-2">
 
-                (
+      <!-- CARRITO -->
+      <div v-if="!isLogged" id="icon-carrito-header" class="relative icon-btn p-0" @click="irCarritoAnonimo">
 
-                  mercadoData.topnavbar_color
+        <div class="
+      w-full
+      h-full
 
-                  ||
+      flex
+      items-center
+      justify-center
 
-                  '#FD7635'
+      rounded-full
 
-                )
+      bg-gradient-to-br
 
-          }">
-          </i>
+      from-[#FD7635]
+      via-[#FF934D]
+      to-[#FFB347]
 
-        </button>
+      shadow-[0_0_15px_rgba(253,118,53,.45)]
+    ">
 
-        <!-- LOGO -->
-        <div class="logo-box">
+          <i class="fa fa-shopping-cart text-white"></i>
 
-          <img :src="mercadoData.logo || 'https://barsi-img.b-cdn.net/recursos/logo-regentis.png'" class="logo-img" />
+        </div>
 
-          <span class="logo-text">
+        <span v-if="carritoCount > 0" class="notif-badge">
 
-            {{ tituloHeader }}
+          {{ carritoCount }}
 
-          </span>
+        </span>
+
+      </div>
+
+      <!-- COMPARTIR -->
+      <div class="relative icon-btn p-0" @click="showCompartir = true">
+
+        <div class="
+      w-full
+      h-full
+
+      flex
+      items-center
+      justify-center
+
+      rounded-full
+
+      bg-gradient-to-br
+
+      from-[#FD7635]
+      via-[#FF934D]
+      to-[#FFB347]
+
+      shadow-[0_0_15px_rgba(253,118,53,.45)]
+    ">
+
+          <i class="fa fa-mail-forward text-white"></i>
 
         </div>
 
       </div>
 
-      <!-- RIGHT SIDE -->
-      <div class="header-actions">
+      <!-- NO LOGUEADO -->
+      <button v-if="!isLogged" @click="irLogin" class="icon-btn p-0">
 
-        <!-- CARRITO -->
-        <!-- CARRITO -->
-        <div class="relative icon-btn p-0" @click="irCarritoAnonimo">
-
-          <div class="
-    w-full
-    h-full
-
-    flex
-    items-center
-    justify-center
-
-    rounded-full
-
-    bg-gradient-to-br
-
-    from-[#FD7635]
-    via-[#FF934D]
-    to-[#FFB347]
-
-    shadow-[0_0_15px_rgba(253,118,53,.45)]
-  ">
-
-            <i class="fa fa-shopping-cart text-white"></i>
-
-          </div>
-
-          <span v-if="carritoCount > 0" class="notif-badge">
-
-            {{ carritoCount }}
-
-          </span>
-
-        </div>
-
-        <!-- COMPARTIR -->
-        <div class="relative icon-btn p-0" @click="showCompartir = true">
-
-          <div class="
+        <div class="
       w-full
       h-full
+
       flex
       items-center
       justify-center
+
       rounded-full
+
       bg-gradient-to-br
+
       from-[#FD7635]
       via-[#FF934D]
       to-[#FFB347]
+
       shadow-[0_0_15px_rgba(253,118,53,.45)]
     ">
 
-            <i class="fa fa-mail-forward text-white"></i>
-
-          </div>
+          <i class="fa fa-user text-white"></i>
 
         </div>
 
-        <!-- NO LOGUEADO -->
-        <button v-if="!isLogged" @click="irLogin" class="icon-btn p-0">
+      </button>
 
-          <div class="
-    w-full
-    h-full
+      <!-- LOGUEADO -->
+      <div v-else class="relative icon-btn p-0" @click="abrirMenuUsuario">
 
-    flex
-    items-center
-    justify-center
+        <div class="avatar-mask">
 
-    rounded-full
-
-    bg-gradient-to-br
-
-    from-[#FD7635]
-    via-[#FF934D]
-    to-[#FFB347]
-
-    shadow-[0_0_15px_rgba(253,118,53,.45)]
-  ">
-
-            <i class="fa fa-user text-white"></i>
-
-          </div>
-
-        </button>
-
-        <!-- LOGUEADO -->
-        <div v-else class="relative icon-btn p-0">
-
-          <div class="avatar-mask">
-
-            <img :src="user?.img_perfil
-              ||
-              'https://picsum.photos/80'
-              " class="
+          <img :src="user?.img_perfil
+            ||
+            'https://picsum.photos/80'
+            " class="
           w-full
           h-full
           object-cover
-        " @click="openUserModal" />
-
-          </div>
+        " />
 
         </div>
+
+        <span v-if="favoritosCount > 0" class="notif-badge">
+
+          {{ favoritosCount }}
+
+        </span>
 
       </div>
 
     </div>
-  </div>
 
-  <!-- 🔥 MODAL USUARIO -->
-  <ModalUsuario v-model="showUserModal" />
+    <!-- MODALES -->
+    <ModalUsuario v-model="showModalUsuario" />
+    <ModalMenuUsuario v-model="showMenuUsuario" />
+    <LoginSelectorDialog v-model="showLoginSelector" @registrarse="loginFirebase" @pin="showPinDialog = true" />
 
-  <!-- 🔥 MODAL MENU USUARIO -->
-  <ModalMenuUsuario v-model="showMenuModal" />
-  <AppSnackbar ref="snackbarRef" />
-
-  <LoginSelectorDialog v-model="showLoginSelector
-    " @registrarse="
-      loginFirebase
-    " @pin="
-      showPinDialog = true
+    <PinCodeDialog v-model="showPinDialog" />
+    <CompartirNegocioDialog v-model="showCompartir" :slug="data?.negocio?.slug
+      ||
+      ''
       " />
 
-  <PinCodeDialog v-model="showPinDialog
-    " />
-
-  <CompartirNegocioDialog v-model="showCompartir" :slug="data?.negocio?.slug
-    ||
-    ''
-    " />
-
+  </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
-import {
-  useRouter,
-  useRoute
-}
-  from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useUsuario } from '../../../services/usuarioService.js'
 import { useMercado } from '../../../services/useMercado.js'
-import { usePrincipal } from '../../../services/usePrincipal.js'
-import AppSnackbar
-  from '../../../components/layout/AppSnackbar.vue'
 import ModalUsuario from '../../../components/ModalUsuario.vue'
 import ModalMenuUsuario from '../../../components/ModalMenuUsuario.vue'
-import {
-  signInWithPopup
-} from "firebase/auth"
-import axios
-  from 'axios'
-
-import {
-  auth,
-  provider
-} from '../../../services/firebase.js'
-
-import LoginSelectorDialog
-  from '../../retail/consumidor/XXV1_origen/components/LoginSelectorDialog.vue'
-
-import PinCodeDialog
-  from '../../retail/consumidor/XXV1_origen/components/PinCodeDialog.vue'
 import { useTienda } from '../../../services/useTienda.js'
+import {
+  ref,
+  computed,
+  onMounted,
+  onUnmounted,
+  watch
+}
+  from 'vue'
+import { bus } from '../../../services/eventBus.js'
 import CompartirNegocioDialog
   from '../../../components/layout/CompartirNegocioDialog.vue'
 import { useAnonimo }
   from '../../../services/anonimoService.js'
 
 
-const router = useRouter()
+
+import LoginSelectorDialog
+  from '../../../modules/retail/consumidor/XXV1_origen/components/LoginSelectorDialog.vue'
+
+import PinCodeDialog
+  from '../../../modules/retail/consumidor/XXV1_origen/components/PinCodeDialog.vue'
+
+import {
+  signInWithPopup
+}
+  from "firebase/auth"
+
+import {
+  auth,
+  provider
+}
+  from '../../../services/firebase.js'
+
+import axios
+  from 'axios'
+
+
+const { data } = useTienda()
+
+const {
+  anonimo,
+  setNegocio
+} = useAnonimo()
+
+const user = computed(() => {
+  return usuario.value?.user || null
+})
+
+const props = defineProps({
+
+  showLogoLeft: {
+    type: Boolean,
+    default: false
+  }
+
+})
 
 const api = axios.create({
 
@@ -248,41 +235,33 @@ const api = axios.create({
 
 })
 
-
-const {
-  isLogged,
-  usuario,
-  setLoginData
-} = useUsuario()
-
+const router = useRouter()
 const route = useRoute()
-const showCompartir = ref(false)
-const {
 
-  data,
+const showCompartir =
+  ref(false)
 
-  tema
+const carritoCountLocal = ref(0)
+const favoritosCountLocal = ref(0)
 
-} = useTienda()
+const showModalUsuario = ref(false)
+const showMenuUsuario = ref(false)
 
+const titulo = computed(() => {
 
-
-const props = defineProps({
-
-  titulo: {
-    type: String,
-    default: ''
-  }
+  return 'Ofer.lat'
 
 })
 
 const {
 
-  anonimo,
+  isLogged,
 
-  setNegocio
+  usuario,
 
-} = useAnonimo()
+  setLoginData
+
+} = useUsuario()
 
 const showLoginSelector =
   ref(false)
@@ -290,148 +269,37 @@ const showLoginSelector =
 const showPinDialog =
   ref(false)
 
-const user = computed(() => {
-  return usuario.value?.user || null
-})
-
-// 🔥 estado global
+/* =========================================
+   MERCADO
+========================================= */
 const { mercado } = useMercado()
 
-// 🔥 inicializador global
-const principal = usePrincipal()
-
-// 🔥 fallback seguro (CLAVE)
-const mercadoData = computed(() => mercado.value || {})
-
-/* 🔥 MODALES */
-const showUserModal = ref(false)
-const showMenuModal = ref(false)
-
-const snackbarRef = ref(null)
-
-function openUserModal() {
-  showUserModal.value = true
-}
-
-function cssToObject(cssText) {
-
-  if (!cssText) {
-
-    return {}
-
-  }
-
-  const obj = {}
-
-  cssText
-    .split(';')
-    .forEach(row => {
-
-      const parts =
-        row.split(':')
-
-      if (parts.length < 2) {
-
-        return
-
-      }
-
-      const key =
-        parts[0]
-          .trim()
-          .replace(
-            /-([a-z])/g,
-            (_, c) => c.toUpperCase()
-          )
-
-      const value =
-        parts
-          .slice(1)
-          .join(':')
-          .trim()
-
-      obj[key] = value
-
-    })
-
-  return obj
-
-}
-
+/* =========================================
+   🔥 EVITAR NULL
+========================================= */
 const headerStyle = computed(() => {
 
-  if (
+  const color =
 
-    tema.value
+    mercado.value?.topnavbar_color
 
-    &&
+    ||
 
-    Number(
-      tema.value.tema_id || 0
-    ) > 0
-
-    &&
-
-    tema.value.topnavbar
-
-  ) {
-
-    return cssToObject(
-
-      tema.value.topnavbar
-
-    )
-
-  }
+    '#FD7635'
 
   return {
 
-    background:
+    background: color,
 
-      mercadoData.value
-        ?.topnavbar_color
-
-      ||
-
-      '#FD7635'
+    '--header-color': color
 
   }
-
-})
-
-const tituloHeader = computed(() => {
-
-  const tituloQuery =
-    route.query?.titulo
-
-  return (
-
-    tituloQuery
-
-    ||
-
-    data.value?.negocio?.nombre
-
-    ||
-
-    props.titulo
-
-    ||
-
-    mercadoData.value.nombre
-
-    ||
-
-    'Regentis'
-
-  )
 
 })
 
 function irLogin() {
 
-  showLoginSelector.value =
-    true
+  showLoginSelector.value = true
 
 }
 
@@ -498,6 +366,43 @@ async function loginFirebase() {
 
 }
 
+function abrirModalUsuario() {
+  showModalUsuario.value = true
+}
+
+function updateCounts(payload) {
+
+  carritoCountLocal.value =
+    payload.carrito || 0
+
+  favoritosCountLocal.value =
+    payload.favoritos || 0
+}
+
+onMounted(() => {
+  bus.on('header:updateCounts', updateCounts)
+})
+
+onUnmounted(() => {
+  bus.off('header:updateCounts', updateCounts)
+})
+
+function abrirMenuUsuario() {
+
+  router.push({
+
+    path: '/Adfj_mis_favoritos',
+
+    query: {
+
+      titulo: 'Favoritos'
+
+    }
+
+  })
+
+}
+
 watch(
 
   () => data.value?.negocio?.neg_id,
@@ -514,233 +419,98 @@ watch(
   },
 
   {
-
     immediate: true
-
   }
 
 )
 
-const carritoCount =
-  computed(() => {
+function irFavoritos() {
 
-    return (
-
-      anonimo.value?.productos
-
-        ?.reduce(
-
-          (
-
-            sum,
-            p
-
-          ) =>
-
-            sum +
-
-            Number(
-              p.cantidad || 0
-            ),
-
-          0
-
-        )
-
-      ||
-
-      0
-
-    )
-
+  router.push({
+    path: '/Adfj_mis_favoritos',
+    query: {
+      titulo: 'Favoritos'
+    }
   })
+}
+
+function irCarrito() {
+
+  router.push({
+    path: '/URl4_usuario_carrito',
+    query: {
+      titulo: 'Carrito de compras'
+    }
+  })
+}
 
 function irCarritoAnonimo() {
 
-  router.push(
-    '/RF5S_anonimo_carrito'
-  )
+  router.push({
+
+    path:
+      '/RF5S_anonimo_carrito',
+
+    query: {
+
+      titulo:
+        'Carrito'
+
+    }
+
+  })
 
 }
-
-/* =========================================
-   🔥 VERSION APP
-========================================= */
-
-const version =
-  import.meta.env.VITE_PUBLIC_VERSION
-
-const versionPrincipal = computed(() => {
-
-  try {
-
-    const cache = JSON.parse(
-      localStorage.getItem(
-        'regentis_principal_cache'
-      ) || '{}'
-    )
-
-    return cache.version || '0'
-
-  } catch (e) {
-
-    return '0'
-
-  }
-
-})
-
-const necesitaActualizar = computed(() => {
-
-  const local =
-    String(version || '0')
-      .split('.')
-      .map(Number)
-
-  const remoto =
-    String(versionPrincipal.value || '0')
-      .split('.')
-      .map(Number)
-
-  for (let i = 0; i < Math.max(local.length, remoto.length); i++) {
-
-    const l = local[i] || 0
-    const r = remoto[i] || 0
-
-    if (r > l) return true
-
-    if (r < l) return false
-
-  }
-
-  return false
-
-})
-
-/* =========================
-   🔥 FIX REAL DEL ERROR
-========================= */
-onMounted(() => {
-
-  // 👇 SOLO carga si aún no existe
-  if (!mercado.value) {
-    principal.refetch?.()
-  }
-
-})
-
-/* =========================================
-   🔙 BACK
-========================================= */
 
 function goBack() {
 
-  /* =========================================
-     🔥 SI TIENE TITULO
-  ========================================= */
-
-  if (route.query?.titulo) {
-
+  if (window.history.length > 1) {
     router.back()
-
-    return
-
+  } else {
+    router.push('/')
   }
+}
 
-  /* =========================================
-     🔥 DEFAULT
-  ========================================= */
+const favoritosCount = computed(() => {
 
-  router.push(
-    '/XXV1_origen'
+  return favoritosCountLocal.value
+    || data.value?.favoritos_count
+    || 0
+})
+
+const carritoCount = computed(() => {
+
+  return (
+
+    anonimo.value?.productos
+
+      ?.reduce(
+
+        (
+          sum,
+          p
+        ) =>
+
+          sum +
+
+          Number(
+            p.cantidad || 0
+          ),
+
+        0
+
+      )
+
+    ||
+
+    0
+
   )
 
-}
+})
 </script>
 
 <style scoped>
-.header-wrapper {
-
-  width: 100%;
-
-  position: fixed;
-
-  top: 0;
-
-  left: 0;
-
-  right: 0;
-
-  z-index: 9999;
-
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, .12);
-
-  padding: 16px 0;
-
-}
-
-.header-inner {
-  max-width: 1400px;
-  margin: auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-}
-
-.logo-box {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.logo-text {
-  font-weight: 600;
-  color: white;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.notification {
-  position: relative;
-  color: white;
-  font-size: 18px;
-}
-
-.notification-badge {
-  position: absolute;
-  top: -6px;
-  right: -8px;
-  background: #EF4444;
-  color: white;
-  font-size: 10px;
-  width: 18px;
-  height: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  font-weight: 600;
-}
-
-.avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-}
-
-.logo-img {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  object-fit: cover;
-}
-
 .icon-btn {
 
   width: 36px;
@@ -752,6 +522,9 @@ function goBack() {
 
   border-radius: 50%;
 
+  overflow: visible;
+  /* SOLO PARA EL BADGE */
+
 }
 
 .avatar-mask {
@@ -762,32 +535,39 @@ function goBack() {
   border-radius: 50%;
 
   overflow: hidden;
+  /* SOLO LA FOTO */
 
+}
+
+
+
+.icon-btn:active {
+  transform: scale(0.9);
+}
+
+.icon-btn i {
+  font-size: 14px;
 }
 
 .notif-badge {
 
   position: absolute;
 
-  top: -6px;
+  top: -7px;
 
-  right: -6px;
+  right: -8px;
 
-  min-width: 18px;
+  min-width: 20px;
 
-  height: 18px;
+  height: 20px;
 
   padding: 0 4px;
 
-  border-radius: 9999px;
-
-  background: #ef4444;
+  background: #EF4444;
 
   color: white;
 
   font-size: 10px;
-
-  font-weight: 700;
 
   display: flex;
 
@@ -795,11 +575,44 @@ function goBack() {
 
   justify-content: center;
 
-  box-shadow:
-    0 2px 8px rgba(0,
-      0,
-      0,
-      .25);
+  border-radius: 9999px;
 
+  font-weight: 700;
+
+  z-index: 100;
+
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, .25);
+
+}
+
+.icon-btn {
+
+  overflow: visible;
+
+}
+
+.logo-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-img {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  object-fit: cover;
+  background: white;
+  padding: 3px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+.logo-text {
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.1;
+  max-width: 170px;
 }
 </style>

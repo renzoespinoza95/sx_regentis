@@ -26,6 +26,12 @@
 
                 </button>
 
+                <button @click="quieroTienda" class="menu-item-btn">
+
+                    🏪 Quiero una tienda virtual
+
+                </button>
+
                 <button @click="cerrar" class="menu-cancel-btn">
 
                     Cancelar
@@ -54,6 +60,11 @@ import {
 }
     from 'gsap'
 
+import {
+    useRouter
+}
+    from 'vue-router'
+
 const props =
     defineProps({
 
@@ -74,6 +85,9 @@ const emit =
 
 const modalRef =
     ref(null)
+
+const router =
+    useRouter()
 
 watch(
 
@@ -109,6 +123,18 @@ watch(
     }
 
 )
+
+function quieroTienda() {
+
+    cerrar()
+
+    router.push(
+
+        '/mod_404'
+
+    )
+
+}
 
 function cerrar() {
 
@@ -157,6 +183,7 @@ function codigoPin() {
     height: 50px;
     border-radius: 18px;
     background: #f7f7f7;
+    color: #000;
     margin-bottom: 10px;
     font-weight: 700;
 

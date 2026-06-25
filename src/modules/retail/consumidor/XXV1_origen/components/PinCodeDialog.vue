@@ -192,7 +192,7 @@ async function ingresar() {
         cerrar()
 
         router.replace(
-            '/XXV1_origen'
+            '/principal'
         )
 
     }

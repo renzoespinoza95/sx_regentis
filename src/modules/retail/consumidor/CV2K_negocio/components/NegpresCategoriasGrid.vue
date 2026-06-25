@@ -2,7 +2,7 @@
 
     <div class="mt-8">
 
-        <div class="px-4 mb-3 font-semibold text-gray-700">
+        <div class="px-4 mb-3 font-semibold" :style="subtituloStyle">
             Categorias
         </div>
 
@@ -37,9 +37,13 @@ import { useRouter } from 'vue-router'
 import {
     ref,
     watch,
-    nextTick
+    nextTick,
+    computed
 }
     from 'vue'
+
+import { useTienda }
+    from '../../../../../services/useTienda.js'
 
 import gsap
     from 'gsap'
@@ -47,6 +51,8 @@ import gsap
 const router = useRouter()
 const itemsRef =
     ref([])
+
+const { data } = useTienda()
 
 function irCategoria(cat) {
     router.push(`/MmZU_productos_categoria/${cat.category_id}`)
@@ -99,6 +105,40 @@ async function animarItems() {
     )
 
 }
+
+const subtituloStyle = computed(() => {
+
+    const tema_id = Number(
+        data.value?.tema?.tema_id || 0
+    )
+
+    if (
+
+        tema_id > 0
+
+        &&
+
+        data.value?.tema?.subtitulo
+
+    ) {
+
+        return {
+
+            color:
+                data.value.tema.subtitulo
+
+        }
+
+    }
+
+    return {
+
+        color:
+            '#374151'
+
+    }
+
+})
 
 watch(
 
