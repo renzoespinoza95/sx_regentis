@@ -70,6 +70,98 @@
 
         </div>
 
+        <!-- URL AMIGABLE -->
+        <div class="mb-6">
+
+            <div class="
+        text-sm
+        font-semibold
+        text-gray-700
+        mb-2
+    ">
+
+                Dirección para compartir
+
+            </div>
+
+            <div class="
+        rounded-3xl
+
+        bg-gradient-to-r
+        from-cyan-50
+        to-emerald-50
+
+        border-2
+        border-cyan-200
+
+        p-4
+    ">
+
+                <div class="
+            text-xs
+            text-gray-500
+            mb-2
+        ">
+
+                    URL pública de tu negocio
+
+                </div>
+
+                <div class="
+            flex
+            items-center
+            gap-2
+        ">
+
+                    <div class="
+                flex-1
+
+                text-lg
+                md:text-xl
+
+                font-black
+
+                text-cyan-700
+
+                break-all
+            ">
+
+                        {{ urlAmigable }}
+
+                    </div>
+
+                    <button @click="copiarUrl" type="button" class="
+                    w-12
+                    h-12
+
+                    rounded-2xl
+
+                    bg-cyan-500
+
+                    text-white
+
+                    shadow-lg
+
+                    active:scale-95
+
+                    transition
+                ">
+
+                        <i class="
+                    fa
+                    fa-copy
+                ">
+                        </i>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
         <!-- CIUDAD -->
         <div class="mb-4">
 
@@ -146,6 +238,8 @@
                 $emit('invalid-yape')
                 " />
 
+        <GsapToast ref="toastRef" />
+
     </div>
 
 </template>
@@ -154,6 +248,86 @@
 
 import ListaYapeInput
     from './ListaYapeInput.vue'
+
+import {
+    computed,
+    ref
+}
+    from 'vue'
+
+import GsapToast
+    from '../../../../../components/layout/GsapToast.vue'
+
+function slugify(texto) {
+
+    return String(
+        texto || ''
+    )
+
+        .normalize('NFD')
+
+        .replace(
+            /[\u0300-\u036f]/g,
+            ''
+        )
+
+        .toLowerCase()
+
+        .replace(
+            /[^a-z0-9\s-]/g,
+            ''
+        )
+
+        .replace(
+            /\s+/g,
+            '-'
+        )
+
+        .replace(
+            /-+/g,
+            '-'
+        )
+
+        .trim()
+
+}
+
+const toastRef =
+    ref(null)
+
+const urlAmigable =
+    computed(() => {
+
+        const slug =
+            slugify(
+                props.form?.nombre
+            )
+
+        return slug
+            ? `https://ofer.lat/${slug}`
+            : 'https://ofer.lat/mi-negocio'
+
+    })
+
+async function copiarUrl() {
+
+    await navigator
+        .clipboard
+        .writeText(
+            urlAmigable.value
+        )
+
+    toastRef.value?.show({
+
+        text:
+            'Dirección copiada',
+
+        type:
+            'success'
+
+    })
+
+}
 
 const props =
     defineProps({

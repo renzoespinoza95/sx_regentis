@@ -8,7 +8,7 @@
 
 
             <h1 class="text-[1rem] md:text-[1.6rem] font-black text-[#1d293d] leading-tight">
-                Tu negocio merece su propia app 🚀
+                Tu negocio merece su propia tienda virtual 🚀
             </h1>
 
         </div>
@@ -17,16 +17,17 @@
         <div class="max-w-3xl mx-auto text-center">
 
             <p class="text-sm md:text-xl text-gray-700 leading-relaxed animate-fade">
-                🍊 ¿Tú también quieres una aplicación de pedidos para tu mercado?
+                🍊 ¿Tú también quieres una tienda virtual?
             </p>
 
             <p class="text-gray-600 text-sm md:text-xl mt-5 leading-relaxed animate-fade-delay">
-                Lleva tu mercado, restaurante, farmacia o tienda a otro nivel con una app moderna, rápida y profesional
+                Lleva tu negocio, restaurante, farmacia o emprendimiento a otro nivel con una tienda virtual moderna,
+                rápida y profesional
                 ✨
             </p>
 
             <p class="text-gray-500 text-sm md:text-lg mt-5 animate-fade-delay2">
-                Consulta sin compromiso y obtén tu aplicación al instante 📲
+                Consulta sin compromiso y obtén tu tienda virtual al instante 📲
             </p>
 
         </div>

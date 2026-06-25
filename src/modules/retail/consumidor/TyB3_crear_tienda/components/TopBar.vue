@@ -28,7 +28,7 @@ py-5
             text-center
         ">
 
-      Crear negocio en UnionComercial
+      Crear tu tienda virtual
 
     </div>
 

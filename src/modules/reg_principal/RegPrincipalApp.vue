@@ -67,6 +67,7 @@ import {
 }
   from '../../services/useCss.js'
 
+
 const {
   mercado
 } = useMercado()
@@ -101,19 +102,20 @@ const fondoStyle =
 /* =========================================
    🔥 MODAL LOGIN GUEST
 ========================================= */
-
-
+const MERCADO_ID =
+  Number(
+    import.meta.env
+      .VITE_PUBLIC_MERCADO_ID
+    || 0
+  )
 
 onMounted(() => {
-
-  /* =========================================
-     🧹 LIMPIAR TIENDA
-  ========================================= */
 
   setNegIdTienda(null)
 
   console.log(
-    '🧹 neg_id_tienda limpiado'
+    '🏪 mercado_id =>',
+    MERCADO_ID
   )
 
 })

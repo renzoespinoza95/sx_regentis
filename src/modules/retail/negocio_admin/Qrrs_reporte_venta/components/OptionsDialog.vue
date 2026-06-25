@@ -178,6 +178,14 @@ const opciones = [
 
         emoji: '📈'
 
+    },
+
+    {
+
+        estado: 'pdf',
+
+        emoji: '📄'
+
     }
 
 ]

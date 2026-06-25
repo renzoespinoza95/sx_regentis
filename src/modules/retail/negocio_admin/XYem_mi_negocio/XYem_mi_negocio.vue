@@ -623,6 +623,34 @@ async function guardar() {
 
     try {
 
+        const celular =
+
+            String(
+                form.value.celular_informes || ''
+            )
+
+                .trim()
+
+        if (
+
+            !/^\d{9}$/.test(
+                celular
+            )
+
+        ) {
+
+            snackbarRef.value?.open(
+
+                'Complete celular informes (9 dígitos)'
+
+            )
+
+            return
+
+        }
+
+
+
         loading.value =
             true
 

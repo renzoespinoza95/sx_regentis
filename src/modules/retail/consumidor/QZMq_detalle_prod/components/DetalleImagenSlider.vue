@@ -21,15 +21,46 @@
 
             <!-- FONDO -->
 
-            <img src="https://barsi-img.b-cdn.net/p_info/5u5f.png" class="
+            <!-- FONDO PREMIUM -->
+
+            <div class="
         absolute
         inset-0
+    " style="
+        background-color: #d8c78d;
 
-        w-full
-        h-full
+        background-image:
 
-        object-fill
+            radial-gradient(
+                circle at center center,
+                rgba(120, 90, 20, 0.10) 2px,
+                transparent 2px
+            ),
+
+            repeating-linear-gradient(
+                45deg,
+                rgba(120, 90, 20, 0.08) 0px,
+                rgba(120, 90, 20, 0.08) 2px,
+                transparent 2px,
+                transparent 12px
+            ),
+
+            repeating-linear-gradient(
+                -45deg,
+                rgba(255,255,255,0.18) 0px,
+                rgba(255,255,255,0.18) 2px,
+                transparent 2px,
+                transparent 12px
+            ),
+
+            linear-gradient(
+                180deg,
+                #efe2b2 0%,
+                #d8c78d 45%,
+                #c7b16f 100%
+            );
     ">
+            </div>
 
             <!-- SLIDER -->
 

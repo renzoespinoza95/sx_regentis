@@ -287,7 +287,6 @@ async function onCategoriaCreated() {
 
 }
 
-
 async function cargarCategorias() {
 
     try {
@@ -315,25 +314,65 @@ async function cargarCategorias() {
             categorias.value = res.data.data
 
             /* =========================================
-            🔥 TODOS LOS PRODUCTOS
+               🔥 TODOS LOS PRODUCTOS
             ========================================= */
 
             const todos = categorias.value.flatMap(
 
-                c => c.productos || []
+                c =>
+
+                    (c.productos || []).map(
+
+                        p => ({
+
+                            ...p,
+
+                            categoria_nombre:
+                                c.descripcion,
+
+                            category_id:
+                                c.category_id
+
+                        })
+
+                    )
 
             )
 
+            /* =========================================
+               🔥 QUITAR DUPLICADOS
+            ========================================= */
+
+            const unicos = [
+
+                ...new Map(
+
+                    todos.map(
+
+                        p => [
+
+                            p.product_id,
+
+                            p
+
+                        ]
+
+                    )
+
+                ).values()
+
+            ]
+
             productos.value = [
-                ...todos
+                ...unicos
             ]
 
             productosOriginales.value = [
-                ...todos
+                ...unicos
             ]
 
             listaBaseBusqueda.value = [
-                ...todos
+                ...unicos
             ]
 
         }
@@ -366,20 +405,58 @@ function onSelectCategoria(cat) {
 
         activeCat.value = null
 
-        const todos =
+        const todos = categorias.value.flatMap(
 
-            categorias.value.flatMap(
+            c =>
 
-                c => c.productos || []
+                (c.productos || []).map(
 
-            )
+                    p => ({
+
+                        ...p,
+
+                        categoria_nombre:
+                            c.descripcion,
+
+                        category_id:
+                            c.category_id
+
+                    })
+
+                )
+
+        )
+
+        /* =========================================
+           🔥 QUITAR DUPLICADOS
+        ========================================= */
+
+        const unicos = [
+
+            ...new Map(
+
+                todos.map(
+
+                    p => [
+
+                        p.product_id,
+
+                        p
+
+                    ]
+
+                )
+
+            ).values()
+
+        ]
 
         productos.value = [
-            ...todos
+            ...unicos
         ]
 
         listaBaseBusqueda.value = [
-            ...todos
+            ...unicos
         ]
 
         return
@@ -394,7 +471,22 @@ function onSelectCategoria(cat) {
         cat.category_id
 
     const lista =
-        cat.productos || []
+
+        (cat.productos || []).map(
+
+            p => ({
+
+                ...p,
+
+                categoria_nombre:
+                    cat.descripcion,
+
+                category_id:
+                    cat.category_id
+
+            })
+
+        )
 
     productos.value = [
         ...lista
@@ -405,6 +497,7 @@ function onSelectCategoria(cat) {
     ]
 
 }
+
 
 // 🔥 INPUT
 function onBuscar(texto) {

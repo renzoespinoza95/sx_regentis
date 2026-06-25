@@ -15,6 +15,7 @@ import Mod_404 from '../modules/mod_404/Mod_404.vue'
 import PCJj_mapa_ubicacion from '../modules/retail/consumidor/PCJj_mapa_ubicacion/PCJj_mapa_ubicacion.vue'
 import QZMq_detalle_prod from '../modules/retail/consumidor/QZMq_detalle_prod/QZMq_detalle_prod.vue'
 import URl4_usuario_carrito from '../modules/retail/consumidor/URl4_usuario_carrito/URl4_usuario_carrito.vue'
+import RF5S_anonimo_carrito from '../modules/retail/consumidor/RF5S_anonimo_carrito/RF5S_anonimo_carrito.vue'
 import MmZU_productos_categoria from '../modules/retail/consumidor/MmZU_productos_categoria/MmZU_productos_categoria.vue'
 import BTqw_mi_cuenta from '../modules/retail/consumidor/BTqw_mi_cuenta/BTqw_mi_cuenta.vue'
 import Wvn1_mis_mensajes from '../modules/retail/consumidor/Wvn1_mis_mensajes/Wvn1_mis_mensajes.vue'
@@ -22,9 +23,9 @@ import CyHh_leer_mensaje from '../modules/retail/consumidor/CyHh_leer_mensaje/Cy
 import Adfj_mis_favoritos from '../modules/retail/consumidor/Adfj_mis_favoritos/Adfj_mis_favoritos.vue'
 import B2Tk_detalle_pedido from '../modules/retail/consumidor/B2Tk_detalle_pedido/B2Tk_detalle_pedido.vue'
 import CV2K_negocio from '../modules/retail/consumidor/CV2K_negocio/CV2K_negocio.vue'
+import SlugResolver from '../modules/retail/consumidor/CV2K_negocio/SlugResolver.vue'
 import TyB3CrearTienda from '../modules/retail/consumidor/TyB3_crear_tienda/TyB3_crear_tienda.vue'
 import Gx7p_atencion_mesa from '../modules/retail/consumidor/Gx7p_atencion_mesa/Gx7p_atencion_mesa.vue'
-import XXV1_origen from '../modules/retail/consumidor/XXV1_origen/XXV1_origen.vue'
 
 /* NEGOCIO_ADMIN */
 import ZpB1_ag_producto from '../modules/retail/negocio_admin/ZpB1_ag_producto/ZpB1_ag_producto.vue'
@@ -55,7 +56,7 @@ const routes = [
  //     if (mercadoId === '0') {
  //       return `/CV2K_negocio/${negId}`
  //     }
-      return '/XXV1_origen'
+      return '/principal'
     }
   },
   // =========================================
@@ -74,8 +75,10 @@ const routes = [
   // =========================================
   { path: '/QZMq_detalle_prod/:product_id', component: QZMq_detalle_prod, meta: { hideNav: false } },  
   { path: '/URl4_usuario_carrito', component: URl4_usuario_carrito, meta: { hideNav: false } },
+  { path: '/RF5S_anonimo_carrito', component: RF5S_anonimo_carrito, meta: { hideNav: false } },
   { path: '/MmZU_productos_categoria/:category_id', component: MmZU_productos_categoria, meta: { hideNav: false } },  
   { path: '/CV2K_negocio/:neg_id', component: CV2K_negocio, meta: { hideNav: false } },
+  { path: '/:slug', component: SlugResolver,  meta: { hideNav: false } },
   { path: '/BTqw_mi_cuenta', component: BTqw_mi_cuenta, meta: { hideNav: false } },
   { path: '/Wvn1_mis_mensajes', component: Wvn1_mis_mensajes, meta: { hideNav: false } },
   { path: '/CyHh_leer_mensaje/:id', component: CyHh_leer_mensaje, meta: { hideNav: false } },
@@ -91,15 +94,6 @@ const routes = [
   { path: '/TyB3_crear_tienda', component: TyB3CrearTienda, meta: { hideNav: false } },
   { path: '/B2Tk_detalle_pedido/:id', component: B2Tk_detalle_pedido, meta: { hideNav: false } },
   { path: '/Gx7p_atencion_mesa', component: Gx7p_atencion_mesa, meta: { hideNav: false } },  
-  { path: '/XXV1_origen', component: XXV1_origen, meta: { hideNav: false } },  
-  {
-    path: '/XXV1_origen/:mercado_id',
-
-      component: () =>
-          import(
-              '../modules/retail/consumidor/XXV1_origen/XXV1_origen.vue'
-          )
-  },
   // =========================================
   // RETAIL - ADMIN
   // =========================================  

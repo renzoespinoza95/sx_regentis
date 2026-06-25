@@ -162,6 +162,10 @@ import GsapConfetti from '../../../../../components/layout/GsapConfetti.vue'
 import { useUsuario } from '../../../../../services/usuarioService.js'
 import DetalleRating from './DetalleRating.vue'
 import DetalleCounter from './DetalleCounter.vue'
+import {
+  useAnonimo
+}
+  from '../../../../../services/anonimoService.js'
 
 
 const confettiRef = ref(null)
@@ -183,6 +187,11 @@ const { mercado } = useMercado()
 const btnStyle = computed(() => ({
   background: mercado.value?.topnavbar_color || '#f97316'
 }))
+
+
+const {
+  addProducto
+} = useAnonimo()
 
 /* =========================
    🔥 EFECTO VOLAR AL CORAZÓN
@@ -226,6 +235,86 @@ function flyToHeart(e) {
     ease: "power2.inOut",
     onComplete: () => clone.remove()
   })
+}
+
+function flyToTarget(
+  e,
+  targetId
+) {
+
+  const card =
+    e.target.closest('.bg-white')
+
+  const target =
+    document.getElementById(
+      targetId
+    )
+
+  if (
+    !card
+    ||
+    !target
+  ) {
+    return
+  }
+
+  const clone =
+    card.cloneNode(true)
+
+  const rect =
+    card.getBoundingClientRect()
+
+  const targetRect =
+    target.getBoundingClientRect()
+
+  Object.assign(
+    clone.style,
+    {
+      position: 'fixed',
+      top: rect.top + 'px',
+      left: rect.left + 'px',
+      width: rect.width + 'px',
+      zIndex: 9999,
+      pointerEvents: 'none'
+    }
+  )
+
+  document.body.appendChild(
+    clone
+  )
+
+  gsap.to(
+    clone,
+    {
+
+      x:
+        targetRect.left
+        -
+        rect.left,
+
+      y:
+        targetRect.top
+        -
+        rect.top,
+
+      scale: 0.2,
+
+      opacity: 0.5,
+
+      duration: 0.7,
+
+      ease:
+        'power2.inOut',
+
+      onComplete: () => {
+
+        clone.remove()
+
+      }
+
+    }
+  )
+
 }
 
 
@@ -308,7 +397,10 @@ const total =
 
 async function onFavoritoClick(e) {
 
-  flyToHeart(e)
+  flyToTarget(
+    e,
+    'icon-heart-header'
+  )
 
   const usu_id = user.value?.usu_id
 
@@ -367,65 +459,195 @@ async function onFavoritoClick(e) {
 ========================= */
 async function onPedirAhora(e) {
 
-  flyToHeart(e)
+  const usu_id =
+    user.value?.usu_id
 
-  const usu_id = user.value?.usu_id
   const negocio_id =
     props.producto?.neg_id
 
-  if (!usu_id || !negocio_id) {
-    emit('toast', {
-      text: 'Datos de usuario incompletos ❌',
-      type: 'error'
+  /* =========================================
+     🔥 USUARIO ANÓNIMO
+  ========================================= */
+
+  if (!usu_id) {
+
+    addProducto({
+
+      product_id:
+        props.producto.product_id,
+
+      nombre:
+        props.producto.name,
+
+      precio:
+        precioActual.value,
+
+      cantidad:
+        counterRef.value?.qty || 1,
+
+      img:
+        props.producto?.imagenes?.find(
+          x => Number(x.orden) === 1
+        )?.img
+
+        ||
+
+        props.producto?.imagenes?.[0]?.img
+
+        ||
+
+        '',
+
+      neg_id:
+        negocio_id
+
     })
+
+    flyToTarget(
+      e,
+      'icon-carrito-header'
+    )
+
+    emit('toast', {
+
+      text:
+        'Agregado al carrito 🛒',
+
+      type:
+        'success'
+
+    })
+
+    confettiRef.value?.show()
+
     return
+
   }
+
+  /* =========================================
+     🔥 VALIDACIÓN LOGUEADO
+  ========================================= */
+
+  if (!negocio_id) {
+
+    emit('toast', {
+
+      text:
+        'Negocio inválido ❌',
+
+      type:
+        'error'
+
+    })
+
+    return
+
+  }
+
+  /* =========================================
+     🔥 USUARIO LOGUEADO
+  ========================================= */
 
   try {
 
     const res = await fetch(
+
       `${import.meta.env.VITE_PUBLIC_URL_BASE}/M0Jk/carritoCompras`,
+
       {
+
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+
+        headers: {
+
+          'Content-Type':
+            'application/json'
+
+        },
+
         body: JSON.stringify({
-          usu_id: usu_id,
-          neg_id: negocio_id, // 🔥 AQUÍ EL FIX REAL
-          product_id: props.producto.product_id,
-          cantidad: counterRef.value?.qty || 1,
-          fecha_entrega: null
+
+          usu_id:
+            usu_id,
+
+          neg_id:
+            negocio_id,
+
+          product_id:
+            props.producto.product_id,
+
+          cantidad:
+            counterRef.value?.qty || 1,
+
+          fecha_entrega:
+            null
+
         })
+
       }
+
     )
 
-    const data = await res.json()
+    const data =
+      await res.json()
 
-    if (data.status === 'ok') {
+    if (
+
+      data.status === 'ok'
+
+    ) {
+
+      flyToTarget(
+        e,
+        'icon-carrito-header'
+      )
 
       emit('toast', {
-        text: 'Agregado al carrito 🛒',
-        type: 'success'
+
+        text:
+          'Agregado al carrito 🛒',
+
+        type:
+          'success'
+
       })
 
       confettiRef.value?.show()
 
-    } else {
+    }
+
+    else {
 
       emit('toast', {
-        text: data.msg || 'Error al agregar ❌',
-        type: 'error'
+
+        text:
+          data.msg
+          ||
+          'Error al agregar ❌',
+
+        type:
+          'error'
+
       })
 
     }
 
-  } catch (err) {
+  }
+
+  catch (err) {
 
     emit('toast', {
-      text: 'Error de conexión ❌',
-      type: 'error'
+
+      text:
+        'Error de conexión ❌',
+
+      type:
+        'error'
+
     })
 
   }
+
 }
 
 </script>

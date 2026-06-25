@@ -20,19 +20,25 @@
 
                 </button>
 
-                <button @click="irMiCuenta" class="menu-item-btn">
-                    Mi cuenta
+                <button v-if="getUser()?.neg_id" @click="irMiTienda" class="menu-item-btn">
+
+                    🏪 Mi tienda
+
                 </button>
 
-                <button @click="irContacto" class="menu-item-btn">
-                    Contacto
+
+
+                <button @click="irMiCuenta" class="menu-item-btn">
+                    👤 Mi cuenta
                 </button>
 
                 <button @click="verInformacion" class="menu-item-btn">
 
-                    ℹ️ Información
+                    ℹ️ Mi información
 
                 </button>
+
+
 
                 <template v-if="isLogged">
 
@@ -48,16 +54,20 @@
 
                     </button>
 
-                    <button @click="irCarrito" class="menu-item-btn relative">
+                    <button @click="irPedidos" class="menu-item-btn relative">
 
-                        🛒 Carrito
+                        📦 Mis Pedidos
 
-                        <span v-if="carritoCount > 0" class="menu-badge">
+                        <span v-if="pedidosCount > 0" class="menu-badge">
 
-                            {{ carritoCount }}
+                            {{ pedidosCount }}
 
                         </span>
 
+                    </button>
+
+                    <button @click="irContacto" class="menu-item-btn">
+                        📞 Contacto
                     </button>
 
                 </template>
@@ -142,6 +152,9 @@ const carritoCountLocal =
 const favoritosCountLocal =
     ref(0)
 
+const pedidosCountLocal =
+    ref(0)
+
 /* =========================================
    🔥 TOGGLE BOTTOMNAV
 ========================================= */
@@ -208,6 +221,9 @@ function updateCounts(payload) {
     favoritosCountLocal.value =
         payload.favoritos || 0
 
+    pedidosCountLocal.value =
+        payload.pedidos || 0
+
 }
 
 onMounted(() => {
@@ -245,6 +261,13 @@ const carritoCount =
     computed(() => {
 
         return carritoCountLocal.value
+
+    })
+
+const pedidosCount =
+    computed(() => {
+
+        return pedidosCountLocal.value
 
     })
 
@@ -303,21 +326,14 @@ function irFavoritos() {
 
 }
 
-function irCarrito() {
+function irPedidos() {
 
     cerrar()
 
     router.push({
 
         path:
-            '/URl4_usuario_carrito',
-
-        query: {
-
-            titulo:
-                'Carrito de compras'
-
-        }
+            '/mod_pedidos'
 
     })
 
@@ -447,6 +463,30 @@ function irAdministracion() {
 function irMiCuenta() {
     cerrar()
     router.push('/BTqw_mi_cuenta')
+}
+
+function irMiTienda() {
+
+    const neg_id =
+
+        getUser()?.neg_id
+
+    if (!neg_id) {
+
+        return
+
+    }
+
+    cerrar(() => {
+
+        router.push(
+
+            `/CV2K_negocio/${neg_id}`
+
+        )
+
+    })
+
 }
 
 function irContacto() {

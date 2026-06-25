@@ -70,17 +70,32 @@
 
     </button>
 
-    <!-- PEDIDOS -->
-    <button class="flex-1 h-full flex flex-col items-center justify-center relative" @click="go('/mod_pedidos')">
+    <!-- CARRITO -->
+    <button class="
+    flex-1
+    h-full
+    flex
+    flex-col
+    items-center
+    justify-center
+    relative
+  " @click="goCarrito">
 
-      <i class="fa fa-shopping-basket text-xl transition" :class="isActive('/mod_pedidos')
-        ? 'text-orange-500'
-        : 'text-white'
-        ">
+      <i class="
+      fa
+      fa-shopping-cart
+      text-xl
+      transition
+    " :class="isActive('/URl4_usuario_carrito')
+      ?
+      'text-orange-500'
+      :
+      'text-white'
+      ">
       </i>
 
       <!-- BADGE -->
-      <span v-if="cantPedidos > 0" class="
+      <span v-if="cantCarrito > 0" class="
       absolute
       top-3
       right-8
@@ -95,16 +110,22 @@
       justify-center
     ">
 
-        {{ cantPedidos }}
+        {{ cantCarrito }}
 
       </span>
 
-      <span class="text-xs mt-1 transition" :class="isActive('/mod_pedidos')
-        ? 'text-orange-500 font-semibold'
-        : 'text-white'
-        ">
+      <span class="
+      text-xs
+      mt-1
+      transition
+    " :class="isActive('/URl4_usuario_carrito')
+      ?
+      'text-orange-500 font-semibold'
+      :
+      'text-white'
+      ">
 
-        Pedidos
+        Carrito
 
       </span>
 
@@ -203,6 +224,7 @@ import ModalMenuUsuario
 
 import ModalUsuario
   from '../ModalUsuario.vue'
+
 /* ======================================
    ENV
 ====================================== */
@@ -215,6 +237,12 @@ const POLLING =
     import.meta.env.VITE_PUBLIC_RQ_POLLING
     || 1
   )
+
+const {
+
+  getNegIdTienda
+
+} = useUsuario()
 
 const mercadoId =
   import.meta.env.VITE_PUBLIC_MERCADO_ID
@@ -347,9 +375,8 @@ const shouldShowBottomNav =
 const cantMensajes =
   ref(0)
 
-const cantPedidos =
+const cantCarrito =
   ref(0)
-
 /* ======================================
    INTERVAL
 ====================================== */
@@ -413,23 +440,15 @@ async function cargarCantidadMensajes() {
 
     }
 
-    /* ======================================
-       🔥 BADGE CHATS
-    ====================================== */
-
     cantMensajes.value =
 
       res.data.mensajes_nuevos
       ||
       0
 
-    /* ======================================
-       🔥 BADGE PEDIDOS
-    ====================================== */
+    cantCarrito.value =
 
-    cantPedidos.value =
-
-      res.data.carritos_enviados
+      res.data.carrito_count
       ||
       0
 
@@ -642,27 +661,132 @@ function isActive(path) {
 
 function goInicio() {
 
+  console.log(
+    '======================================'
+  )
+
+  console.log(
+    '🏠 GO INICIO'
+  )
+
+  console.log(
+    'route.path =>',
+    route.path
+  )
+
+  console.log(
+    'route.fullPath =>',
+    route.fullPath
+  )
+
+  console.log(
+    'VITE_PUBLIC_MERCADO_ID =>',
+    mercadoId
+  )
+
+  console.log(
+    'VITE_PUBLIC_NEG_ID =>',
+    negId
+  )
+
+  console.log(
+    'localStorage.neg_id_tienda =>',
+    localStorage.getItem(
+      'neg_id_tienda'
+    )
+  )
+
+  console.log(
+    'getNegIdTienda() =>',
+    getNegIdTienda()
+  )
+
+  console.log(
+    'regentis_mercado_id =>',
+    localStorage.getItem(
+      'regentis_mercado_id'
+    )
+  )
+
+  console.log(
+    'usuario =>',
+    usuario.value
+  )
+
+  console.log(
+    'isLogged =>',
+    isLogged.value
+  )
+
+  const negIdActual =
+
+    getNegIdTienda()
+
+  console.log(
+    'negIdActual =>',
+    negIdActual
+  )
+
   if (
 
-    String(mercadoId)
-    ===
-    '0'
+    negIdActual > 0
 
   ) {
 
-    router.push(
-      `/CV2K_negocio/${negId}`
+    const destino =
+
+      `/CV2K_negocio/${negIdActual}`
+
+    console.log(
+      '✅ DESTINO TIENDA =>',
+      destino
     )
+
+    console.log(
+      '======================================'
+    )
+
+    router.push(
+      destino
+    )
+
+    return
 
   }
 
-  else {
+  console.warn(
+    '⚠️ negIdActual <= 0'
+  )
 
-    router.push(
-      '/principal'
-    )
+  console.warn(
+    '⚠️ ENVIANDO A /principal'
+  )
 
-  }
+  console.log(
+    '======================================'
+  )
+
+  router.push(
+    '/principal'
+  )
+
+}
+
+function goCarrito() {
+
+  router.push({
+
+    path:
+      '/URl4_usuario_carrito',
+
+    query: {
+
+      titulo:
+        'Carrito de compras'
+
+    }
+
+  })
 
 }
 

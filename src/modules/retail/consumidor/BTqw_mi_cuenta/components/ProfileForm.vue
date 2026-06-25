@@ -31,6 +31,34 @@
 
         </button>
 
+        <!-- CREAR TIENDA -->
+        <button class="
+        w-full
+        h-14
+        rounded-2xl
+
+        bg-gradient-to-r
+        from-emerald-500
+        via-teal-500
+        to-cyan-500
+
+        text-white
+
+        font-bold
+
+        shadow-lg
+
+        active:scale-[0.98]
+
+        transition
+    " @click="
+        $emit('crear-tienda')
+        ">
+
+            🏪 Crear tienda
+
+        </button>
+
         <!-- TERMINOS -->
         <button class="
                 w-full

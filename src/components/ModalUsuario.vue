@@ -260,13 +260,18 @@
 
                 </div>
 
+
                 <!-- SUSCRIPCION -->
-                <div class="
-                        bg-orange-50
-                        rounded-xl
-                        p-3
-                        mt-5
-                    ">
+                <div v-if="
+                    user?.fecha_inicio_premium
+                    &&
+                    user?.fecha_fin_premium
+                " class="
+        bg-orange-50
+        rounded-xl
+        p-3
+        mt-5
+    ">
 
                     <div class="
                             font-semibold

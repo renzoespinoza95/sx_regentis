@@ -42,8 +42,11 @@
     " />
 
             <div>
+
                 <div class="font-semibold text-sm">
+
                     {{ item.name }}
+
                 </div>
 
                 <div v-if="
@@ -57,6 +60,16 @@
 
                     🚫 SIN STOCK
 
+                    <template v-if="
+                        item.categoria_nombre
+                    ">
+
+                        — 🗂️
+
+                        {{ item.categoria_nombre }}
+
+                    </template>
+
                 </div>
 
                 <div v-else class="
@@ -66,7 +79,18 @@
 
                     Stock: {{ item.stock }}
 
+                    <template v-if="
+                        item.categoria_nombre
+                    ">
+
+                        — 🗂️
+
+                        {{ item.categoria_nombre }}
+
+                    </template>
+
                 </div>
+
             </div>
 
         </div>
@@ -83,6 +107,7 @@
                 S/{{ Number(item.price).toFixed(2) }}
 
             </div>
+
             <div v-if="
                 Number(item.is_visible) === 0
             " class="
@@ -94,6 +119,7 @@
                 🔒 OCULTO
 
             </div>
+
         </div>
 
     </div>

@@ -100,6 +100,7 @@ ${estadoActual} 📦
         <OptionsDialog ref="dialogRef" @select="onSelectEstado" />
         <VentaDetalleDialog ref="ventaDetalleDialogRef" />
         <ResumenVentasDialog ref="resumenDialogRef" />
+        <PdfVentasDialog ref="pdfDialogRef" />
 
     </div>
 
@@ -145,6 +146,9 @@ import FiltroFechaPills
 import ResumenVentasDialog
     from './components/ResumenVentasDialog.vue'
 
+import PdfVentasDialog
+    from './components/PdfVentasDialog.vue'
+
 const { mercado } = useMercado()
 
 const pedidos = ref([])
@@ -155,6 +159,9 @@ const filtroFecha =
     ref('HOY')
 
 const resumenDialogRef =
+    ref(null)
+
+const pdfDialogRef =
     ref(null)
 
 function formatDate(
@@ -501,6 +508,18 @@ function onSelectEstado(
             ?.open(
                 neg_id
             )
+
+        return
+
+    }
+
+    if (
+        estado === 'pdf'
+    ) {
+
+        pdfDialogRef
+            .value
+            ?.open()
 
         return
 

@@ -1,8 +1,5 @@
 <template>
-  <div class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-4 pt-4 pb-3" :style="{
-    background: mercadoColor,
-    '--header-color': mercadoColor
-  }">
+  <div class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-4 pt-4 pb-3" :style="headerStyle">
 
     <!-- LEFT: BACK -->
     <!-- LEFT -->
@@ -67,7 +64,7 @@
         <div
           class="w-9 h-9 bg-white backdrop-blur-md rounded-full flex items-center justify-center active:scale-90 transition">
 
-          <i class="fa fa-arrow-left text-sm" :style="{ color: mercadoColor }">
+          <i class="fa fa-arrow-left text-sm text-[#FD7635]">
           </i>
 
         </div>
@@ -80,38 +77,131 @@
 
     </div>
 
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-2">
 
-      <!-- 🔐 NO LOGUEADO -->
-      <button v-if="!isLogged" @click="irLogin"
-        class="bg-white text-[#FD7635] px-3 py-1 rounded-full text-xs font-semibold shadow-sm hover:scale-105 transition">
+      <!-- CARRITO -->
+      <div id="icon-carrito-header" class="relative icon-btn p-0" @click="irCarritoAnonimo">
 
-        Ingresar
+        <div class="
+      w-full
+      h-full
 
-      </button>
+      flex
+      items-center
+      justify-center
 
-      <!-- 🔓 LOGUEADO -->
-      <template v-else>
+      rounded-full
 
-        <div class="flex items-center gap-2">
+      bg-gradient-to-br
 
-          <!-- MENU -->
-          <!-- AVATAR -->
-          <div class="icon-btn overflow-hidden p-0" @click="abrirMenuUsuario">
+      from-[#FD7635]
+      via-[#FF934D]
+      to-[#FFB347]
 
-            <img :src="user?.img_perfil || 'https://picsum.photos/80'" class="w-full h-full object-cover" />
+      shadow-[0_0_15px_rgba(253,118,53,.45)]
+    ">
 
-          </div>
+          <i class="fa fa-shopping-cart text-white"></i>
 
         </div>
 
-      </template>
+        <span v-if="carritoCount > 0" class="notif-badge">
+
+          {{ carritoCount }}
+
+        </span>
+
+      </div>
+
+      <!-- COMPARTIR -->
+      <div class="relative icon-btn p-0" @click="showCompartir = true">
+
+        <div class="
+      w-full
+      h-full
+
+      flex
+      items-center
+      justify-center
+
+      rounded-full
+
+      bg-gradient-to-br
+
+      from-[#FD7635]
+      via-[#FF934D]
+      to-[#FFB347]
+
+      shadow-[0_0_15px_rgba(253,118,53,.45)]
+    ">
+
+          <i class="fa fa-mail-forward text-white"></i>
+
+        </div>
+
+      </div>
+
+      <!-- NO LOGUEADO -->
+      <button v-if="!isLogged" @click="irLogin" class="icon-btn p-0">
+
+        <div class="
+      w-full
+      h-full
+
+      flex
+      items-center
+      justify-center
+
+      rounded-full
+
+      bg-gradient-to-br
+
+      from-[#FD7635]
+      via-[#FF934D]
+      to-[#FFB347]
+
+      shadow-[0_0_15px_rgba(253,118,53,.45)]
+    ">
+
+          <i class="fa fa-user text-white"></i>
+
+        </div>
+
+      </button>
+
+      <!-- LOGUEADO -->
+      <div v-else class="relative icon-btn p-0" @click="abrirMenuUsuario">
+
+        <div class="avatar-mask">
+
+          <img :src="user?.img_perfil
+            ||
+            'https://picsum.photos/80'
+            " class="
+          w-full
+          h-full
+          object-cover
+        " />
+
+        </div>
+
+        <span v-if="favoritosCount > 0" class="notif-badge">
+
+          {{ favoritosCount }}
+
+        </span>
+
+      </div>
 
     </div>
 
     <!-- MODALES -->
     <ModalUsuario v-model="showModalUsuario" />
     <ModalMenuUsuario v-model="showMenuUsuario" />
+    <CompartirNegocioDialog v-model="showCompartir" :slug="data?.negocio?.slug
+      ||
+      ''
+      " />
 
   </div>
 </template>
@@ -123,10 +213,31 @@ import { useMercado } from '../../services/useMercado.js'
 import ModalUsuario from '../ModalUsuario.vue'
 import ModalMenuUsuario from '../ModalMenuUsuario.vue'
 import { useTienda } from '../../services/useTienda.js'
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import {
+  ref,
+  computed,
+  onMounted,
+  onUnmounted,
+  watch
+}
+  from 'vue'
 import { bus } from '../../services/eventBus.js'
+import CompartirNegocioDialog
+  from './CompartirNegocioDialog.vue'
+import { useAnonimo }
+  from '../../services/anonimoService.js'
+
+import {
+  cssToObject
+}
+  from '../../services/useCss.js'
 
 const { data } = useTienda()
+
+const {
+  anonimo,
+  setNegocio
+} = useAnonimo()
 
 const user = computed(() => {
   return usuario.value?.user || null
@@ -143,6 +254,9 @@ const props = defineProps({
 
 const router = useRouter()
 const route = useRoute()
+
+const showCompartir =
+  ref(false)
 
 const carritoCountLocal = ref(0)
 const favoritosCountLocal = ref(0)
@@ -170,8 +284,56 @@ const { mercado } = useMercado()
 /* =========================================
    🔥 EVITAR NULL
 ========================================= */
-const mercadoColor = computed(() => {
-  return mercado.value?.topnavbar_color || '#FD7635'
+const headerStyle = computed(() => {
+
+  const tema_id = Number(
+    data.value?.tema?.tema_id || 0
+  )
+
+  if (
+
+    tema_id > 0
+
+    &&
+
+    data.value?.tema?.topnavbar
+
+  ) {
+
+    return {
+
+      ...cssToObject(
+
+        data.value.tema.topnavbar
+
+      ),
+
+      '--header-color': '#FD7635'
+
+    }
+
+  }
+
+  return {
+
+    background:
+
+      mercado.value?.topnavbar_color
+
+      ||
+
+      '#FD7635',
+
+    '--header-color':
+
+      mercado.value?.topnavbar_color
+
+      ||
+
+      '#FD7635'
+
+  }
+
 })
 
 function irLogin() {
@@ -200,8 +362,41 @@ onUnmounted(() => {
 })
 
 function abrirMenuUsuario() {
-  showMenuUsuario.value = true
+
+  router.push({
+
+    path: '/Adfj_mis_favoritos',
+
+    query: {
+
+      titulo: 'Favoritos'
+
+    }
+
+  })
+
 }
+
+watch(
+
+  () => data.value?.negocio?.neg_id,
+
+  (neg_id) => {
+
+    if (!neg_id)
+      return
+
+    setNegocio(
+      neg_id
+    )
+
+  },
+
+  {
+    immediate: true
+  }
+
+)
 
 function irFavoritos() {
 
@@ -223,6 +418,24 @@ function irCarrito() {
   })
 }
 
+function irCarritoAnonimo() {
+
+  router.push({
+
+    path:
+      '/RF5S_anonimo_carrito',
+
+    query: {
+
+      titulo:
+        'Carrito'
+
+    }
+
+  })
+
+}
+
 function goBack() {
 
   if (window.history.length > 1) {
@@ -241,25 +454,66 @@ const favoritosCount = computed(() => {
 
 const carritoCount = computed(() => {
 
-  return carritoCountLocal.value
-    || data.value?.carrito_count
-    || 0
+  return (
+
+    anonimo.value?.productos
+
+      ?.reduce(
+
+        (
+          sum,
+          p
+        ) =>
+
+          sum +
+
+          Number(
+            p.cantidad || 0
+          ),
+
+        0
+
+      )
+
+    ||
+
+    0
+
+  )
+
 })
 </script>
 
 <style scoped>
 .icon-btn {
+
   width: 36px;
   height: 36px;
+
+  position: relative;
+
   background: white;
+
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--header-color, #FD7635);
-  cursor: pointer;
-  transition: all 0.2s ease;
+
+  overflow: visible;
+  /* SOLO PARA EL BADGE */
+
 }
+
+.avatar-mask {
+
+  width: 100%;
+  height: 100%;
+
+  border-radius: 50%;
+
+  overflow: hidden;
+  /* SOLO LA FOTO */
+
+}
+
+
 
 .icon-btn:active {
   transform: scale(0.9);
@@ -270,20 +524,46 @@ const carritoCount = computed(() => {
 }
 
 .notif-badge {
+
   position: absolute;
-  top: -5px;
-  right: -5px;
+
+  top: -7px;
+
+  right: -8px;
+
+  min-width: 20px;
+
+  height: 20px;
+
+  padding: 0 4px;
+
   background: #EF4444;
+
   color: white;
+
   font-size: 10px;
-  width: 18px;
-  height: 18px;
+
   display: flex;
+
   align-items: center;
+
   justify-content: center;
-  border-radius: 50%;
-  font-weight: 600;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+
+  border-radius: 9999px;
+
+  font-weight: 700;
+
+  z-index: 100;
+
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, .25);
+
+}
+
+.icon-btn {
+
+  overflow: visible;
+
 }
 
 .logo-box {

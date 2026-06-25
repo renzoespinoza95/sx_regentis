@@ -1,6 +1,6 @@
 <template>
 
-  <div class="header-wrapper" :style="{ '--header-color': mercadoData.topnavbar_color || '#FD7635' }">
+  <div class="header-wrapper" :style="headerStyle">
 
     <div class="header-inner">
 
@@ -10,36 +10,43 @@
 
         <!-- 🔙 BACK -->
         <button @click="goBack" class="
-        w-10
-        h-10
+    w-10
+    h-10
 
-        rounded-full
+    flex
+    items-center
+    justify-center
 
-        bg-white
+    active:scale-95
 
-        flex
-        items-center
-        justify-center
+    transition
+  ">
 
-        shadow-[0_4px_12px_rgba(0,0,0,0.12)]
+          <i class="fa fa-arrow-left text-lg" :style="{
 
-        active:scale-95
+            color:
 
-        transition
-    ">
+              Number(
+                tema?.tema_id || 0
+              ) > 0
 
-          <i class="
-        fa
-        fa-arrow-left
+                ?
 
-        text-sm
-    " :style="{
-      color:
-        mercadoData.topnavbar_color
-        ||
-        '#FD7635'
-    }">
+                '#FFFFFF'
 
+                :
+
+                (
+
+                  mercadoData.topnavbar_color
+
+                  ||
+
+                  '#FD7635'
+
+                )
+
+          }">
           </i>
 
         </button>
@@ -62,34 +69,109 @@
       <!-- RIGHT SIDE -->
       <div class="header-actions">
 
-        <!-- 🔐 NO LOGUEADO -->
-        <button v-if="!isLogged" @click="irLogin"
-          class="bg-white text-[#FD7635] px-3 py-1 rounded-full text-xs font-semibold shadow-sm hover:scale-105 transition">
-          Ingresar
-        </button>
+        <!-- CARRITO -->
+        <!-- CARRITO -->
+        <div class="relative icon-btn p-0" @click="irCarritoAnonimo">
 
-        <!-- 🔓 LOGUEADO -->
-        <template v-else>
+          <div class="
+    w-full
+    h-full
 
-          <!-- NOTIFICACIONES -->
-          <div class="notification cursor-pointer" @click="showMenuModal = true">
+    flex
+    items-center
+    justify-center
 
-            <i class="fa fa-bell"></i>
+    rounded-full
 
-            <!-- 🔥 SOLO SI HAY NUEVA VERSION -->
-            <span v-if="necesitaActualizar" class="notification-badge">
+    bg-gradient-to-br
 
-              1
+    from-[#FD7635]
+    via-[#FF934D]
+    to-[#FFB347]
 
-            </span>
+    shadow-[0_0_15px_rgba(253,118,53,.45)]
+  ">
+
+            <i class="fa fa-shopping-cart text-white"></i>
 
           </div>
 
-          <!-- AVATAR -->
-          <img :src="user?.img_perfil || 'https://picsum.photos/80'" class="avatar cursor-pointer"
-            @click="openUserModal" />
+          <span v-if="carritoCount > 0" class="notif-badge">
 
-        </template>
+            {{ carritoCount }}
+
+          </span>
+
+        </div>
+
+        <!-- COMPARTIR -->
+        <div class="relative icon-btn p-0" @click="showCompartir = true">
+
+          <div class="
+      w-full
+      h-full
+      flex
+      items-center
+      justify-center
+      rounded-full
+      bg-gradient-to-br
+      from-[#FD7635]
+      via-[#FF934D]
+      to-[#FFB347]
+      shadow-[0_0_15px_rgba(253,118,53,.45)]
+    ">
+
+            <i class="fa fa-mail-forward text-white"></i>
+
+          </div>
+
+        </div>
+
+        <!-- NO LOGUEADO -->
+        <button v-if="!isLogged" @click="irLogin" class="icon-btn p-0">
+
+          <div class="
+    w-full
+    h-full
+
+    flex
+    items-center
+    justify-center
+
+    rounded-full
+
+    bg-gradient-to-br
+
+    from-[#FD7635]
+    via-[#FF934D]
+    to-[#FFB347]
+
+    shadow-[0_0_15px_rgba(253,118,53,.45)]
+  ">
+
+            <i class="fa fa-user text-white"></i>
+
+          </div>
+
+        </button>
+
+        <!-- LOGUEADO -->
+        <div v-else class="relative icon-btn p-0">
+
+          <div class="avatar-mask">
+
+            <img :src="user?.img_perfil
+              ||
+              'https://picsum.photos/80'
+              " class="
+          w-full
+          h-full
+          object-cover
+        " @click="openUserModal" />
+
+          </div>
+
+        </div>
 
       </div>
 
@@ -103,10 +185,25 @@
   <ModalMenuUsuario v-model="showMenuModal" />
   <AppSnackbar ref="snackbarRef" />
 
+  <LoginSelectorDialog v-model="showLoginSelector
+    " @registrarse="
+      loginFirebase
+    " @pin="
+      showPinDialog = true
+      " />
+
+  <PinCodeDialog v-model="showPinDialog
+    " />
+
+  <CompartirNegocioDialog v-model="showCompartir" :slug="data?.negocio?.slug
+    ||
+    ''
+    " />
+
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import {
   useRouter,
   useRoute
@@ -130,6 +227,18 @@ import {
   provider
 } from '../../../services/firebase.js'
 
+import LoginSelectorDialog
+  from '../../retail/consumidor/XXV1_origen/components/LoginSelectorDialog.vue'
+
+import PinCodeDialog
+  from '../../retail/consumidor/XXV1_origen/components/PinCodeDialog.vue'
+import { useTienda } from '../../../services/useTienda.js'
+import CompartirNegocioDialog
+  from '../../../components/layout/CompartirNegocioDialog.vue'
+import { useAnonimo }
+  from '../../../services/anonimoService.js'
+
+
 const router = useRouter()
 
 const api = axios.create({
@@ -147,6 +256,16 @@ const {
 } = useUsuario()
 
 const route = useRoute()
+const showCompartir = ref(false)
+const {
+
+  data,
+
+  tema
+
+} = useTienda()
+
+
 
 const props = defineProps({
 
@@ -156,6 +275,20 @@ const props = defineProps({
   }
 
 })
+
+const {
+
+  anonimo,
+
+  setNegocio
+
+} = useAnonimo()
+
+const showLoginSelector =
+  ref(false)
+
+const showPinDialog =
+  ref(false)
 
 const user = computed(() => {
   return usuario.value?.user || null
@@ -180,15 +313,104 @@ function openUserModal() {
   showUserModal.value = true
 }
 
+function cssToObject(cssText) {
+
+  if (!cssText) {
+
+    return {}
+
+  }
+
+  const obj = {}
+
+  cssText
+    .split(';')
+    .forEach(row => {
+
+      const parts =
+        row.split(':')
+
+      if (parts.length < 2) {
+
+        return
+
+      }
+
+      const key =
+        parts[0]
+          .trim()
+          .replace(
+            /-([a-z])/g,
+            (_, c) => c.toUpperCase()
+          )
+
+      const value =
+        parts
+          .slice(1)
+          .join(':')
+          .trim()
+
+      obj[key] = value
+
+    })
+
+  return obj
+
+}
+
+const headerStyle = computed(() => {
+
+  if (
+
+    tema.value
+
+    &&
+
+    Number(
+      tema.value.tema_id || 0
+    ) > 0
+
+    &&
+
+    tema.value.topnavbar
+
+  ) {
+
+    return cssToObject(
+
+      tema.value.topnavbar
+
+    )
+
+  }
+
+  return {
+
+    background:
+
+      mercadoData.value
+        ?.topnavbar_color
+
+      ||
+
+      '#FD7635'
+
+  }
+
+})
+
 const tituloHeader = computed(() => {
 
   const tituloQuery =
-
     route.query?.titulo
 
   return (
 
     tituloQuery
+
+    ||
+
+    data.value?.negocio?.nombre
 
     ||
 
@@ -206,75 +428,138 @@ const tituloHeader = computed(() => {
 
 })
 
-async function irLogin() {
+function irLogin() {
+
+  showLoginSelector.value =
+    true
+
+}
+
+async function loginFirebase() {
 
   try {
 
-    // 🔥 LOGIN GOOGLE
-    const result = await signInWithPopup(
-      auth,
-      provider
-    )
+    const result =
+      await signInWithPopup(
 
-    const user = result.user
+        auth,
+        provider
 
-    // 🔐 TOKEN FIREBASE
+      )
+
+    const user =
+      result.user
+
     const idToken =
       await user.getIdToken()
 
-    // 🚀 BACKEND
-    const res = await api.post(
+    const res =
+      await api.post(
 
-      '/coral/crearUsuarioFirebase',
+        '/coral/crearUsuarioFirebase',
 
-      {
-        token: idToken
-      }
+        {
 
-    )
+          token:
+            idToken
 
-    // 🔥 LOGIN OK
-    // 🔥 LOGIN OK
-    if (res.data.status === 'ok') {
+        }
+
+      )
+
+    if (
+
+      res.data.status
+      ===
+      'ok'
+
+    ) {
 
       setLoginData(
         res.data
       )
 
-      // 🔥 USUARIO
       const usu_id =
         res.data?.data?.usu_id
 
-      // 🚀 REDIRECT
       router.replace(
         `/mod_registro/${usu_id}`
       )
 
-    } else {
-
-      snackbarRef.value?.open(
-        res.data.msg
-        || 'Error al iniciar sesión'
-      )
-
     }
 
-  } catch (e) {
+  }
 
-    console.error(
-      'Error login Google',
-      e
-    )
+  catch (e) {
 
-    snackbarRef.value?.open(
-
-      e?.response?.data?.msg
-      ||
-      'Error al iniciar sesión'
-
-    )
+    console.error(e)
 
   }
+
+}
+
+watch(
+
+  () => data.value?.negocio?.neg_id,
+
+  (neg_id) => {
+
+    if (!neg_id)
+      return
+
+    setNegocio(
+      neg_id
+    )
+
+  },
+
+  {
+
+    immediate: true
+
+  }
+
+)
+
+const carritoCount =
+  computed(() => {
+
+    return (
+
+      anonimo.value?.productos
+
+        ?.reduce(
+
+          (
+
+            sum,
+            p
+
+          ) =>
+
+            sum +
+
+            Number(
+              p.cantidad || 0
+            ),
+
+          0
+
+        )
+
+      ||
+
+      0
+
+    )
+
+  })
+
+function irCarritoAnonimo() {
+
+  router.push(
+    '/RF5S_anonimo_carrito'
+  )
 
 }
 
@@ -388,11 +673,10 @@ function goBack() {
 
   z-index: 9999;
 
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, .12);
 
   padding: 16px 0;
-
-  background: var(--header-color, #FD7635);
 
 }
 
@@ -455,6 +739,67 @@ function goBack() {
   height: 38px;
   border-radius: 10px;
   object-fit: cover;
+}
+
+.icon-btn {
+
+  width: 36px;
+  height: 36px;
+
+  position: relative;
+
   background: white;
+
+  border-radius: 50%;
+
+}
+
+.avatar-mask {
+
+  width: 100%;
+  height: 100%;
+
+  border-radius: 50%;
+
+  overflow: hidden;
+
+}
+
+.notif-badge {
+
+  position: absolute;
+
+  top: -6px;
+
+  right: -6px;
+
+  min-width: 18px;
+
+  height: 18px;
+
+  padding: 0 4px;
+
+  border-radius: 9999px;
+
+  background: #ef4444;
+
+  color: white;
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  box-shadow:
+    0 2px 8px rgba(0,
+      0,
+      0,
+      .25);
+
 }
 </style>

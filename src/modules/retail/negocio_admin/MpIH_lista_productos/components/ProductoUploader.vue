@@ -136,7 +136,7 @@
 
     </div>
 
-    <AppSnackbar ref="snackbarRef" />
+    <GsapToast ref="toastRef" />
 
     <AppLoader :show="loading" :local="true" text="
         Subiendo imagen...
@@ -155,15 +155,15 @@ import {
 import axios
     from 'axios'
 
-import AppSnackbar
-    from '../../../../../components/layout/AppSnackbar.vue'
-
 import {
     firma
 }
     from '../../../../../services/security'
 import AppLoader
     from '../../../../../components/layout/AppLoader.vue'
+
+import GsapToast
+    from '../../../../../components/layout/GsapToast.vue'
 
 const props =
     defineProps({
@@ -184,7 +184,7 @@ const preview =
 const subiendo =
     ref(false)
 
-const snackbarRef =
+const toastRef =
     ref(null)
 
 const loading =
@@ -617,11 +617,15 @@ async function guardarImagenProducto(url) {
 
         }
 
-        snackbarRef.value?.open(
+        toastRef.value?.show({
 
-            'Imagen cargada exitosamente ✨'
+            text:
+                'Imagen cargada exitosamente ✨',
 
-        )
+            type:
+                'success'
+
+        })
 
         /* =========================================
 🔥 LIMPIAR
@@ -644,6 +648,16 @@ async function guardarImagenProducto(url) {
     } catch (e) {
 
         console.error(e)
+
+        toastRef.value?.show({
+
+            text:
+                'Error al guardar imagen',
+
+            type:
+                'error'
+
+        })
 
         subiendo.value = false
 

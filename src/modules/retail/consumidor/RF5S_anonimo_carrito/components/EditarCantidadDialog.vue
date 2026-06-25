@@ -1,0 +1,100 @@
+<template>
+
+    <div v-if="visible" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+
+        <div ref="box" class="bg-white rounded-2xl p-5 w-72 text-center space-y-4">
+            <!-- 🔥 BOTON CERRAR PREMIUM -->
+            <div class="absolute top-3 right-3">
+
+                <button @click="close"
+                    class="w-8 h-8 rounded-full shadow-md flex items-center justify-center hover:scale-105 active:scale-95 transition"
+                    :style="{ background: mercado.topnavbar_color || '#FD7635' }">
+
+                    <i class="fa fa-times text-white text-sm"></i>
+
+                </button>
+
+            </div>
+
+            <!-- NOMBRE -->
+            <div class="font-semibold text-sm">
+                {{ producto?.nombre }}
+            </div>
+
+            <!-- CONTADOR -->
+            <div class="flex justify-center items-center gap-3">
+
+                <button class="w-8 h-8 bg-gray-200 rounded" @click="menos">-</button>
+
+                <input v-model="cantidad" type="number" class="w-12 text-center border rounded" />
+
+                <button class="w-8 h-8 bg-gray-200 rounded" @click="mas">+</button>
+
+            </div>
+
+            <!-- BOTON -->
+            <button class="w-full py-2 text-white rounded-md bg-green-500" @click="guardar">
+                PEDIR
+            </button>
+
+        </div>
+
+    </div>
+
+</template>
+
+<script setup>
+import { ref, nextTick } from 'vue'
+import gsap from 'gsap'
+import { useMercado } from '../../../../../services/useMercado.js'
+
+const { mercado } = useMercado()
+
+const visible = ref(false)
+const box = ref(null)
+
+const producto = ref(null)
+const cantidad = ref(1)
+
+const emit = defineEmits(['update'])
+
+function open(p) {
+    producto.value = p
+    cantidad.value = p.cantidad
+    visible.value = true
+
+    nextTick(() => {
+        gsap.fromTo(box.value,
+            { scale: 0.7, opacity: 0 },
+            { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(1.7)' }
+        )
+    })
+}
+
+function close() {
+    gsap.to(box.value, {
+        scale: 0.7,
+        opacity: 0,
+        duration: 0.2,
+        onComplete: () => visible.value = false
+    })
+}
+
+function mas() {
+    cantidad.value++
+}
+
+function menos() {
+    if (cantidad.value > 1) cantidad.value--
+}
+
+function guardar() {
+    emit('update', {
+        ...producto.value,
+        cantidad: cantidad.value
+    })
+    close()
+}
+
+defineExpose({ open })
+</script>

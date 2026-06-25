@@ -43,13 +43,6 @@ const STALE =
 const STORAGE_KEY =
   'regentis_principal_cache'
 
-/* =========================================
-   🔥 STORAGE MERCADO
-========================================= */
-
-const STORAGE_MERCADO_ID =
-  'regentis_mercado_id'
-
 
 
 /* =========================================
@@ -58,41 +51,19 @@ const STORAGE_MERCADO_ID =
 
 function getMercadoId(){
 
-  return parseInt(
+  return Number(
 
-    localStorage.getItem(
-      STORAGE_MERCADO_ID
-    )
+    import.meta.env
+      .VITE_PUBLIC_MERCADO_ID
 
     ||
 
-    '0'
+    0
 
   )
 
 }
 
-/* =========================================
-   🔥 SET MERCADO ID
-========================================= */
-
-export function setMercadoId(
-  mercado_id
-){
-
-  localStorage.setItem(
-
-    STORAGE_MERCADO_ID,
-
-    String(
-      mercado_id
-      ||
-      0
-    )
-
-  )
-
-}
 
 /* =========================================
    🔥 USE PRINCIPAL
@@ -377,31 +348,23 @@ const {
 
   function setCache(data){
 
-    try {
+  try {
 
-      localStorage.setItem(
+    /* =========================================
+       🔥 GLOBAL
+    ========================================= */
 
-        STORAGE_KEY,
+    setMercado(data)
 
-        JSON.stringify(data)
+  } catch(e){
 
-      )
-
-      /* =========================================
-         🔥 GLOBAL
-      ========================================= */
-
-      setMercado(data)
-
-    } catch(e){
-
-      console.error(
-        'Error guardando cache principal',
-        e
-      )
-
-    }
+    console.error(
+      'Error actualizando mercado',
+      e
+    )
 
   }
+
+}
 
 }

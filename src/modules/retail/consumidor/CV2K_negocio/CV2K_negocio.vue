@@ -36,7 +36,8 @@ import { cssToObject } from '../../../../services/useCss.js'
 import { useUsuario } from '../../../../services/usuarioService.js'
 import { usePrincipal } from '../../../../services/usePrincipal.js'
 import {
-  useRoute
+  useRoute,
+  useRouter
 }
   from 'vue-router'
 import RegHeader from '../../../../modules/reg_principal/components/RegHeader.vue'
@@ -55,7 +56,7 @@ import AppSnackbar
    🔥 PRINCIPAL (CLAVE)
 ========================= */
 
-const principal = usePrincipal()
+//const principal = usePrincipal()
 
 /* =========================
    🔥 ESTADO GLOBAL
@@ -70,6 +71,7 @@ const {
 
 } = useUsuario()
 const route = useRoute()
+const router = useRouter()
 
 /* =========================
    🔥 DATA TIENDA
@@ -103,16 +105,66 @@ const snackbarRef =
 /* =========================
    🔥 FONDO DINÁMICO
 ========================= */
-
 const fondoStyle = computed(() => {
 
-  if (!mercado.value?.patron_fondo) {
-    return {}
+  const tema_id = Number(
+    data.value?.tema?.tema_id || 0
+  )
+
+  console.log(
+    'tema_id',
+    tema_id
+  )
+
+  console.log(
+    'tema.fondo',
+    data.value?.tema?.fondo
+  )
+
+  if (
+
+    tema_id > 0
+
+    &&
+
+    data.value?.tema?.fondo
+
+  ) {
+
+    console.log(
+      'USANDO TEMA'
+    )
+
+    return cssToObject(
+
+      data.value.tema.fondo
+
+    )
+
   }
 
-  return cssToObject(mercado.value.patron_fondo)
+  console.log(
+    'USANDO MERCADO'
+  )
+
+  if (
+
+    mercado.value?.patron_fondo
+
+  ) {
+
+    return cssToObject(
+
+      mercado.value.patron_fondo
+
+    )
+
+  }
+
+  return {}
 
 })
+
 
 watch(
 
@@ -124,15 +176,37 @@ watch(
       return
     }
 
-    const isPrueba =
+    /* =========================
+       MOD 404
+    ========================= */
+
+    if (
+
+      v.redirect === 'mod_404'
+
+    ) {
+
+      router.replace(
+        '/mod_404'
+      )
+
+      return
+
+    }
+
+    /* =========================
+       NEGOCIO INACTIVO
+    ========================= */
+
+    const isActivo =
 
       Number(
 
-        v?.negocio?.is_prueba
+        v?.negocio?.is_activo
 
         ??
 
-        v?.is_prueba
+        v?.is_activo
 
         ??
 
@@ -142,13 +216,13 @@ watch(
 
     if (
 
-      isPrueba === 1
+      isActivo !== 1
 
     ) {
 
       snackbarRef.value?.open(
 
-        '⚠️ Los productos mostrados no están disponibles'
+        '⚠️ Los productos no están disponibles'
 
       )
 
@@ -163,12 +237,6 @@ watch(
   }
 
 )
-
-onMounted(() => {
-
-  principal.refetch?.()
-
-})
 
 </script>
 

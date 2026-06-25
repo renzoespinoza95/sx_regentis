@@ -86,6 +86,48 @@
 
             </div>
 
+            <div class="
+    mt-2
+
+    text-xs
+
+    text-gray-500
+">
+
+                Tu página web:
+
+            </div>
+
+            <div class="
+    mt-1
+
+    h-[44px]
+
+    rounded-xl
+
+    border
+    border-gray-200
+
+    bg-gray-50
+
+    px-4
+
+    flex
+    items-center
+
+    text-sm
+
+    text-[#FD7635]
+
+    font-semibold
+
+    break-all
+">
+
+                https://ofer.lat/{{ slug }}
+
+            </div>
+
             <!-- YAPE -->
             <div>
 
@@ -96,30 +138,31 @@
                     mb-2
                 ">
 
-                    Celular Yape/Plin (opcional)
+                    Celular para informes
 
                 </div>
 
-                <input v-model="celularYape" type="text" placeholder="987654321" class="
-                        w-full
-                        h-[52px]
+                <input v-model="celularYape" type="tel" maxlength="9" inputmode="numeric" placeholder="987654321"
+                    @input="onInputCelular" class="
+        w-full
+        h-[52px]
 
-                        rounded-xl
+        rounded-xl
 
-                        border
-                        border-gray-300
+        border
+        border-gray-300
 
-                        bg-white
+        bg-white
 
-                        px-4
+        px-4
 
-                        text-gray-800
+        text-gray-800
 
-                        outline-none
+        outline-none
 
-                        focus:ring-2
-                        focus:ring-[#FD7635]
-                    " />
+        focus:ring-2
+        focus:ring-[#FD7635]
+    " />
 
             </div>
 
@@ -140,7 +183,8 @@
 
 import {
     ref,
-    onMounted
+    onMounted,
+    computed
 }
     from 'vue'
 import axios from 'axios'
@@ -196,6 +240,48 @@ const loading = ref(false)
 const snackbarRef = ref(null)
 
 const nombreNegocio = ref('')
+
+const slug = computed(() => {
+
+    return String(
+
+        nombreNegocio.value || ''
+
+    )
+
+        .normalize('NFD')
+
+        .replace(/[\u0300-\u036f]/g, '')
+
+        .toLowerCase()
+
+        .trim()
+
+        .replace(/[^a-z0-9\s-]/g, '')
+
+        .replace(/\s+/g, '-')
+
+        .replace(/-+/g, '-')
+
+})
+
+function onInputCelular(e) {
+
+    let value =
+
+        e.target.value
+
+    value = value
+
+        .replace(/\D/g, '')
+
+        .slice(0, 9)
+
+    celularYape.value =
+
+        value
+
+}
 
 const productos = ref('')
 const showDialog =
@@ -319,6 +405,42 @@ async function crearNegocio() {
 
     }
 
+    if (
+
+        !celularYape.value
+
+        ||
+
+        celularYape.value.trim() === ''
+
+    ) {
+
+        snackbarRef.value?.open(
+
+            'Debe ingresar un celular para informes'
+
+        )
+
+        return
+
+    }
+
+    if (
+
+        celularYape.value.trim().length < 9
+
+    ) {
+
+        snackbarRef.value?.open(
+
+            'El celular debe tener 9 dígitos'
+
+        )
+
+        return
+
+    }
+
     try {
 
         loading.value = true
@@ -343,15 +465,14 @@ async function crearNegocio() {
             nombre_negocio:
                 nombreNegocio.value,
 
+            slug:
+                slug.value,
+
             mercado_id: 3,
 
             celular_yape:
 
-                celularYape.value?.trim()
-
-                ||
-
-                '999XXX999'
+                celularYape.value.trim()
 
         }
 

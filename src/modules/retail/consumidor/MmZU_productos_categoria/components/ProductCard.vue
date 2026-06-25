@@ -113,6 +113,10 @@ import { useUsuario } from '../../../../../services/usuarioService.js'
 import { computed, ref } from 'vue'
 import CantidadProductoDialog
     from '../../../../../components/layout/CantidadProductoDialog.vue'
+import {
+    useAnonimo
+}
+    from '../../../../../services/anonimoService.js'
 
 const router = useRouter()
 
@@ -121,6 +125,10 @@ const props = defineProps({
     neg_id: Number
 })
 const { usuario } = useUsuario()
+
+const {
+    addProducto
+} = useAnonimo()
 
 const user = computed(() => usuario.value?.user || null)
 const cantidadDialogRef = ref(null)
@@ -135,48 +143,113 @@ function abrirCantidadDialog() {
 
 }
 
+function flyToTarget(
+    e,
+    targetId
+) {
 
+    const card =
+        e.target.closest(
+            '.product-card'
+        )
 
-// 🔥 FUNCIÓN PRINCIPAL
-// 🔥 REUTILIZAMOS
-function flyToHeart(e) {
+    const target =
+        document.getElementById(
+            targetId
+        )
 
-    const card = e.target.closest('.product-card')
-    const heart = document.getElementById('icon-heart-header')
+    if (
+        !card
+        ||
+        !target
+    ) {
 
-    if (!card || !heart) {
         emit('toast', {
-            text: 'No se pudo agregar ❌',
-            type: 'error'
+
+            text:
+                'No se pudo agregar ❌',
+
+            type:
+                'error'
         })
+
         return
+
     }
 
-    const clone = card.cloneNode(true)
+    const clone =
+        card.cloneNode(true)
 
-    const rect = card.getBoundingClientRect()
-    const heartRect = heart.getBoundingClientRect()
+    const rect =
+        card.getBoundingClientRect()
 
-    Object.assign(clone.style, {
-        position: 'fixed',
-        top: rect.top + 'px',
-        left: rect.left + 'px',
-        width: rect.width + 'px',
-        zIndex: 9999,
-        pointerEvents: 'none'
-    })
+    const targetRect =
+        target.getBoundingClientRect()
 
-    document.body.appendChild(clone)
+    Object.assign(
+        clone.style,
+        {
 
-    gsap.to(clone, {
-        x: heartRect.left - rect.left,
-        y: heartRect.top - rect.top,
-        scale: 0.2,
-        opacity: 0.5,
-        duration: 0.7,
-        ease: "power2.inOut",
-        onComplete: () => clone.remove()
-    })
+            position:
+                'fixed',
+
+            top:
+                rect.top + 'px',
+
+            left:
+                rect.left + 'px',
+
+            width:
+                rect.width + 'px',
+
+            zIndex:
+                9999,
+
+            pointerEvents:
+                'none'
+
+        }
+    )
+
+    document.body.appendChild(
+        clone
+    )
+
+    gsap.to(
+        clone,
+        {
+
+            x:
+                targetRect.left
+                -
+                rect.left,
+
+            y:
+                targetRect.top
+                -
+                rect.top,
+
+            scale:
+                0.2,
+
+            opacity:
+                0.5,
+
+            duration:
+                0.7,
+
+            ease:
+                'power2.inOut',
+
+            onComplete: () => {
+
+                clone.remove()
+
+            }
+
+        }
+    )
+
 }
 
 async function onConfirmCantidad(payload) {
@@ -188,8 +261,6 @@ async function onConfirmCantidad(payload) {
 
     }
 
-    flyToHeart(e)
-
     const cantidad =
         payload.cantidad
 
@@ -199,19 +270,78 @@ async function onConfirmCantidad(payload) {
     const neg_id =
         props.neg_id
 
+    /* =====================================
+       🔥 ANÓNIMO
+    ===================================== */
+
     if (!usu_id) {
+
+        addProducto({
+
+            product_id:
+                props.producto.product_id,
+
+            nombre:
+                props.producto.name,
+
+            precio:
+                props.producto.price,
+
+            cantidad:
+                cantidad,
+
+            img:
+
+                props.producto.imagenes?.find(
+
+                    x =>
+
+                        Number(
+                            x.orden
+                        ) === 1
+
+                )?.img
+
+                ||
+
+                props.producto.imagenes?.[0]?.img
+
+                ||
+
+                '',
+
+            neg_id:
+                neg_id
+
+        })
+
+        flyToTarget(
+
+            e,
+
+            'icon-carrito-header'
+
+        )
 
         emit('toast', {
 
             text:
-                'Debes iniciar sesión ❌',
+                'Agregado al carrito 🛒',
 
             type:
-                'error'
+                'success'
+
         })
 
+        emit('confetti')
+
         return
+
     }
+
+    /* =====================================
+       🔥 VALIDAR NEGOCIO
+    ===================================== */
 
     if (!neg_id) {
 
@@ -222,10 +352,16 @@ async function onConfirmCantidad(payload) {
 
             type:
                 'error'
+
         })
 
         return
+
     }
+
+    /* =====================================
+       🔥 USUARIO LOGUEADO
+    ===================================== */
 
     try {
 
@@ -234,10 +370,15 @@ async function onConfirmCantidad(payload) {
             `${import.meta.env.VITE_PUBLIC_URL_BASE}/M0Jk/carritoCompras`,
 
             {
-                method: 'POST',
+
+                method:
+                    'POST',
 
                 headers: {
-                    'Content-Type': 'application/json'
+
+                    'Content-Type':
+                        'application/json'
+
                 },
 
                 body: JSON.stringify({
@@ -256,42 +397,75 @@ async function onConfirmCantidad(payload) {
 
                     fecha_entrega:
                         null
+
                 })
+
             }
+
         )
 
         const data =
             await res.json()
 
-        if (data.status === 'ok') {
+        if (
+
+            data.status === 'ok'
+
+        ) {
+
+            flyToTarget(
+
+                e,
+
+                'icon-carrito-header'
+
+            )
 
             emit('toast', {
 
                 text:
+
                     data.msg === 'actualizado'
-                        ? 'Cantidad actualizada 🛒'
-                        : 'Agregado al carrito 🛒',
+
+                        ?
+
+                        'Cantidad actualizada 🛒'
+
+                        :
+
+                        'Agregado al carrito 🛒',
 
                 type:
                     'success'
+
             })
 
             emit('confetti')
 
-        } else {
+        }
+
+        else {
 
             emit('toast', {
 
                 text:
-                    data.msg || 'Error al agregar ❌',
+
+                    data.msg
+
+                    ||
+
+                    'Error al agregar ❌',
 
                 type:
                     'error'
+
             })
 
         }
 
-    } catch (err) {
+    }
+
+    catch (err) {
 
         emit('toast', {
 
@@ -300,6 +474,7 @@ async function onConfirmCantidad(payload) {
 
             type:
                 'error'
+
         })
 
     }

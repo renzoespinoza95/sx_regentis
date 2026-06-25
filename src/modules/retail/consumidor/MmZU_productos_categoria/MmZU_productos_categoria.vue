@@ -149,7 +149,52 @@ function setCategoria(index) {
 const { mercado } = useMercado()
 
 const fondoStyle = computed(() => {
-    if (!mercado.value?.patron_fondo) return {}
-    return cssToObject(mercado.value.patron_fondo)
+
+    const tema_id = Number(
+        data.value?.tema?.tema_id || 0
+    )
+
+    /* =========================
+       🔥 TEMA DE LA TIENDA
+    ========================= */
+
+    if (
+
+        tema_id > 0
+
+        &&
+
+        data.value?.tema?.fondo
+
+    ) {
+
+        return cssToObject(
+
+            data.value.tema.fondo
+
+        )
+
+    }
+
+    /* =========================
+       🔥 MERCADO (ACTUAL)
+    ========================= */
+
+    if (
+
+        mercado.value?.patron_fondo
+
+    ) {
+
+        return cssToObject(
+
+            mercado.value.patron_fondo
+
+        )
+
+    }
+
+    return {}
+
 })
 </script>

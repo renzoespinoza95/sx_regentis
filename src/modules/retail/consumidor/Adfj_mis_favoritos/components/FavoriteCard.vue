@@ -189,13 +189,9 @@ function irDetalle() {
 
     router.push(
 
-        `/CV2K_negocio/${props.producto.neg_id}?titulo=${encodeURIComponent(
+        `/QZMq_detalle_prod/${props.producto.product_id
 
-            props.producto.neg_nombre
-            ||
-            'Tienda'
-
-        )}`
+        }`
 
     )
 

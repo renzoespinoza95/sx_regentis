@@ -18,20 +18,20 @@
       </div>
 
     </div>
-    <AppChatFloat v-if="producto" :neg-id="data?.negocio?.neg_id" :texto-mensaje="`
-Buenos días. Quisiera información sobre el producto ${producto?.name || producto?.nombre}
-que se encuentra a S/ ${producto?.precio || producto?.price}.
+    <AppWhatsappFloat v-if="
+      producto
+    " :celular="data?.negocio?.celular_informes
+      " :mensaje="`
+
+Buenos días. Quisiera información sobre el producto ${producto?.name
+
+        } que se encuentra a S/ ${producto?.price
+
+        }.
+
 Muchas gracias.
-`" :contexto="{
-  tipo: 'producto',
-  data: {
-    product_id: producto?.product_id,
-    nombre: producto?.name || producto?.nombre,
-    precio: producto?.precio || producto?.price,
-    url: `/QZMq_detalle_prod/${producto?.product_id}`,
-    imagen: producto?.imagen || producto?.img
-  }
-}" />
+
+`" />
 
 
   </div>
@@ -52,6 +52,8 @@ import GsapToast from '../../../../components/layout/GsapToast.vue'
 import AppChatFloat from '../../../../components/layout/AppChatFloat.vue'
 import { useTrackingQueue } from '../../../../services/useTrackingQueue.js'
 import { useUsuario } from '../../../../services/usuarioService.js'
+import AppWhatsappFloat
+  from '../../../../components/layout/AppWhatsappFloat.vue'
 
 
 const toastRef = ref(null)
@@ -81,9 +83,51 @@ const { mercado } = useMercado()
 
 const fondoStyle = computed(() => {
 
-  if (!mercado.value?.patron_fondo) return {}
+  const tema_id = Number(
+    data.value?.tema?.tema_id || 0
+  )
 
-  return cssToObject(mercado.value.patron_fondo)
+  /* =========================
+     🔥 TEMA DE LA TIENDA
+  ========================= */
+
+  if (
+
+    tema_id > 0
+
+    &&
+
+    data.value?.tema?.fondo
+
+  ) {
+
+    return cssToObject(
+
+      data.value.tema.fondo
+
+    )
+
+  }
+
+  /* =========================
+     🔥 FONDO DEL MERCADO
+  ========================= */
+
+  if (
+
+    mercado.value?.patron_fondo
+
+  ) {
+
+    return cssToObject(
+
+      mercado.value.patron_fondo
+
+    )
+
+  }
+
+  return {}
 
 })
 
