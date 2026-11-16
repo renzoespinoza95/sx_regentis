@@ -369,6 +369,9 @@ const mouseY =
 const activeImage =
     ref(null)
 
+const ignorarSync =
+    ref(false)
+
 /* =========================================
 🔥 SYNC
 ========================================= */
@@ -378,6 +381,16 @@ watch(
     () => props.imagenes,
 
     (val) => {
+
+        if (
+
+            ignorarSync.value
+
+        ) {
+
+            return
+
+        }
 
         localImagenes.value =
 
@@ -406,6 +419,7 @@ watch(
     }
 
 )
+
 
 /* =========================================
 🔥 STYLE
@@ -946,9 +960,42 @@ function confirmarEliminar(img) {
 
 }
 
+/* =========================================
+🔥 ELIMINAR
+========================================= */
+
 async function eliminarFoto(img) {
 
     try {
+
+        console.log(
+            '=============================='
+        )
+
+        console.log(
+            'ID A ELIMINAR',
+            img.product_image_id
+        )
+
+        console.table(
+
+            localImagenes.value.map(
+
+                x => ({
+
+                    id:
+
+                        x.product_image_id,
+
+                    orden:
+
+                        x.orden
+
+                })
+
+            )
+
+        )
 
         const seguridad =
             firma()
@@ -974,13 +1021,21 @@ async function eliminarFoto(img) {
 
             )
 
+        console.log(
+            'RESPUESTA',
+            r.data
+        )
+
         if (
 
             r.data?.res === 'ok'
 
         ) {
 
-            localImagenes.value =
+            ignorarSync.value =
+                true
+
+            const nuevaLista =
 
                 localImagenes.value.filter(
 
@@ -1002,6 +1057,98 @@ async function eliminarFoto(img) {
 
                 )
 
+            console.log(
+                'DESPUES DEL FILTER'
+            )
+
+            console.table(
+
+                nuevaLista.map(
+
+                    x => ({
+
+                        id:
+
+                            x.product_image_id,
+
+                        orden:
+
+                            x.orden
+
+                    })
+
+                )
+
+            )
+
+            const index =
+
+                localImagenes.value.findIndex(
+
+                    x =>
+
+                        Number(
+                            x.product_image_id
+                        )
+
+                        ===
+
+                        Number(
+                            img.product_image_id
+                        )
+
+                )
+
+            if (
+
+                index >= 0
+
+            ) {
+
+                const cards =
+
+                    document.querySelectorAll(
+
+                        '.card'
+
+                    )
+
+                const card =
+
+                    cards[index]
+
+                if (
+
+                    card
+
+                ) {
+
+                    await gsap.to(
+
+                        card,
+
+                        {
+
+                            opacity: 0,
+
+                            scale: 0.6,
+
+                            y: -30,
+
+                            duration: 0.25
+
+                        }
+
+                    )
+
+                }
+
+            }
+
+            localImagenes.value =
+
+                nuevaLista
+
             localImagenes.value.forEach(
 
                 (x, i) => {
@@ -1018,7 +1165,25 @@ async function eliminarFoto(img) {
 
                 'deleted',
 
-                img
+                [
+
+                    ...localImagenes.value
+
+                ]
+
+            )
+
+            setTimeout(
+
+                () => {
+
+                    ignorarSync.value =
+
+                        false
+
+                },
+
+                500
 
             )
 

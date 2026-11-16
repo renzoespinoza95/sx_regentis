@@ -1,70 +1,146 @@
 <template>
-  <div class="px-4 mt-4">
 
-    <div ref="scrollContainer"
-      class="flex gap-3 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar cursor-grab active:cursor-grabbing"
-      @mousedown="startDrag" @mousemove="onDrag" @mouseup="stopDrag" @mouseleave="stopDrag" @touchstart="startDrag"
-      @touchmove="onDrag" @touchend="stopDrag">
+  <section v-if="categorias.length" class="tn-sec tn-sec-pattern">
 
-      <span v-for="cat in categorias" :key="cat"
-        class="bg-white shadow-sm px-3 py-1 rounded-full text-xs cursor-pointer hover:scale-105 transition">
-        {{ cat }}
-      </span>
+    <div class="tn-container">
+
+      <div class="tn-sec-head">
+
+        <span class="tn-deco">Explora</span>
+
+        <h2 class="tn-sec-title">Categorías</h2>
+
+      </div>
+
+      <div class="tn-cat-grid">
+
+        <article v-for="(cat, index) in categorias" :key="cat.category_id" :ref="el => itemsRef[index] = el"
+          class="tn-prod" @click="irCategoria(cat)">
+
+          <div class="tn-blob-wrap">
+
+            <button type="button" class="tn-blob" :aria-label="'Ver ' + cat.name">
+
+              <img v-if="cat.img" :src="cat.img" :alt="cat.name" loading="lazy">
+
+              <span v-else class="tn-blob-icon">{{ cat.icon || '📦' }}</span>
+
+            </button>
+
+          </div>
+
+          <h3 class="tn-prod-name">
+            {{ cat.name }}
+          </h3>
+
+          <div class="tn-prod-meta">
+
+            <span class="tn-chip">
+              <i class="fa fa-th-large"></i>{{ cat.productos?.length || 0 }} productos
+            </span>
+
+          </div>
+
+        </article>
+
+      </div>
 
     </div>
 
-  </div>
+  </section>
+
 </template>
 
 <script setup>
-import { ref } from 'vue'
 
-const scrollContainer = ref(null)
+import { useRouter } from 'vue-router'
 
-let isDown = false
-let startX
-let scrollLeft
+import {
+  ref,
+  watch,
+  nextTick
+}
+  from 'vue'
 
-const categorias = [
-  'Italian',
-  'Mexican',
-  'South Indian',
-  'Chinese',
-  'Peruvian',
-  'Japanese',
-  'Healthy',
-  'Fast Food'
-]
+import gsap
+  from 'gsap'
 
-function startDrag(e) {
-  isDown = true
-  const pageX = e.touches ? e.touches[0].pageX : e.pageX
-  startX = pageX - scrollContainer.value.offsetLeft
-  scrollLeft = scrollContainer.value.scrollLeft
+const router = useRouter()
+
+const itemsRef =
+  ref([])
+
+const props = defineProps({
+
+  categorias: {
+    type: Array,
+    default: () => []
+  }
+
+})
+
+function irCategoria(cat) {
+
+  router.push(`/MmZU_productos_categoria/${cat.category_id}`)
+
 }
 
-function onDrag(e) {
-  if (!isDown) return
-  e.preventDefault()
+async function animarItems() {
 
-  const pageX = e.touches ? e.touches[0].pageX : e.pageX
-  const x = pageX - scrollContainer.value.offsetLeft
-  const walk = (x - startX) * 1.2
-  scrollContainer.value.scrollLeft = scrollLeft - walk
+  await nextTick()
+
+  const els = itemsRef.value.filter(Boolean)
+
+  if (!els.length)
+    return
+
+  gsap.fromTo(
+
+    els,
+
+    {
+
+      x: -80,
+      opacity: 0
+
+    },
+
+    {
+
+      x: 0,
+      opacity: 1,
+
+      duration: 0.6,
+
+      stagger: 0.08,
+
+      ease: 'power3.out'
+
+    }
+
+  )
+
 }
 
-function stopDrag() {
-  isDown = false
-}
+watch(
+
+  () => props.categorias,
+
+  (v) => {
+
+    if (!v?.length)
+      return
+
+    animarItems()
+
+  },
+
+  {
+
+    immediate: true
+
+  }
+
+)
+
 </script>
-
-<style scoped>
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-</style>

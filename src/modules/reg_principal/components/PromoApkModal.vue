@@ -102,7 +102,7 @@ mt-[8vh]
                 ">
 
                     <!-- IMAGEN -->
-                    <img ref="productosRef" src="/01.png" class="
+                    <img ref="productosRef" src="https://barsi-img.b-cdn.net/recursos/logo-regentis.png" class="
                             relative
 
                             z-20
@@ -144,7 +144,7 @@ mt-[8vh]
                             active:scale-95
                         " @click="goPlay">
 
-                        <img src="/03.png" class="
+                        <img src="https://barsi-img.b-cdn.net/recursos/logo-regentis.png" class="
                                 w-[180px]
 
                                 sm:w-[220px]

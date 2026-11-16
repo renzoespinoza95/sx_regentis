@@ -66,6 +66,10 @@
 
                     </button>
 
+                    <button @click="crearTienda" class="menu-item-btn">
+                        🏪 Crear Tienda virtual
+                    </button>
+
                     <button @click="irContacto" class="menu-item-btn">
                         📞 Contacto
                     </button>
@@ -494,6 +498,11 @@ function irContacto() {
     router.push('/mod_404')
 }
 
+function crearTienda() {
+    cerrar()
+    router.push('/')
+}
+
 function verInformacion() {
 
     cerrar(() => {
@@ -531,6 +540,8 @@ function verInformacion() {
     border-radius: 18px;
 
     background: #f8f8f8;
+
+    color: #111827;
 
     font-size: 14px;
 

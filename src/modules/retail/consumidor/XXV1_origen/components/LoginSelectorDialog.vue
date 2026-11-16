@@ -130,7 +130,7 @@ function quieroTienda() {
 
     router.push(
 
-        '/mod_404'
+        '/'
 
     )
 
@@ -181,10 +181,15 @@ function codigoPin() {
 
     width: 100%;
     height: 50px;
+
     border-radius: 18px;
+
     background: #f7f7f7;
-    color: #000;
+
+    color: #111827;
+
     margin-bottom: 10px;
+
     font-weight: 700;
 
 }

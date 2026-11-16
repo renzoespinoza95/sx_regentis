@@ -5,9 +5,38 @@
 
         <div class="max-w-5xl w-full mx-auto px-4 pt-28 pb-24">
 
-            <SearchBar @buscar="onBuscar" @limpiar="onLimpiar" />
+            <!-- =========================================
+🔥 BUSCADOR + CATEGORIAS STICKY
+========================================= -->
 
-            <CatCarousel :categorias="categorias" :active="activeCat" @select="onSelectCategoria" />
+            <div class="
+    sticky
+
+    top-24
+
+    z-40
+
+    -mx-4
+
+    px-4
+
+    pt-2
+    pb-3
+" :style="fondoStyle">
+
+                <SearchBar @buscar="
+                    onBuscar
+                " @limpiar="
+                    onLimpiar
+                " />
+
+                <CatCarousel :categorias="categorias
+                    " :active="activeCat
+                        " @select="
+                            onSelectCategoria
+                        " />
+
+            </div>
 
             <!-- 🟡 LOADING -->
             <div v-if="loading" class="flex justify-center mt-6">
@@ -33,7 +62,20 @@
             </div>
 
             <!-- 🟢 LISTA -->
-            <div v-if="!loading && productos.length" class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <div v-if="
+                !loading
+                &&
+                productos.length
+            " class="
+        mt-2
+
+        grid
+        gap-3
+
+        md:grid-cols-2
+
+        xl:grid-cols-3
+    ">
                 <ProductoItem v-for="item in productos" :key="item.product_id" :item="item" @click="openProducto" />
             </div>
 
@@ -67,6 +109,8 @@
 
         <ProductoFotosDialog ref="productoFotosRef" @uploaded="
             onProductoImagenUploaded
+        " @deleted="
+            onProductoImagenDeleted
         " />
         <CalculadoraPrecioDialog ref="calculadoraRef" v-if="true" />
 
@@ -398,6 +442,18 @@ async function cargarCategorias() {
 function onSelectCategoria(cat) {
 
     /* =========================================
+    🔥 IR ARRIBA
+    ========================================= */
+
+    window.scrollTo({
+
+        top: 0,
+
+        behavior: 'smooth'
+
+    })
+
+    /* =========================================
        🔥 TODOS
     ========================================= */
 
@@ -617,6 +673,52 @@ function onProductoFotos(item) {
 
 }
 
+/* =========================================
+🔥 IMAGEN ELIMINADA
+========================================= */
+
+function onProductoImagenDeleted({
+
+    product_id,
+
+    imagenes
+
+}) {
+
+    const producto =
+
+        productos.value.find(
+
+            x =>
+
+                Number(
+                    x.product_id
+                )
+
+                ===
+
+                Number(
+                    product_id
+                )
+
+        )
+
+    if (
+
+        producto
+
+    ) {
+
+        producto.imagenes = [
+
+            ...imagenes
+
+        ]
+
+    }
+
+}
+
 function openCalculadora(producto) {
 
     console.log(
@@ -705,6 +807,7 @@ function openMisCategorias() {
 
 }
 
+
 /* =========================================
 🔥 IMAGEN SUBIDA
 ========================================= */
@@ -712,61 +815,22 @@ function openMisCategorias() {
 function onProductoImagenUploaded({
 
     product_id,
+
     imagen
 
 }) {
 
-    for (
+    /* =========================================
+       🔥 SOLO ACTUALIZAR EL DIALOG
+    ========================================= */
 
-        const categoria
-        of categorias.value
+    productoFotosRef.value?.agregarImagen(
 
-    ) {
+        imagen
 
-        const producto =
-
-            categoria.productos.find(
-
-                x =>
-
-                    Number(
-                        x.product_id
-                    )
-
-                    ===
-
-                    Number(
-                        product_id
-                    )
-
-            )
-
-        if (producto) {
-
-            if (
-
-                !Array.isArray(
-                    producto.imagenes
-                )
-
-            ) {
-
-                producto.imagenes = []
-
-            }
-
-            producto.imagenes.unshift(
-                imagen
-            )
-
-            break
-
-        }
-
-    }
+    )
 
 }
-
 /* =========================================
 🔥 ELIMINADA
 ========================================= */

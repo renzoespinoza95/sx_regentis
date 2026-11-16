@@ -14,7 +14,7 @@
 
     <div class="
             text-xs
-            text-gray-500
+            text-[#0F0F0F]
             mt-1
         ">
 

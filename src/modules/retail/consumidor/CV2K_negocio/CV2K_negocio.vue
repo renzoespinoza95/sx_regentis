@@ -1,21 +1,37 @@
 <template>
 
-  <div class="min-h-screen pt-20" :style="fondoStyle">
+  <div class="tn-page min-h-screen pt-[66px]" :class="{ 'tienda-theme': temaActivo }" :style="rootStyle">
 
-    <!-- HEADER -->
+    <!-- Header fijo -->
     <NegpresHeader />
 
-    <!-- CONTENIDO -->
-    <div class="content-container">
+    <!-- Marquesina -->
+    <NegpresMarquee :negocio="negocio" />
 
-      <NegpresSearch />
-      <NegpresHero :banners="data?.sliders || []" />
-      <NegpresMasVendidos :productos="data?.mas_vendidos || []" />
-      <NegpresCategoriasGrid :categorias="data?.categorias || []" />
-      <AppChatFloat :neg-id="data?.negocio?.neg_id || data?.neg_id"
-        texto-mensaje="Buenos días. Me gustaría recibir información sobre sus productos, precios y métodos de entrega. Muchas gracias." />
-      <AppSnackbar ref="snackbarRef" />
+    <!-- Hero (ancho completo) -->
+    <NegpresHero :banners="data?.sliders || []" :negocio="negocio" />
+
+    <!-- Buscador (busca en todos los productos de la tienda) -->
+    <div class="tn-container">
+      <NegpresSearch :categorias="data?.categorias || []" />
     </div>
+
+    <!-- Más vendidos -->
+    <NegpresMasVendidos :productos="data?.mas_vendidos || []" />
+
+    <!-- Categorías -->
+    <NegpresCategoriasGrid :categorias="data?.categorias || []" :tematizado="temaActivo" />
+
+    <!-- Footer -->
+    <NegpresFooter :negocio="negocio" />
+
+    <!-- Botón flotante: volver al inicio -->
+    <NegpresIrArriba />
+
+    <AppChatFloat :neg-id="negocio?.neg_id || data?.neg_id"
+      texto-mensaje="Buenos días. Me gustaría recibir información sobre sus productos, precios y métodos de entrega. Muchas gracias." />
+
+    <AppSnackbar ref="snackbarRef" />
 
   </div>
 
@@ -23,238 +39,176 @@
 
 <script setup>
 
-import {
-  computed,
-  onMounted,
-  ref,
-  watch
-}
-  from 'vue'
+import { computed, onUnmounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
 import { useMercado } from '../../../../services/useMercado.js'
 import { cssToObject } from '../../../../services/useCss.js'
 import { useUsuario } from '../../../../services/usuarioService.js'
-import { usePrincipal } from '../../../../services/usePrincipal.js'
-import {
-  useRoute,
-  useRouter
-}
-  from 'vue-router'
-import RegHeader from '../../../../modules/reg_principal/components/RegHeader.vue'
+import { useTienda } from '../../../../services/useTienda.js'
 
+import NegpresHeader from '../../../../components/layout/NegpresHeaderBack.vue'
+import AppChatFloat from '../../../../components/layout/AppChatFloat.vue'
+import AppSnackbar from '../../../../components/layout/AppSnackbar.vue'
+
+import NegpresMarquee from './components/NegpresMarquee.vue'
+import NegpresHero from './components/NegpresHero.vue'
+import NegpresSearch from './components/NegpresSearch.vue'
 import NegpresMasVendidos from './components/NegpresMasVendidos.vue'
 import NegpresCategoriasGrid from './components/NegpresCategoriasGrid.vue'
-import NegpresHeader from '../../../../components/layout/NegpresHeaderBack.vue'
-import NegpresSearch from './components/NegpresSearch.vue'
-import NegpresHero from './components/NegpresHero.vue'
-import AppChatFloat from '../../../../components/layout/AppChatFloat.vue'
-import { useTienda } from '../../../../services/useTienda.js'
-import AppSnackbar
-  from '../../../../components/layout/AppSnackbar.vue'
-
-/* =========================
-   🔥 PRINCIPAL (CLAVE)
-========================= */
-
-//const principal = usePrincipal()
-
-/* =========================
-   🔥 ESTADO GLOBAL
-========================= */
-
-const { mercado } = useMercado()
-const {
-
-  isLogged,
-
-  setNegIdTienda
-
-} = useUsuario()
-const route = useRoute()
-const router = useRouter()
-
-/* =========================
-   🔥 DATA TIENDA
-========================= */
-
-const { data, loading } = useTienda()
+import NegpresFooter from './components/NegpresFooter.vue'
+import NegpresIrArriba from './components/NegpresIrArriba.vue'
 
 /* =========================================
-   🏪 NEG_ID INMEDIATO
+   FORMA FESTONEADA (círculos de producto)
 ========================================= */
 
-const neg_id_route =
-  route.params?.neg_id
+function buildScallop(lobes = 12, amp = 0.032, base = 0.455, steps = 200) {
 
-console.log(
-  '🏪 neg_id route =>',
-  neg_id_route
-)
+  const pts = []
 
-/* =========================================
-   💾 GUARDAR ANTES DE useTienda
-========================================= */
+  for (let i = 0; i < steps; i++) {
 
-setNegIdTienda(
-  neg_id_route
-)
+    const t = (i / steps) * Math.PI * 2
+    const r = base + amp * Math.cos(lobes * t)
 
-const snackbarRef =
-  ref(null)
-
-/* =========================
-   🔥 FONDO DINÁMICO
-========================= */
-const fondoStyle = computed(() => {
-
-  const tema_id = Number(
-    data.value?.tema?.tema_id || 0
-  )
-
-  console.log(
-    'tema_id',
-    tema_id
-  )
-
-  console.log(
-    'tema.fondo',
-    data.value?.tema?.fondo
-  )
-
-  if (
-
-    tema_id > 0
-
-    &&
-
-    data.value?.tema?.fondo
-
-  ) {
-
-    console.log(
-      'USANDO TEMA'
-    )
-
-    return cssToObject(
-
-      data.value.tema.fondo
-
+    pts.push(
+      `${(50 + r * 100 * Math.cos(t)).toFixed(2)}% ${(50 + r * 100 * Math.sin(t)).toFixed(2)}%`
     )
 
   }
 
-  console.log(
-    'USANDO MERCADO'
-  )
+  return `polygon(${pts.join(',')})`
 
-  if (
+}
 
-    mercado.value?.patron_fondo
+const SCALLOP = buildScallop()
 
-  ) {
+/* =========================================
+   ESTADO GLOBAL
+========================================= */
 
-    return cssToObject(
+const { mercado } = useMercado()
+const { setNegIdTienda } = useUsuario()
 
-      mercado.value.patron_fondo
+const route = useRoute()
+const router = useRouter()
 
-    )
+/* =========================================
+   NEG_ID INMEDIATO (antes de useTienda)
+========================================= */
 
+setNegIdTienda(route.params?.neg_id)
+
+/* =========================================
+   DATA TIENDA
+========================================= */
+
+const { data } = useTienda()
+
+const negocio = computed(() => data.value?.negocio || null)
+
+const snackbarRef = ref(null)
+
+/* =========================================
+   TEMA (base_css + estilo_css)
+========================================= */
+
+const STYLE_BASE_ID = 'tn-theme-base'
+const STYLE_ESTILO_ID = 'tn-theme-estilo'
+
+const temaActivo = computed(() => !!data.value?.tema?.base_css)
+
+function setStyle(id, css) {
+
+  let el = document.getElementById(id)
+
+  if (!el) {
+    el = document.createElement('style')
+    el.id = id
+    document.head.appendChild(el)
+  }
+
+  if (el.textContent !== css) {
+    el.textContent = css
+  }
+
+}
+
+/* El base va primero y el estilo después:
+   así las variables del estilo siempre ganan. */
+watch(
+  () => [
+    data.value?.tema?.base_css,
+    data.value?.tema?.estilo_css
+  ],
+  ([base, estilo]) => {
+
+    if (!base) {
+      return
+    }
+
+    setStyle(STYLE_BASE_ID, base)
+    setStyle(STYLE_ESTILO_ID, estilo || '')
+
+  },
+  { immediate: true }
+)
+
+onUnmounted(() => {
+
+  document.getElementById(STYLE_BASE_ID)?.remove()
+  document.getElementById(STYLE_ESTILO_ID)?.remove()
+
+})
+
+/* =========================================
+   FONDO LEGACY (solo si no hay base_css)
+========================================= */
+
+const fondoLegacy = computed(() => {
+
+  if (temaActivo.value) {
+    return {}
+  }
+
+  const tema_id = Number(data.value?.tema?.tema_id || 0)
+
+  if (tema_id > 0 && data.value?.tema?.fondo) {
+    return cssToObject(data.value.tema.fondo)
+  }
+
+  if (mercado.value?.patron_fondo) {
+    return cssToObject(mercado.value.patron_fondo)
   }
 
   return {}
 
 })
 
+const rootStyle = computed(() => ({
+  ...fondoLegacy.value,
+  '--scallop': SCALLOP
+}))
+
+/* =========================================
+   REDIRECT MOD 404
+========================================= */
 
 watch(
-
   data,
-
   (v) => {
 
     if (!v) {
       return
     }
 
-    /* =========================
-       MOD 404
-    ========================= */
-
-    if (
-
-      v.redirect === 'mod_404'
-
-    ) {
-
-      router.replace(
-        '/mod_404'
-      )
-
-      return
-
-    }
-
-    /* =========================
-       NEGOCIO INACTIVO
-    ========================= */
-
-    const isActivo =
-
-      Number(
-
-        v?.negocio?.is_activo
-
-        ??
-
-        v?.is_activo
-
-        ??
-
-        0
-
-      )
-
-    if (
-
-      isActivo !== 1
-
-    ) {
-
-      snackbarRef.value?.open(
-
-        '⚠️ Los productos no están disponibles'
-
-      )
-
+    if (v.redirect === 'mod_404') {
+      router.replace('/mod_404')
     }
 
   },
-
-  {
-
-    immediate: true
-
-  }
-
+  { immediate: true }
 )
 
 </script>
-
-<style scoped>
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.content-container {
-  width: 100%;
-  max-width: 1400px;
-  margin: auto;
-  padding-left: 20px;
-  padding-right: 20px;
-  padding-bottom: 40px;
-}
-</style>

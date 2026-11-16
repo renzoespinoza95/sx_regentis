@@ -4,19 +4,17 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig(({ mode }) => {
 
-  // cargar variables .env (por si usas otras)
+  // Carga correctamente tus variables de entorno (.env)
   const env = loadEnv(mode, process.cwd(), '')
 
   return {
 
     /**
-     * 🔥 BASE FIJA
-     * Usa "./" para que funcione:
-     * - en APK (TWA / WebView)
-     * - en cualquier subruta
-     * - sin depender del entorno
+     * 🔥 BASE WEB ABSOLUTA
+     * Forzamos '/' para que el despliegue web tradicional cargue siempre
+     * los assets desde la raíz, sin importar qué tan profunda sea la ruta de Vue Router.
      */
-    base: './',
+    base: '/',
 
     plugins: [
       vue(),

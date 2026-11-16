@@ -1,108 +1,49 @@
 <template>
 
-    <div class="mt-6">
+    <section v-if="productos.length" class="tn-sec">
 
-        <div class="px-4 mb-3 font-semibold" :style="subtituloStyle">
+        <div class="tn-container">
 
-            Mas Vendidos
+            <div class="tn-sec-head">
+
+                <span class="tn-deco">Lo más pedido</span>
+
+                <h2 class="tn-sec-title">Más vendidos</h2>
+
+            </div>
 
         </div>
 
-        <div class="relative">
+        <div class="tn-rail-wrap">
 
             <!-- IZQUIERDA -->
-            <button class="
-                    absolute
-
-                    left-1
-                    top-1/2
-
-                    -translate-y-1/2
-
-                    z-20
-
-                    w-10
-                    h-10
-
-                    rounded-full
-
-                    bg-black/20
-
-                    backdrop-blur-sm
-
-                    text-white
-
-                    hover:bg-black/40
-
-                    transition
-                " @click="scrollLeftBtn">
+            <button class="tn-arrow prev" type="button" aria-label="Anterior" @click="scrollLeftBtn">
 
                 <i class="fa fa-chevron-left"></i>
 
             </button>
 
             <!-- DERECHA -->
-            <button class="
-                    absolute
-
-                    right-1
-                    top-1/2
-
-                    -translate-y-1/2
-
-                    z-20
-
-                    w-10
-                    h-10
-
-                    rounded-full
-
-                    bg-black/20
-
-                    backdrop-blur-sm
-
-                    text-white
-
-                    hover:bg-black/40
-
-                    transition
-                " @click="scrollRightBtn">
+            <button class="tn-arrow next" type="button" aria-label="Siguiente" @click="scrollRightBtn">
 
                 <i class="fa fa-chevron-right"></i>
 
             </button>
 
-            <!-- CAROUSEL -->
-            <div ref="container" class="
-                    flex
-                    gap-4
-                    overflow-x-auto
-                    no-scrollbar
-                    px-4
-                    cursor-grab
-                " @mousedown="startDrag" @mousemove="onDrag" @mouseup="stopDrag" @mouseleave="stopDrag">
+            <!-- CARRUSEL -->
+            <div ref="container" class="tn-rail" @mousedown="startDrag" @mousemove="onDrag" @mouseup="stopDrag"
+                @mouseleave="stopDrag" @click.capture="onClickCapture">
 
                 <div v-for="(p, index) in productos" :key="p.product_id" :ref="el => itemsRef[index] = el"
-                    class="w-[180px] flex-shrink-0">
+                    class="tn-rail-item">
 
-                    <NegpresProductoCard :product_id="p.product_id" :title="p.name" :price="p.price" :rating="5" :img="p.imagenes?.find(
-
-                        x =>
-
-                            Number(
-                                x.orden
-                            ) === 1
-
+                    <NegpresProductoCard :product_id="p.product_id" :title="p.name" :price="p.price" :img="p.imagenes?.find(
+                        x => Number(x.orden) === 1
                     )?.img
-
-                        ||
-
-                        p.imagenes?.[0]?.img
-
-                        ||
-
-                        'https://barsi-img.b-cdn.net/recursos/6qz5.png'
-                        " badge="👁️" />
+                        || p.imagenes?.[0]?.img
+                        || 'https://barsi-img.b-cdn.net/recursos/6qz5.png'
+                        " :etiqueta="p.variantes?.etiqueta" :rating="p.variantes?.rating"
+                        :reviews="p.variantes?.reviews" />
 
                 </div>
 
@@ -110,19 +51,18 @@
 
         </div>
 
-    </div>
+    </section>
 
 </template>
 
 <script setup>
-import { useTienda }
-    from '../../../../../services/useTienda.js'
+
 import NegpresProductoCard from './NegpresProductoCard.vue'
+
 import {
     ref,
     watch,
-    nextTick,
-    computed
+    nextTick
 }
     from 'vue'
 
@@ -130,36 +70,80 @@ import gsap
     from 'gsap'
 
 const props = defineProps({
-    productos: Array
+
+    productos: {
+        type: Array,
+        default: () => []
+    }
+
 })
 
 const container = ref(null)
 
-let isDown = false
-let startX
-let scrollLeft
-
 const itemsRef =
     ref([])
 
-const { data } = useTienda()
+/* =========================================
+   DRAG (MOUSE)
+========================================= */
+
+let isDown = false
+let moved = false
+let startX = 0
+let startScroll = 0
 
 function startDrag(e) {
+
+    if (!container.value) return
+
     isDown = true
-    const pageX = e.touches ? e.touches[0].pageX : e.pageX
-    startX = pageX - container.value.offsetLeft
-    scrollLeft = container.value.scrollLeft
+    moved = false
+
+    startX = e.pageX
+    startScroll = container.value.scrollLeft
+
 }
 
 function onDrag(e) {
-    if (!isDown) return
+
+    if (!isDown || !container.value) return
+
+    const walk = (e.pageX - startX) * 1.2
+
+    if (Math.abs(walk) > 5) {
+        moved = true
+    }
+
     e.preventDefault()
 
-    const pageX = e.touches ? e.touches[0].pageX : e.pageX
-    const x = pageX - container.value.offsetLeft
-    const walk = (x - startX) * 1.2
-    container.value.scrollLeft = scrollLeft - walk
+    container.value.scrollLeft = startScroll - walk
+
 }
+
+function stopDrag() {
+
+    isDown = false
+
+}
+
+/* Si se arrastro, no dejar pasar el click a la tarjeta */
+function onClickCapture(e) {
+
+    if (moved) {
+
+        e.stopPropagation()
+
+        e.preventDefault()
+
+        moved = false
+
+    }
+
+}
+
+/* =========================================
+   FLECHAS
+========================================= */
 
 function scrollLeftBtn() {
 
@@ -185,45 +169,22 @@ function scrollRightBtn() {
 
 }
 
-const subtituloStyle = computed(() => {
-
-    const tema_id = Number(
-        data.value?.tema?.tema_id || 0
-    )
-
-    if (
-
-        tema_id > 0
-
-        &&
-
-        data.value?.tema?.subtitulo
-
-    ) {
-
-        return {
-
-            color:
-                data.value.tema.subtitulo
-
-        }
-
-    }
-
-    return {}
-
-})
+/* =========================================
+   ANIMACION
+========================================= */
 
 async function animarItems() {
 
     await nextTick()
 
-    if (!itemsRef.value?.length)
+    const els = itemsRef.value.filter(Boolean)
+
+    if (!els.length)
         return
 
     gsap.fromTo(
 
-        itemsRef.value,
+        els,
 
         {
 
@@ -253,12 +214,12 @@ watch(
 
     () => props.productos,
 
-    async (v) => {
+    (v) => {
 
         if (!v?.length)
             return
 
-        await animarItems()
+        animarItems()
 
     },
 
@@ -270,17 +231,4 @@ watch(
 
 )
 
-function stopDrag() {
-    isDown = false
-}
 </script>
-
-<style scoped>
-.no-scrollbar::-webkit-scrollbar {
-    display: none;
-}
-
-.no-scrollbar {
-    scrollbar-width: none;
-}
-</style>

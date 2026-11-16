@@ -1,29 +1,47 @@
 <template>
 
     <div ref="sidebar" class="w-24 flex flex-col items-center gap-4 pt-2 overflow-y-auto no-scrollbar cursor-grab"
-        style="max-height: calc(100vh - 140px);">
+        :class="{ 'tn-side': tematizado }" style="max-height: calc(100vh - 140px);">
 
-        <div ref="itemsRef" v-for="(cat, i) in categorias" :key="i" @click="$emit('change', i)"
-            class="flex flex-col items-center cursor-pointer">
+        <div v-for="(cat, i) in categorias" :key="cat.category_id ?? i"
+            class="flex flex-col items-center cursor-pointer"
+            :class="{ 'tn-side-item': tematizado, active: tematizado && i === active }" @click="$emit('change', i)">
 
-            <!-- IMAGEN -->
-            <div class="w-14 h-14 rounded-full overflow-hidden transition relative"
-                :class="i === active ? 'rainbow-border scale-105' : 'opacity-70'">
-                <img :src="getImg(cat, i)" class="w-full h-full object-cover" />
-            </div>
+            <!-- ==================== CON TEMA ==================== -->
+            <template v-if="tematizado">
 
-            <!-- TEXTO -->
-            <div class="text-[10px] mt-1 text-center leading-tight" :class="{
-                'text-orange-500 font-semibold': i === active
-            }" :style="i === active
+                <!-- Imagen con aro -->
+                <div class="tn-ring" :class="{ active: i === active }">
 
-            ? {}
+                    <div class="tn-ring-img w-14 h-14">
+                        <img :src="getImg(cat, i)" :alt="cat.name" />
+                    </div>
 
-            : subtituloStyle
+                </div>
 
-        ">
-                {{ cat.name }}
-            </div>
+                <!-- Nombre -->
+                <div class="tn-side-name">
+                    {{ cat.name }}
+                </div>
+
+            </template>
+
+            <!-- ==================== SIN TEMA ==================== -->
+            <template v-else>
+
+                <!-- Imagen -->
+                <div class="w-14 h-14 rounded-full overflow-hidden transition relative"
+                    :class="i === active ? 'rainbow-border scale-105' : 'opacity-70'">
+                    <img :src="getImg(cat, i)" class="w-full h-full object-cover" />
+                </div>
+
+                <!-- Nombre -->
+                <div class="text-[10px] mt-1 text-center leading-tight"
+                    :class="{ 'text-black font-semibold': i === active }" :style="i === active ? {} : subtituloStyle">
+                    {{ cat.name }}
+                </div>
+
+            </template>
 
         </div>
 
@@ -32,28 +50,47 @@
 </template>
 
 <script setup>
-import {
-    ref,
-    onMounted,
-    onUnmounted,
-    computed
-}
-    from 'vue'
-import { useTienda }
-    from '../../../../../services/useTienda.js'
-import { gsap } from 'gsap'
 
-const itemsRef = ref([])
+import { ref, computed } from 'vue'
+import { useTienda } from '../../../../../services/useTienda.js'
+
+/* =========================
+   PROPS
+========================= */
 
 defineProps({
+
     categorias: Array,
-    active: Number
+
+    active: Number,
+
+    /* true cuando el negocio tiene un tema con base_css */
+    tematizado: {
+        type: Boolean,
+        default: false
+    }
+
 })
 
+defineEmits(['change'])
+
+
+/* =========================
+   IMAGEN
+========================= */
+
 function getImg(cat, i) {
+
     if (cat.img) return cat.img
+
     return `https://picsum.photos/100?random=${cat.category_id || i}`
+
 }
+
+
+/* =========================
+   COLOR DE TEXTO (SIN TEMA)
+========================= */
 
 const sidebar = ref(null)
 const { data } = useTienda()
@@ -65,47 +102,43 @@ const subtituloStyle = computed(() => {
     )
 
     if (
-
         tema_id > 0
-
         &&
-
         data.value?.tema?.subtitulo
-
     ) {
-
         return {
-
-            color:
-                data.value.tema.subtitulo
-
+            color: data.value.tema.subtitulo
         }
-
     }
 
     return {
-
-        color:
-            '#0F0F0F'
-
+        color: '#0F0F0F'
     }
 
 })
+
+
+/* =========================
+   ARRASTRE
+========================= */
 
 let isDown = false
 let startY = 0
 let scrollTop = 0
 
 function startDrag(e) {
+
     isDown = true
 
     sidebar.value.classList.add('grabbing') // 👈 efecto visual
 
     startY = e.pageY - sidebar.value.offsetTop
     scrollTop = sidebar.value.scrollTop
+
 }
 
 function onDrag(e) {
+
     if (!isDown) return
 
     e.preventDefault()
@@ -114,14 +147,19 @@ function onDrag(e) {
     const walk = (y - startY) * 1.5
 
     sidebar.value.scrollTop = scrollTop - walk
+
 }
 
 function stopDrag() {
+
     isDown = false
 
     sidebar.value.classList.remove('grabbing') // 👈 efecto visual
+
 }
+
 </script>
+
 <style scoped>
 .no-scrollbar::-webkit-scrollbar {
     display: none;
@@ -142,8 +180,11 @@ function stopDrag() {
     user-select: none;
 }
 
-/* ARCOIRIS */
-/* 🌈 CONTENEDOR CON BORDE ANIMADO */
+/* ==========================================
+   🌈 ARCOÍRIS (SOLO SIN TEMA)
+========================================== */
+
+/* contenedor con borde animado */
 .rainbow-border {
     position: relative;
     padding: 3px;
@@ -151,7 +192,7 @@ function stopDrag() {
     border-radius: 9999px;
 }
 
-/* 🌈 CAPA DEL BORDE */
+/* capa del borde */
 .rainbow-border::before {
     content: "";
     position: absolute;
@@ -181,7 +222,7 @@ function stopDrag() {
     mask-composite: exclude;
 }
 
-/* 🌈 ANIMACIÓN */
+/* animación */
 @keyframes rainbowMove {
     0% {
         background-position: 0% 50%;

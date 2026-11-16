@@ -90,21 +90,71 @@
 
             <!-- BODY -->
             <div class="
-                    p-5
-                    space-y-4
+        flex
 
-                    max-h-[70vh]
-                    overflow-y-auto
-                ">
+        max-h-[70vh]
 
-                <!-- GALERIA -->
-                <ProductoGallery :imagenes="producto?.imagenes || []" @updated="onGalleryUpdated"
-                    @deleted="onGalleryDeleted" />
+        overflow-hidden
+    ">
 
-                <!-- UPLOADER -->
-                <ProductoUploader :producto="producto" @uploaded="
-                    onUploaded
-                " />
+                <!-- BANDA IZQUIERDA -->
+                <div class="
+            w-16
+
+            shrink-0
+
+            bg-[#fff5ef]
+
+            border-r
+
+            border-orange-200
+
+            flex
+
+            items-center
+
+            justify-center
+        " @touchstart="scrollStart" @touchmove.prevent="scrollMove" @touchend="scrollEnd">
+
+                    <div class="
+                text-[11px]
+
+                font-black
+
+                tracking-widest
+
+                text-orange-500
+
+                select-none
+
+                rotate-180
+
+                [writing-mode:vertical-rl]
+            ">
+
+                        DELIZAR POR ESTE LADO
+
+                    </div>
+
+                </div>
+
+                <!-- CONTENIDO -->
+                <div ref="scrollRef" class="
+        flex-1
+
+        p-5
+
+        space-y-4
+
+        overflow-y-auto
+    ">
+
+                    <ProductoGallery :imagenes="producto?.imagenes || []" @updated="onGalleryUpdated"
+                        @deleted="onGalleryDeleted" />
+
+                    <ProductoUploader :producto="producto" @uploaded="onUploaded" />
+
+                </div>
 
             </div>
 
@@ -144,13 +194,21 @@ import {
 }
     from '../../../../../services/eventBus.js'
 
+const scrollRef =
+    ref(null)
 
-const emit =
-    defineEmits([
+let startY = 0
 
-        'uploaded'
+let startScroll = 0
 
-    ])
+
+const emit = defineEmits([
+
+    'uploaded',
+
+    'deleted'
+
+])
 
 const visible =
     ref(false)
@@ -161,7 +219,55 @@ const producto =
 const box =
     ref(null)
 
+/* =========================================
+🔥 SCROLL TOUCH
+========================================= */
 
+function scrollStart(e) {
+
+    startY =
+
+        e.touches[0].clientY
+
+    startScroll =
+
+        scrollRef.value.scrollTop
+
+}
+
+function scrollMove(e) {
+
+    if (
+
+        !scrollRef.value
+
+    ) {
+
+        return
+
+    }
+
+    const delta =
+
+        e.touches[0].clientY
+
+        -
+
+        startY
+
+    scrollRef.value.scrollTop =
+
+        startScroll
+
+        -
+
+        delta
+
+}
+
+function scrollEnd() {
+
+}
 
 /* =========================================
 🔥 UPLOADED
@@ -275,35 +381,99 @@ function onGalleryUpdated(lista) {
 🔥 GALLERY DELETED
 ========================================= */
 
-function onGalleryDeleted(img) {
+function onGalleryDeleted(lista) {
 
-    if (!producto.value) {
+    if (
+
+        !producto.value
+
+    ) {
+
         return
+
     }
 
     producto.value.imagenes =
 
-        (producto.value.imagenes || [])
+        [
 
-            .filter(x =>
+            ...lista
 
-                Number(
-                    x.product_image_id
-                )
+        ]
 
-                !==
+    emit(
 
-                Number(
-                    img.product_image_id
-                )
+        'deleted',
 
-            )
+        {
+
+            product_id:
+
+                producto.value.product_id,
+
+            imagenes:
+
+                [
+
+                    ...producto.value.imagenes
+
+                ]
+
+        }
+
+    )
+
+}
+
+function agregarImagen(imagen) {
+
+    if (
+
+        !producto.value
+
+    ) {
+
+        return
+
+    }
+
+    producto.value.imagenes = [
+
+        imagen,
+
+        ...(producto.value.imagenes || [])
+
+    ]
+
+}
+
+function eliminarImagenes(lista) {
+
+    if (
+
+        !producto.value
+
+    ) {
+
+        return
+
+    }
+
+    producto.value.imagenes = [
+
+        ...lista
+
+    ]
 
 }
 
 defineExpose({
 
-    open
+    open,
+
+    agregarImagen,
+
+    eliminarImagenes
 
 })
 

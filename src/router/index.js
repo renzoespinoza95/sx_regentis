@@ -56,13 +56,13 @@ const routes = [
  //     if (mercadoId === '0') {
  //       return `/CV2K_negocio/${negId}`
  //     }
-      return '/principal'
+      return '/mod_404'
     }
   },
   // =========================================
   // COMUNES
   // =========================================
-  { path: '/principal', component: RegPrincipalApp,  meta: { hideNav: false }  },  
+  { path: '/principal', component: TyB3CrearTienda,  meta: { hideNav: false }  },  
   { path: '/mod_registro', component: Mod_registro, meta: { hideNav: true } },
   { path: '/mod_nav', component: Mod_nav, meta: { hideNav: true } },  
   { path: '/dash',   component: Mod_dash },

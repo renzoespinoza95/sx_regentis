@@ -1,103 +1,89 @@
 <template>
-  <div class="
-        bg-white
-        rounded-2xl
-        shadow-md
-        overflow-hidden
-    ">
 
-    <div class="relative">
-      <img :src="img
+  <article class="tn-prod">
 
-        ||
+    <!-- FOTO FESTONEADA -->
+    <div class="tn-blob-wrap">
 
-        'https://barsi-img.b-cdn.net/recursos/6qz5.png'
+      <button type="button" class="tn-blob" :aria-label="'Ver ' + title" @click="irDetalle">
 
-        " class="
-        w-full
-        h-32
+        <img :src="img || IMG_DEFAULT" :alt="title" loading="lazy">
 
-        object-cover
-    " />
-
-      <button class="
-        absolute
-
-        top-2
-        right-2
-
-        w-9
-        h-9
-
-        rounded-full
-
-        bg-[#FD7635]/85
-
-        backdrop-blur-sm
-
-        text-white
-
-        shadow-lg
-
-        hover:scale-105
-
-        active:scale-95
-
-        transition
-
-        z-10
-    " @click.stop="irDetalle">
-
-        <i class="
-            fa
-            fa-eye
-            text-sm
-        ">
-        </i>
+        <span v-if="etiqueta" class="tn-prod-tag">{{ etiqueta }}</span>
 
       </button>
-    </div>
-
-    <div class="p-3">
-      <h3 class="text-sm font-medium line-clamp-2 h-[42px] leading-tight">
-        {{ title }}
-      </h3>
-
-      <p class="text-orange-500 font-semibold mt-1">
-        S/{{ price }}
-      </p>
-
-      <div class="flex items-center gap-1 mt-1 text-yellow-400 text-xs">
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star"></i>
-        <span class="text-gray-500 ml-2">
-          {{ rating }}
-        </span>
-      </div>
 
     </div>
 
-  </div>
+    <!-- NOMBRE -->
+    <h3 class="tn-prod-name" @click="irDetalle">
+      {{ title }}
+    </h3>
+
+    <!-- PRECIO + CHIPS -->
+    <div class="tn-prod-meta">
+
+      <span class="tn-prod-price">S/ {{ precioTexto }}</span>
+
+      <span v-if="rating" class="tn-chip">
+        <i class="fa fa-star"></i>{{ rating }}
+      </span>
+
+      <span v-if="reviews" class="tn-chip">
+        <i class="fa fa-comment"></i>{{ reviews }}
+      </span>
+
+    </div>
+
+    <!-- BOTON -->
+    <button type="button" class="tn-btn-pill" @click="irDetalle">
+      <i class="fa fa-eye"></i> Ver
+    </button>
+
+  </article>
+
 </template>
 
 <script setup>
+
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
+const IMG_DEFAULT =
+  'https://barsi-img.b-cdn.net/recursos/6qz5.png'
+
 const props = defineProps({
-  product_id: Number,  // 🔥 FALTA ESTO
+
+  product_id: Number,
+
   title: String,
-  price: String,
-  rating: String,
+
+  price: [Number, String],
+
+  rating: [Number, String],
+
+  reviews: [Number, String],
+
   img: String,
-  badge: String
+
+  etiqueta: String
+
+})
+
+const precioTexto = computed(() => {
+
+  return Number(
+    props.price || 0
+  ).toFixed(2)
+
 })
 
 function irDetalle() {
+
   router.push(`/QZMq_detalle_prod/${props.product_id}`)
+
 }
+
 </script>

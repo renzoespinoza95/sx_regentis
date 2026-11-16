@@ -1,24 +1,83 @@
 <template>
 
-    <div class="mt-8">
+    <!-- ==========================================================
+       CON TEMA: categorías con el diseño de las tarjetas
+  =========================================================== -->
+    <section v-if="tematizado && categorias.length" ref="raiz" class="tn-sec tn-sec-pattern">
 
-        <div class="px-4 mb-3 font-semibold" :style="subtituloStyle">
+        <div class="tn-container">
+
+            <!-- Encabezado -->
+            <div class="tn-sec-head">
+                <span class="tn-deco">{{ TEXTOS.kicker }}</span>
+                <h2 class="tn-sec-title">{{ TEXTOS.titulo }}</h2>
+                <p class="tn-sec-desc">{{ TEXTOS.descripcion }}</p>
+            </div>
+
+            <!-- Categorías -->
+            <div class="tn-prod-grid">
+
+                <div v-for="cat in categorias" :key="cat.category_id" class="tn-prod-cell" data-anim>
+
+                    <article class="tn-prod" @click="irCategoria(cat)">
+
+                        <!-- Foto festoneada -->
+                        <div class="tn-blob-wrap">
+
+                            <button type="button" class="tn-blob" :aria-label="'Ver ' + cat.name">
+
+                                <img v-if="cat.img" :src="cat.img" :alt="cat.name" loading="lazy">
+
+                                <span v-else class="tn-blob-icon">{{ cat.icon || '📦' }}</span>
+
+                            </button>
+
+                        </div>
+
+                        <!-- Nombre -->
+                        <h3 class="tn-prod-name">
+                            {{ cat.name }}
+                        </h3>
+
+                        <!-- Cantidad de productos (sin precio) -->
+                        <div class="tn-prod-meta">
+
+                            <span class="tn-chip">
+                                <i class="fa fa-th-large"></i>{{ cat.productos?.length || 0 }} productos
+                            </span>
+
+                        </div>
+
+                        <!-- Botón -->
+                        <button type="button" class="tn-btn-pill">
+                            <i class="fa fa-eye"></i> Ver
+                        </button>
+
+                    </article>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- ==========================================================
+       SIN TEMA: rejilla sencilla de categorías
+  =========================================================== -->
+    <div v-else-if="categorias.length" ref="raiz" class="mt-8">
+
+        <div class="px-4 mb-3 font-semibold text-gray-700">
             Categorias
         </div>
 
         <div class="px-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
 
-            <div v-for="(cat, index) in categorias" :key="cat.category_id" :ref="el => itemsRef[index] = el" class="
-        bg-white
-        rounded-2xl
-        shadow-md
-        p-3
-        text-center
-        cursor-pointer
-    " @click="
-        irCategoria(cat)
-        ">
-                <img :src="getImg(cat, index)" class="w-full h-24 object-cover rounded-xl" />
+            <div v-for="cat in categorias" :key="cat.category_id" data-anim
+                class="bg-white rounded-2xl shadow-md p-3 text-center cursor-pointer" @click="irCategoria(cat)">
+
+                <img :src="cat.img || IMG_CATEGORIA" :alt="cat.name" class="w-full h-24 object-cover rounded-xl" />
 
                 <div class="mt-2 text-sm font-semibold">
                     {{ cat.name }}
@@ -33,131 +92,99 @@
 </template>
 
 <script setup>
+
+import { nextTick, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import {
-    ref,
-    watch,
-    nextTick,
-    computed
-}
-    from 'vue'
+import gsap from 'gsap'
 
-import { useTienda }
-    from '../../../../../services/useTienda.js'
-
-import gsap
-    from 'gsap'
-
-const router = useRouter()
-const itemsRef =
-    ref([])
-
-const { data } = useTienda()
-
-function irCategoria(cat) {
-    router.push(`/MmZU_productos_categoria/${cat.category_id}`)
-}
-
-function getImg(cat, index) {
-
-    // si viene imagen del backend
-    if (cat.img) return cat.img
-
-    // fallback con picsum (random bonito)
-    return `https://picsum.photos/300/200?random=${cat.category_id || index}`
-}
+/* =========================================
+   PROPS
+========================================= */
 
 const props = defineProps({
-    categorias: Array
+
+    categorias: {
+        type: Array,
+        default: () => []
+    },
+
+    /* true cuando el negocio tiene un tema con base_css */
+    tematizado: {
+        type: Boolean,
+        default: false
+    }
+
 })
+
+/* =========================================
+   TEXTOS Y RECURSOS
+========================================= */
+
+const TEXTOS = {
+    kicker: 'Explora por categoría',
+    titulo: 'Categorías',
+    descripcion: 'Toca una categoría para ver sus productos.'
+}
+
+const IMG_CATEGORIA = 'https://barsi-img.b-cdn.net/recursos/ffc1.png'
+
+/* =========================================
+   ESTADO
+========================================= */
+
+const router = useRouter()
+
+const raiz = ref(null)
+
+/* =========================================
+   NAVEGACIÓN
+========================================= */
+
+function irCategoria(cat) {
+
+    router.push(`/MmZU_productos_categoria/${cat.category_id}`)
+
+}
+
+/* =========================================
+   ANIMACIÓN
+========================================= */
 
 async function animarItems() {
 
     await nextTick()
 
-    if (!itemsRef.value?.length)
+    const els = raiz.value?.querySelectorAll('[data-anim]')
+
+    if (!els?.length) {
         return
+    }
 
     gsap.fromTo(
-
-        itemsRef.value,
-
+        els,
+        { x: -60, opacity: 0 },
         {
-
-            x: -80,
-            opacity: 0
-
-        },
-
-        {
-
             x: 0,
             opacity: 1,
-
-            duration: 0.6,
-
-            stagger: 0.08,
-
-            ease: 'power3.out'
-
+            duration: 0.5,
+            stagger: 0.06,
+            ease: 'power3.out',
+            clearProps: 'transform,opacity'
         }
-
     )
 
 }
 
-const subtituloStyle = computed(() => {
+watch(
+    [() => props.categorias, () => props.tematizado],
+    () => {
 
-    const tema_id = Number(
-        data.value?.tema?.tema_id || 0
-    )
-
-    if (
-
-        tema_id > 0
-
-        &&
-
-        data.value?.tema?.subtitulo
-
-    ) {
-
-        return {
-
-            color:
-                data.value.tema.subtitulo
-
+        if (props.categorias.length) {
+            animarItems()
         }
 
-    }
-
-    return {
-
-        color:
-            '#374151'
-
-    }
-
-})
-
-watch(
-
-    () => props.categorias,
-
-    async (v) => {
-
-        if (!v?.length)
-            return
-
-        await animarItems()
-
     },
-
-    {
-
-        immediate: true
-
-    }
-
+    { immediate: true }
 )
+
 </script>

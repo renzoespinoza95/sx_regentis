@@ -1,6 +1,6 @@
 <template>
 
-  <div class="min-h-screen pt-20" :style="fondoStyle">
+  <div class="tn-page min-h-screen pt-[66px]" :class="{ 'tienda-theme': temaActivo }" :style="fondoStyle">
 
     <!-- 🔥 MISMO HEADER DE NEGOCIO -->
     <NegpresHeader />
@@ -14,25 +14,15 @@
 
       <div v-else>
         <DetalleImagenSlider :producto="producto" />
-        <DetalleInfoCard :producto="producto" @toast="showToast" />
+        <DetalleInfoCard :producto="producto" @toast="showToast" @update:variante="v => varianteSeleccionada = v" />
       </div>
 
     </div>
-    <AppWhatsappFloat v-if="
-      producto
-    " :celular="data?.negocio?.celular_informes
-      " :mensaje="`
-
-Buenos días. Quisiera información sobre el producto ${producto?.name
-
-        } que se encuentra a S/ ${producto?.price
-
-        }.
+    <AppWhatsappFloat v-if="producto" :celular="data?.negocio?.celular_informes" :mensaje="`
+Buenos días. Quisiera información sobre el producto ${producto?.name}${textoAtributoMensaje} que se encuentra a S/ ${producto?.price}.
 
 Muchas gracias.
-
 `" />
-
 
   </div>
   <GsapToast ref="toastRef" />
@@ -40,7 +30,7 @@ Muchas gracias.
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onUnmounted } from 'vue'
 import DetalleImagenSlider from './components/DetalleImagenSlider.vue'
 import DetalleInfoCard from './components/DetalleInfoCard.vue'
 import NegpresHeader from '../../../../components/layout/NegpresHeaderBack.vue'
@@ -81,7 +71,69 @@ const producto = computed(() => {
 
 const { mercado } = useMercado()
 
+const varianteSeleccionada = ref(null)
+
+const textoAtributoMensaje = computed(() => {
+  if (!producto.value || !varianteSeleccionada.value) return ''
+
+  let label = 'Opción'
+  if (producto.value.variantes?.atributo) {
+    label = producto.value.variantes.atributo
+  } else if (producto.value.variantes_json) {
+    try {
+      const parsed = JSON.parse(producto.value.variantes_json)
+      if (parsed.atributo) label = parsed.atributo
+    } catch (e) { }
+  }
+
+  return ` (${label}: ${varianteSeleccionada.value.valor})`
+})
+
+/* =========================
+   🎨 TEMA (base_css + estilo_css)
+========================= */
+
+const STYLE_BASE_ID = 'tn-theme-base'
+const STYLE_ESTILO_ID = 'tn-theme-estilo'
+
+const temaActivo =
+  computed(() => !!data.value?.tema?.base_css)
+
+function setStyle(id, css) {
+  let el = document.getElementById(id)
+  if (!el) {
+    el = document.createElement('style')
+    el.id = id
+    document.head.appendChild(el)
+  }
+  if (el.textContent !== css) {
+    el.textContent = css
+  }
+}
+
+watch(
+  () => [
+    data.value?.tema?.base_css,
+    data.value?.tema?.estilo_css
+  ],
+  ([base, estilo]) => {
+    if (!base) return
+    setStyle(STYLE_BASE_ID, base)
+    setStyle(STYLE_ESTILO_ID, estilo || '')
+  },
+  { immediate: true }
+)
+
+onUnmounted(() => {
+  document.getElementById(STYLE_BASE_ID)?.remove()
+  document.getElementById(STYLE_ESTILO_ID)?.remove()
+})
+
 const fondoStyle = computed(() => {
+
+  if (temaActivo.value) {
+    return {}
+  }
 
   const tema_id = Number(
     data.value?.tema?.tema_id || 0
@@ -143,6 +195,8 @@ const props = defineProps({
 const { addTracking } = useTrackingQueue()
 
 const { usuario } = useUsuario()
+
+
 
 watch(producto, (p) => {
 

@@ -137,7 +137,7 @@
     " @click="openPicker">
 
             <!-- FONDO -->
-            <img src="/yaplin.png" class="
+            <img src="https://barsi-img.b-cdn.net/p_info/yaplin.png" class="
             absolute
             inset-0
             w-full

@@ -40,10 +40,10 @@
 neg in negocios
                         " :key="neg.neg_id
                             " :negocio="neg
-                            " :carrito-id-activo="carritoSeleccionado?.carrito_id
-                            " @select-carrito="
-                            seleccionarCarrito
-                        " />
+                                " :carrito-id-activo="carritoSeleccionado?.carrito_id
+                                    " @select-carrito="
+                                    seleccionarCarrito
+                                " />
 
                 </div>
 
@@ -320,66 +320,63 @@ async function volverListado() {
 /* =========================
    🔥 LISTAR CARRITOS
 ========================= */
-
+/* =========================================
+   🔥 LISTAR CARRITOS (Sincronización Reactiva)
+========================================= */
 async function cargarCarrito() {
+    const usu_id = user.value?.usu_id
+    if (!usu_id) return
 
-    const usu_id =
-        user.value?.usu_id
+    const seguridad = firma()
 
-    if (!usu_id)
-        return
+    const res = await fetch(
+        `${import.meta.env.VITE_PUBLIC_URL_BASE}/M0Jk/productosCarritos`,
+        {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                usu_id,
+                xin: seguridad.xin,
+                yuan: seguridad.yuan
+            })
+        }
+    )
 
-    const seguridad =
-        firma()
+    const data = await res.json()
 
-    const res =
-        await fetch(
+    if (data.status === 'ok') {
+        negocios.value = data.data || []
 
-            `${import.meta.env.VITE_PUBLIC_URL_BASE}/M0Jk/productosCarritos`,
+        // 🔥 CRITICAL FIX: Si hay un carrito seleccionado, refrescar sus productos en caliente
+        if (carritoSeleccionado.value) {
+            // Buscamos el carrito actualizado dentro de la nueva lista de negocios
+            let carritoActualizado = null
 
-            {
-
-                method:
-                    'POST',
-
-                headers: {
-
-                    'Content-Type':
-                        'application/json'
-
-                },
-
-                body:
-                    JSON.stringify({
-
-                        usu_id,
-
-                        xin:
-                            seguridad.xin,
-
-                        yuan:
-                            seguridad.yuan
-
-                    })
-
+            for (const neg of negocios.value) {
+                const found = neg.carritos?.find(c => c.carrito_id === carritoId.value)
+                if (found) {
+                    carritoActualizado = found
+                    break
+                }
             }
 
-        )
-
-    const data =
-        await res.json()
-
-    if (
-
-        data.status === 'ok'
-
-    ) {
-
-        negocios.value =
-            data.data || []
-
+            if (carritoActualizado) {
+                // Actualizamos la tabla de productos vinculada al template
+                productos.value = (carritoActualizado.productos || []).map(p => ({
+                    carrito_detalle_id: p.carrito_detalle_id,
+                    product_id: p.product_id,
+                    nombre: p.name,
+                    cantidad: p.cantidad,
+                    unidad: 'und',
+                    precio: p.precio_unitario,
+                    img: p.img
+                }))
+            } else {
+                // Si el carrito ya no existe (ej: se vació completo), regresamos al listado
+                volverListado()
+            }
+        }
     }
-
 }
 
 onMounted(async () => {
@@ -403,17 +400,24 @@ function openEdit(p) {
 }
 
 async function updateProducto(updated) {
-
-    await fetch(`${import.meta.env.VITE_PUBLIC_URL_BASE}/M0Jk/editarCantidad`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            carrito_detalle_id: updated.carrito_detalle_id, // 🔥 CAMBIO
-            cantidad: updated.cantidad
+    try {
+        const res = await fetch(`${import.meta.env.VITE_PUBLIC_URL_BASE}/M0Jk/editarCantidad`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                carrito_detalle_id: updated.carrito_detalle_id,
+                cantidad: updated.cantidad
+            })
         })
-    })
 
-    cargarCarrito()
+        const data = await res.json()
+
+        // Esperamos el refresco completo de la base de datos y el remapeo local
+        await cargarCarrito()
+
+    } catch (e) {
+        console.error("Error al actualizar cantidad:", e)
+    }
 }
 
 /* =========================

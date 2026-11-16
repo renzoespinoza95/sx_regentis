@@ -60,7 +60,7 @@
                 ">
 
                 Tu cuenta ya está vinculada
-                a un negocio dentro de Huamantanga 😏
+                a un negocio 😏
 
             </div>
 

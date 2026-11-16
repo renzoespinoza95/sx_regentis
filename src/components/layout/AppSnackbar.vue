@@ -150,7 +150,9 @@ defineExpose({
 
     open,
 
-    cerrar
+    cerrar,
+
+    confirmar
 
 })
 </script>

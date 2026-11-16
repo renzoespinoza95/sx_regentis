@@ -1,76 +1,47 @@
 <template>
-
   <div class="
-        h-[72px]
+    h-[72px]
+    bg-white/90
+    backdrop-blur-xl
+    border-b
+    border-white/40
+    flex
+    flex-col
+    items-center
+    justify-center
+    py-5
+    px-4
+    shrink-0
+  ">
 
-        bg-white/90
-        backdrop-blur-xl
-
-        border-b
-        border-white/40
-
-        flex
-        flex-col
-
-        items-center
-        justify-center
-py-5
-        px-4
-
-        shrink-0
-    ">
-
-    <!-- TITULO -->
     <div class="
-            text-[22px]
-            font-black
-            text-gray-800
-            text-center
-        ">
-
-      Crear tu tienda virtual
-
+      text-[22px]
+      font-black
+      text-gray-800
+      text-center
+      pt-10
+    ">
+      {{ tituloBienvenida }}
     </div>
 
-
   </div>
-
 </template>
 
 <script setup>
+import { computed } from 'vue'
+import { useUsuario } from '../../../../../services/usuarioService.js'
 
-import {
-  ref,
-  onMounted
-}
-  from 'vue'
+const { usuario, isLogged } = useUsuario()
 
-import gsap from 'gsap'
-
-const logoRef = ref(null)
-
-onMounted(() => {
-
-  gsap.to(
-
-    logoRef.value,
-
-    {
-
-      y: -10,
-
-      duration: 2,
-
-      repeat: -1,
-
-      yoyo: true,
-
-      ease: 'sine.inOut'
-
-    }
-
-  )
-
+const tituloBienvenida = computed(() => {
+  if (isLogged.value) {
+    const nombre =
+      usuario.value?.user?.display_name ||
+      usuario.value?.user?.name ||
+      usuario.value?.user?.nombre ||
+      'Emprendedor'
+    return `¡Bienvenido, ${nombre}! Crea tu tienda y empieza a vender hoy mismo`
+  }
+  return 'Tu tienda virtual, lista en minutos'
 })
-
 </script>

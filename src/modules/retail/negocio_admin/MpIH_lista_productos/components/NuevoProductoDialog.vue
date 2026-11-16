@@ -257,6 +257,9 @@
 
                 </div>
 
+                <!-- VARIANTES -->
+                <ProductoVariantesEditor v-model="form.variantes_json" />
+
                 <!-- CATEGORIAS -->
                 <div>
 
@@ -353,7 +356,8 @@
 </template>
 
 <script setup>
-
+import ProductoVariantesEditor
+    from './ProductoVariantesEditor.vue'
 import {
     ref,
     nextTick,
@@ -423,7 +427,12 @@ const form =
             '',
 
         stock:
-            '',
+            9999, // 🔥 CAMBIADO: Stock inicial predeterminado en 9999
+
+        variantes_json: {
+            atributo: '',
+            opciones: []
+        },
 
         description:
             '',
@@ -436,39 +445,14 @@ const form =
 /* =========================================
 🔥 VALID FORM
 ========================================= */
-
-const canSave =
-    computed(() => {
-
-        return (
-
-            String(
-                form.value.name || ''
-            ).trim().length > 0
-
-            &&
-
-            Number(
-                form.value.price
-            ) > 0
-
-            &&
-
-            Number(
-                form.value.stock
-            ) >= 0
-
-            &&
-
-            seleccionadas.value.length > 0
-
-        )
-
-    })
-
-/* =========================================
-🔥 OPEN
-========================================= */
+const canSave = computed(() => {
+    return (
+        String(form.value.name || '').trim().length > 0
+        && Number(form.value.price) >= 0
+        && Number(form.value.stock) >= 0
+        && seleccionadas.value.length > 0
+    )
+})
 
 /* =========================================
 🔥 OPEN
@@ -499,10 +483,15 @@ async function open(producto = null) {
             '',
 
         stock:
-            '',
+            9999, // 🔥 CAMBIADO: Seteado en 9999 para que al abrir como nuevo aparezca este valor
 
         description:
             '',
+
+        variantes_json: {
+            atributo: '',
+            opciones: []
+        },
 
         editando:
             false
@@ -536,10 +525,32 @@ async function open(producto = null) {
                 producto.price || '',
 
             stock:
-                producto.stock || '',
+                producto.stock || '', // 💡 Mantiene el stock real del producto si se está editando
 
             description:
                 producto.description || '',
+
+            variantes_json:
+
+                producto.variantes_json
+
+                    ?
+
+                    JSON.parse(
+
+                        producto.variantes_json
+
+                    )
+
+                    :
+
+                    {
+
+                        atributo: '',
+
+                        opciones: []
+
+                    },
 
             editando:
                 true
@@ -604,10 +615,6 @@ async function open(producto = null) {
     )
 
 }
-
-/* =========================================
-🔥 CLOSE
-========================================= */
 
 /* =========================================
 🔥 CLOSE
@@ -773,10 +780,6 @@ function isSelected(c) {
 🔥 GUARDAR
 ========================================= */
 
-/* =========================================
-🔥 GUARDAR
-========================================= */
-
 async function guardar() {
 
     try {
@@ -823,6 +826,24 @@ async function guardar() {
                     categorias:
                         seleccionadas.value,
 
+                    variantes_json:
+
+                        JSON.stringify(
+
+                            form.value.variantes_json
+
+                            ||
+
+                            {
+
+                                atributo: '',
+
+                                opciones: []
+
+                            }
+
+                        ),
+
                     xin:
                         seguridad.xin,
 
@@ -834,7 +855,7 @@ async function guardar() {
             )
 
         /* =========================================
-           🔥 RESPONSE COMPLETO
+            🔥 RESPONSE COMPLETO
         ========================================= */
 
         emit(

@@ -19,7 +19,7 @@
 
                 ||
 
-                'https://barsi-img.b-cdn.net/recursos/sg3f.png'
+                'https://barsi-img.b-cdn.net/recursos/logo-regentis.png'
 
                 " class="
                     w-28

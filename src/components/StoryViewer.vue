@@ -33,7 +33,8 @@
             <!-- X -->
             <div class="flex justify-end mt-3">
 
-                <button @click="close" class="w-9 h-9 rounded-full bg-black/50 text-white">
+                <button @click="close"
+                    class="w-9 h-9 rounded-full bg-black/50 text-white flex items-center justify-center">
 
                     <i class="fa fa-times"></i>
 
@@ -48,7 +49,7 @@
 
         <!-- 🔥 LEFT -->
         <button v-if="index > 0" @click="prev"
-            class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 text-white">
+            class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 text-white flex items-center justify-center">
 
             <i class="fa fa-chevron-left"></i>
 
@@ -56,9 +57,50 @@
 
         <!-- 🔥 RIGHT -->
         <button v-if="index < imagenes.length - 1" @click="next"
-            class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 text-white">
+            class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 text-white flex items-center justify-center">
 
             <i class="fa fa-chevron-right"></i>
+
+        </button>
+
+        <!-- 🔥 BOTÓN FLOTANTE DESCARGAR (ROJO) -->
+        <button v-if="imagenes[index]" @click="descargarImagenActual" class="
+            fixed
+
+            bottom-24
+            right-6
+
+            z-[9999]
+
+            w-20
+            h-20
+
+            rounded-full
+
+            bg-[#EF4444]
+
+            flex
+            items-center
+            justify-center
+
+            shadow-[0_8px_25px_rgba(239,68,68,.45)]
+
+            active:scale-95
+
+            transition
+            cursor-pointer
+        " title="Descargar imagen">
+
+            <i class="
+                fa
+                fa-download
+
+                text-white
+            " style="
+                font-size: 40px;
+                line-height: 1;
+            ">
+            </i>
 
         </button>
 
@@ -169,6 +211,48 @@ function close() {
         'update:modelValue',
         false
     )
+
+}
+
+/* =========================================
+🔥 DESCARGAR IMAGEN ACTUAL
+========================================= */
+async function descargarImagenActual() {
+
+    const url = props.imagenes[index.value]
+
+    if (!url) return
+
+    try {
+
+        const response = await fetch(url)
+
+        const blob = await response.blob()
+
+        const blobUrl = URL.createObjectURL(blob)
+
+        const a = document.createElement('a')
+
+        a.href = blobUrl
+
+        a.download = `story_img_${Date.now()}.jpg`
+
+        document.body.appendChild(a)
+
+        a.click()
+
+        document.body.removeChild(a)
+
+        URL.revokeObjectURL(blobUrl)
+
+    } catch (e) {
+
+        // Fallback por si hay restricción de CORS al realizar fetch
+        const windowRef = window.open(url, '_blank')
+
+        if (windowRef) windowRef.focus()
+
+    }
 
 }
 

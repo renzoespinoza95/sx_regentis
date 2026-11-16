@@ -13,59 +13,111 @@
         ">
 
         <!-- EMPTY -->
-        <div v-if="!preview" class="
-                text-center
-            ">
+        <!-- EMPTY -->
+        <div v-if="!previews.length" class="
+        text-center
+    ">
 
             <div class="
-                    text-5xl
-                    mb-3
-                ">
+        text-5xl
+        mb-3
+    ">
 
                 🖼️
 
             </div>
 
             <div class="
-                    font-bold
-                    text-gray-700
-                ">
+        font-bold
+        text-gray-700
+    ">
 
-                Subir imagen
+                Subir imágenes
 
             </div>
 
             <div class="
-                    text-sm
-                    text-gray-500
-                    mt-1
-                ">
+        text-sm
+        text-gray-500
+        mt-1
+    ">
 
-                Selecciona 1 imagen
+                Puedes seleccionar varias imágenes
 
             </div>
 
         </div>
 
         <!-- PREVIEW -->
-        <div v-if="preview" class="
-                relative
+        <div v-if="previews.length" class="
+        grid
+        grid-cols-4
+        gap-3
+    ">
+
+            <div v-for="(
+
+img,
+
+    index
+
+        )
+
+        in
+
+        previews" :key="index" class="
+            relative
+        ">
+
+                <img :src="img" class="
+                w-full
+
+                aspect-[3/4]
+
+                object-cover
+
+                rounded-2xl
+
+                border
             ">
 
-            <img :src="preview" class="
-                    w-full
+                <!-- ELIMINAR -->
+                <button class="
+                absolute
 
-                    h-64
+                -top-2
+                -right-2
 
-                    object-cover
+                w-7
+                h-7
 
-                    rounded-3xl
+                rounded-full
+
+                bg-red-500
+
+                text-white
+
+                text-xs
+
+                shadow-lg
+
+                active:scale-90
+            " @click="
+                eliminarPreview(
+                    index
+                )
                 ">
+
+                    ✕
+
+                </button>
+
+            </div>
 
         </div>
 
         <!-- INPUT -->
-        <input ref="fileRef" type="file" accept="image/*" class="hidden" @change="onFile">
+        <input ref="fileRef" type="file" accept="image/*" multiple class="hidden" @change="onFile">
 
         <!-- BUTTONS -->
         <div class="
@@ -92,12 +144,12 @@
                     transition
                 " @click="fileRef?.click()">
 
-                Seleccionar imagen
+                Seleccionar imágenes
 
             </button>
 
             <!-- UPLOAD -->
-            <button v-if="preview" :disabled="subiendo" class="
+            <button v-if="previews.length" :disabled="subiendo" class="
                     flex-1
 
                     h-[52px]
@@ -126,7 +178,7 @@
 
                         :
 
-                        'Subir imagen'
+                        'Subir imagenes'
 
                 }}
 
@@ -164,6 +216,18 @@ import AppLoader
 
 import GsapToast
     from '../../../../../components/layout/GsapToast.vue'
+import { useUsuario } from '../../../../../services/usuarioService.js'
+
+/* =========================================
+🔥 VARIABLES DE ENTORNO BUNNY CDN
+========================================= */
+const BUNNY_ZONE = import.meta.env.VITE_PUBLIC_BUNNY_STORAGE_ZONE
+const BUNNY_KEY = import.meta.env.VITE_PUBLIC_BUNNY_STORAGE_ACCESSKEY
+const BUNNY_HOST = import.meta.env.VITE_PUBLIC_BUNNY_STORAGE_HOST
+const BUNNY_CDN_BASE = import.meta.env.VITE_PUBLIC_BUNNY_CDN_BASE
+
+// 👈 EXTRAER LA FUNCIÓN
+const { getNegIdTienda } = useUsuario()
 
 const props =
     defineProps({
@@ -175,11 +239,11 @@ const props =
 const fileRef =
     ref(null)
 
-const file =
-    ref(null)
+const files =
+    ref([])
 
-const preview =
-    ref('')
+const previews =
+    ref([])
 
 const subiendo =
     ref(false)
@@ -200,204 +264,170 @@ const emit =
 /* =========================================
 🔥 FILE
 ========================================= */
-
 function onFile(e) {
 
-    const f =
-        e.target.files?.[0]
+    const lista =
 
-    if (!f) {
+        Array.from(
+
+            e.target.files || []
+
+        )
+
+    if (
+
+        !lista.length
+
+    ) {
+
         return
-    }
-
-    file.value = f
-
-    preview.value =
-        URL.createObjectURL(f)
-
-}
-
-/* =========================================
-🔥 SUBIR
-========================================= */
-
-async function subirImagen() {
-
-    try {
-
-        if (!file.value) {
-            return
-        }
-
-        subiendo.value = true
-        loading.value = true
-
-        /* =========================================
-           🔥 FORM DATA
-        ========================================= */
-
-        const fd =
-            new FormData()
-
-        /* =========================================
-           🔥 REDUCIR
-        ========================================= */
-
-        const archivoReducido =
-
-            await reducirImagen(
-                file.value
-            )
-
-        fd.append(
-
-            'file',
-
-            archivoReducido
-
-        )
-
-        /* =========================================
-           🔥 TK
-        ========================================= */
-
-        const res =
-            await axios.post(
-
-                `${import.meta.env.VITE_PUBLIC_URL_FLASK}/tk_guardar_img`,
-
-                fd,
-
-                {
-
-                    headers: {
-
-                        'Content-Type':
-                            'multipart/form-data'
-
-                    }
-
-                }
-
-            )
-
-        const jobId =
-            res.data?.job_id
-
-        if (!jobId) {
-
-            throw new Error(
-                'No job_id'
-            )
-
-        }
-
-        /* =========================================
-           🔥 POLLING
-        ========================================= */
-
-        pollingJob(
-            jobId
-        )
-
-    } catch (e) {
-
-        console.error(e)
-
-        subiendo.value = false
-
-        loading.value = false
 
     }
 
-}
+    files.value.push(
 
-/* =========================================
-🔥 POLLING
-========================================= */
-
-function pollingJob(jobId) {
-
-    const interval = setInterval(
-
-        async () => {
-
-            try {
-
-                const r =
-                    await axios.get(
-
-                        `${import.meta.env.VITE_PUBLIC_URL_FLASK}/jobs/result`,
-
-                        {
-
-                            params: {
-
-                                job_id:
-                                    jobId
-
-                            }
-
-                        }
-
-                    )
-
-                /* =========================================
-                   🔥 FINISHED
-                ========================================= */
-
-                if (
-
-                    r.data?.status === 'finished'
-
-                ) {
-
-                    clearInterval(
-                        interval
-                    )
-
-                    const bunnyUrl =
-
-                        r.data
-                            ?.result
-                            ?.url
-
-                    if (!bunnyUrl) {
-
-                        subiendo.value = false
-
-                        loading.value = false
-
-                        return
-
-                    }
-
-                    await guardarImagenProducto(
-                        bunnyUrl
-                    )
-
-                }
-
-            } catch (e) {
-
-                console.error(e)
-
-                clearInterval(
-                    interval
-                )
-
-                subiendo.value = false
-
-                loading.value = false
-
-            }
-
-        },
-
-        2000
+        ...lista
 
     )
 
+    previews.value.push(
+
+        ...lista.map(
+
+            x =>
+
+                URL.createObjectURL(
+
+                    x
+
+                )
+
+        )
+
+    )
+
+    if (
+
+        fileRef.value
+
+    ) {
+
+        fileRef.value.value = ''
+
+    }
+
+}
+
+function eliminarPreview(index) {
+
+    URL.revokeObjectURL(
+
+        previews.value[index]
+
+    )
+
+    previews.value.splice(
+
+        index,
+
+        1
+
+    )
+
+    files.value.splice(
+
+        index,
+
+        1
+
+    )
+
+}
+
+/* =========================================
+🔥 SUBIR IMÁGENES A BUNNY (REEMPLAZO DIRECTO)
+========================================= */
+async function subirImagen() {
+    try {
+        if (!files.value.length) return;
+
+        subiendo.value = true;
+        loading.value = true;
+
+        // 1. Obtener neg_id dinámico de la tienda activa (o desde el producto como fallback)
+        const rawNegId = getNegIdTienda() || props.producto?.neg_id || 0;
+        const folderName = String(rawNegId).padStart(4, '0');
+
+        console.log('📁 Carpeta destino Bunny CDN:', folderName); // Para verificar en consola
+
+        // 2. Subir cada imagen procesada al Storage de Bunny
+        for (const archivoOriginal of files.value) {
+            const archivoReducido = await reducirImagen(archivoOriginal);
+
+            // Generar nombre único
+            const hashUnico = Math.random().toString(36).substring(2, 10);
+            const fileName = `${Date.now()}_${hashUnico}.jpg`;
+
+            const uploadUrl = `https://${BUNNY_HOST}/${BUNNY_ZONE}/${folderName}/${fileName}`;
+
+            // Petición PUT directa al Storage de Bunny CDN
+            await axios.put(uploadUrl, archivoReducido, {
+                headers: {
+                    'AccessKey': BUNNY_KEY,
+                    'Content-Type': 'application/octet-stream'
+                }
+            });
+
+            // 3. Construir la URL pública y guardarla en MariaDB
+            const urlPublicaCDN = `${BUNNY_CDN_BASE}/${folderName}/${fileName}`;
+            await guardarImagenProducto(urlPublicaCDN);
+        }
+
+        // Limpiar el estado visual
+        previews.value.forEach(x => URL.revokeObjectURL(x));
+        previews.value = [];
+        files.value = [];
+
+        if (fileRef.value) fileRef.value.value = '';
+
+        toastRef.value?.show({
+            text: 'Imágenes subidas a Bunny CDN correctamente ✨',
+            type: 'success'
+        });
+
+    } catch (e) {
+        console.error("Error al subir a Bunny CDN:", e);
+        toastRef.value?.show({
+            text: 'Ocurrió un error al subir la imagen ❌',
+            type: 'error'
+        });
+    } finally {
+        loading.value = false;
+        subiendo.value = false;
+    }
+}
+
+/* =========================================
+🔥 VERIFICAR Y CREAR DIRECTORIO EN BUNNY
+========================================= */
+async function asegurarDirectorioBunny(folderName) {
+    // La barra final '/' indica a Bunny que es un directorio
+    const dirUrl = `https://${BUNNY_HOST}/${BUNNY_ZONE}/${folderName}/`;
+
+    try {
+        await axios.get(dirUrl, {
+            headers: { AccessKey: BUNNY_KEY }
+        });
+    } catch (error) {
+        // Si devuelve 404, el directorio no existe; lo creamos
+        if (error.response && error.response.status === 404) {
+            await axios.put(dirUrl, null, {
+                headers: { AccessKey: BUNNY_KEY }
+            });
+        } else {
+            throw error;
+        }
+    }
 }
 
 /* =========================================
@@ -408,260 +438,136 @@ async function reducirImagen(fileOriginal) {
 
     return new Promise((resolve, reject) => {
 
-        const img =
-            new Image()
-
-        const reader =
-            new FileReader()
+        const img = new Image()
+        const reader = new FileReader()
 
         reader.onload = e => {
-
-            img.src =
-                e.target.result
-
+            img.src = e.target.result
         }
 
-        reader.onerror =
-            reject
+        reader.onerror = reject
 
         img.onload = () => {
 
             /* =========================================
-               🔥 SIZE
+               🔥 SIZE (Actualizado a 1200px)
             ========================================= */
 
-            const maxWidth =
-                600
+            const maxWidth = 1200; // Antes 800
 
-            let width =
-                img.width
-
-            let height =
-                img.height
+            let width = img.width
+            let height = img.height
 
             if (width > maxWidth) {
-
-                height =
-
-                    height
-                    *
-                    (
-                        maxWidth
-                        / width
-                    )
-
-                width =
-                    maxWidth
-
+                height = height * (maxWidth / width)
+                width = maxWidth
             }
 
             /* =========================================
                🔥 CANVAS
             ========================================= */
 
-            const canvas =
-                document.createElement(
-                    'canvas'
-                )
+            const canvas = document.createElement('canvas')
 
-            canvas.width =
-                width
+            canvas.width = width
+            canvas.height = height
 
-            canvas.height =
-                height
-
-            const ctx =
-                canvas.getContext('2d')
-
-            ctx.drawImage(
-
-                img,
-
-                0,
-                0,
-
-                width,
-                height
-
-            )
+            const ctx = canvas.getContext('2d')
+            ctx.drawImage(img, 0, 0, width, height)
 
             /* =========================================
-               🔥 JPG 70%
+               🔥 JPG 90% (Actualizado a 0.9)
             ========================================= */
 
             canvas.toBlob(
-
                 blob => {
-
                     if (!blob) {
-
                         reject()
-
                         return
-
                     }
 
-                    const nuevoFile =
-                        new File(
-
-                            [
-
-                                blob
-
-                            ],
-
-                            'producto.jpg',
-
-                            {
-
-                                type:
-                                    'image/jpeg'
-
-                            }
-
-                        )
-
-                    resolve(
-                        nuevoFile
+                    const nuevoFile = new File(
+                        [blob],
+                        'producto.jpg',
+                        { type: 'image/jpeg' }
                     )
 
+                    resolve(nuevoFile)
                 },
-
                 'image/jpeg',
-
-                0.7
-
+                0.9 // Antes 0.7
             )
-
         }
 
-        img.onerror =
-            reject
-
-        reader.readAsDataURL(
-            fileOriginal
-        )
-
+        img.onerror = reject
+        reader.readAsDataURL(fileOriginal)
     })
-
 }
 
 /* =========================================
 🔥 GUARDAR PRODUCTO
 ========================================= */
-
 async function guardarImagenProducto(url) {
 
-    try {
+    const seguridad =
 
-        const seguridad =
-            firma()
+        firma()
 
-        const r =
-            await axios.post(
+    const r =
 
-                '/M4LT/guardarImagenProducto',
+        await axios.post(
 
-                {
+            '/M4LT/guardarImagenProducto',
 
-                    product_id:
-                        props.producto.product_id,
+            {
 
-                    url_imagen:
-                        url,
+                product_id:
 
-                    xin:
-                        seguridad.xin,
+                    props.producto.product_id,
 
-                    yuan:
-                        seguridad.yuan
+                url_imagen:
 
-                }
+                    url,
 
-            )
+                xin:
 
-        /* =========================================
-    🔥 NUEVA IMAGEN
-    ========================================= */
+                    seguridad.xin,
 
-        const nuevaImagen =
-            r.data
+                yuan:
 
-        if (
+                    seguridad.yuan
 
-            nuevaImagen
-                ?.img
+            }
 
-        ) {
+        )
 
-            /* =========================================
-               🔥 PRIMERA
-            ========================================= */
+    const nuevaImagen =
 
+        r.data
 
-            emit(
+    if (
 
-                'uploaded',
+        nuevaImagen?.img
 
-                {
+    ) {
 
-                    product_id:
-                        props.producto.product_id,
+        emit(
 
-                    imagen:
-                        nuevaImagen
+            'uploaded',
 
-                }
+            {
 
-            )
+                product_id:
 
-        }
+                    props.producto.product_id,
 
-        toastRef.value?.show({
+                imagen:
 
-            text:
-                'Imagen cargada exitosamente ✨',
+                    nuevaImagen
 
-            type:
-                'success'
+            }
 
-        })
-
-        /* =========================================
-🔥 LIMPIAR
-========================================= */
-
-        preview.value = ''
-
-        file.value = null
-
-        if (fileRef.value) {
-
-            fileRef.value.value = ''
-
-        }
-
-        subiendo.value = false
-
-        loading.value = false
-
-    } catch (e) {
-
-        console.error(e)
-
-        toastRef.value?.show({
-
-            text:
-                'Error al guardar imagen',
-
-            type:
-                'error'
-
-        })
-
-        subiendo.value = false
-
-        loading.value = false
+        )
 
     }
 

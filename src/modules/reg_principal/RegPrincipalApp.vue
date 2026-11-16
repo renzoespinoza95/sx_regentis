@@ -1,6 +1,6 @@
 <template>
 
-  <div class="min-h-screen" :style="fondoStyle">
+  <div class="min-h-screen pt-20" :style="fondoStyle">
 
     <!-- NAVBAR -->
     <RegHeader />

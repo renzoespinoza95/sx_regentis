@@ -24,7 +24,7 @@
         <!-- LOGO -->
         <div class="logo-header">
 
-          <img src="/logo-final02.png" class="logo-img w-48 h-auto" alt="Logo" />
+          <img src="https://barsi-img.b-cdn.net/recursos/logo-regentis.png" class="logo-img w-48 h-auto" alt="Logo" />
 
         </div>
 
@@ -87,11 +87,11 @@
           ||
           !usuIdValido
           " :class="{
-    'opacity-50 cursor-not-allowed':
-      !usuarioExiste
-      ||
-      !usuIdValido
-  }" @click="login">
+            'opacity-50 cursor-not-allowed':
+              !usuarioExiste
+              ||
+              !usuIdValido
+          }" @click="login">
 
           <span v-if="!loading">
 

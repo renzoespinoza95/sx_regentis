@@ -3,7 +3,8 @@
     <div class="bg-gray-50 rounded-md px-3 py-2 text-sm flex items-center gap-3">
 
         <!-- 🔥 IMAGEN -->
-        <img src="https://picsum.photos/50" class="w-8 h-8 rounded object-cover" />
+        <img :src="item.img || 'https://barsi-img.b-cdn.net/recursos/6qz5.png'"
+            class="w-8 h-8 rounded object-cover bg-gray-100" />
 
         <!-- 🔥 CONTENIDO -->
         <div class="flex-1 flex items-center gap-2">
